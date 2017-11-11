@@ -59,7 +59,18 @@
     (cons '+        +)
     (cons '-        -)
     (cons '*        *)
-    (cons '/        /))
+    (cons '/        /)
+    (cons '=        =)
+    )
+  )
+
+(define (mini-defenv expr env)
+  (let ((fh (car expr)) (fb (cadr expr)))
+    (if (pair? fh)
+      (cons (cons (car fh) (make-func (cdr fh) fb '())) env)
+      (cons (cons fh (mini-eval fb env)) env)
+      )
+    )
   )
 
 (define (repl)
@@ -74,22 +85,8 @@
             (not (null? expr))
             (eq? (car expr) 'define))
        (begin
-         (if (pair? (cadr expr))
-           (set! glenv (extend-env ;original form
-                         (list (car (cadr expr)))
-                         (list (make-func
-                                 (list 'lambda
-                                       (cdr (cadr expr))
-                                       (caddr expr)) glenv))
-                         glenv)
-                         )
-           (set! glenv (extend-env ;short form
-                         (list (cadr expr))
-                         (list (mini-eval (caddr expr) glenv))
-                         glenv)))
-         (repl)
-         )
-       )
+         (set! glenv (mini-defenv (cdr expr) glenv))
+         (repl)))
       (else
         (let ((v (mini-eval expr glenv)))
           (if (not (void? v)) (print v))
@@ -100,10 +97,9 @@
 
 (define lookup-symbol
   (lambda (s env)
-    (let ((pr (assoc s env)))
-      (if (eq? pr #f)
-        (error "unbound symbol: " s)
-        (cdr pr)))))
+    (cond ((assoc s env) => cdr)
+          ((assoc s glenv) => cdr)
+          (else (error "unbound symbol: " s)))))
 
 (define (self-eval? expr)
   (not (list? expr)))
@@ -123,7 +119,7 @@
            (cadr expr) env)
        caddr
        cadddr)
-     expr)))
+     expr) env))
 
 (define mini-apply
   (lambda (func args)
@@ -144,7 +140,7 @@
         ((self-eval? expr)
          expr)
         ((lambda? expr)
-         (make-func expr env))
+         (make-func (cadr expr) (caddr expr) env))
         ((quote? expr)
          (cadr expr))
         ((if? expr)
@@ -167,9 +163,7 @@
         ))
 
 (define make-func
-  (lambda (expr env)
-    (if (= (length expr) 3)
-      (list 'mini-lambda (cadr expr) (caddr expr) env)
-      (print "Invalid Lambda Form"))))
+  (lambda (args body env)
+      (list 'mini-lambda args body env)))
 
 (repl)
