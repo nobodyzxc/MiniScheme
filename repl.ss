@@ -19,6 +19,11 @@
     )
   )
 
+(define (elt-println ls)
+  (if (not (null? ls))
+    (begin (println (car ls))
+           (elt-println (cdr ls)))))
+
 (define error
   (lambda args
     (if (not (null? args))
@@ -64,28 +69,50 @@
     )
   )
 
-(define (mini-defenv expr env)
+;(define (mini-defenv expr env)
+;  (let ((fh (car expr)) (fb (cadr expr)))
+;    (if (pair? fh)
+;      (cons (cons (car fh) (make-func (cdr fh) fb '())) env)
+;      (cons (cons fh (mini-eval fb env)) env)
+;      )
+;    )
+;  )
+
+(define (mini-def expr)
   (let ((fh (car expr)) (fb (cadr expr)))
     (if (pair? fh)
-      (cons (cons (car fh) (make-func (cdr fh) fb '())) env)
-      (cons (cons fh (mini-eval fb env)) env)
+      (cons (car fh) (make-func (cdr fh) fb '()))
+      (cons fh (mini-eval fb glenv))
       )
     )
   )
+
+(define (def-sym expr)
+  (let ((head (cadr expr)))
+    (if (pair? head)
+      (car head)
+      head)))
+
+(define (if-apply? sym expr)
+  (and (pair? expr)
+    (not (null? expr))
+    (eq? (car expr) sym)))
 
 (define (repl)
   (print "MiniEval> ")
   (let ((expr (read)))
     (cond
-      ((and (pair? expr)
-            (not (null? expr))
-            (eq? (car expr) 'exit))
-       'exit)
-      ((and (pair? expr)
-            (not (null? expr))
-            (eq? (car expr) 'define))
+      ((if-apply? 'exit expr) 'exit)
+      ((eq? 'env expr)
+       (begin (elt-println glenv) (repl)))
+      ((if-apply? 'define expr)
        (begin
-         (set! glenv (mini-defenv (cdr expr) glenv))
+         (let
+           ((pre-def (assoc (def-sym expr) glenv))
+            (new-def (mini-def (cdr expr))))
+           (if pre-def
+             (set-cdr! pre-def (cdr new-def))
+             (set! glenv (cons new-def glenv))))
          (repl)))
       (else
         (let ((v (mini-eval expr glenv)))

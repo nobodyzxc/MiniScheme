@@ -4,7 +4,7 @@ count = 0
 text = []
 buff = ""
 for t in sys.stdin:
-    t = t.strip()
+    t = ' ' + t.strip()
     if t and t[0] == '#':
         continue
     for i , v in enumerate(t):
@@ -18,14 +18,13 @@ for t in sys.stdin:
         if count == 0:
             text.append(buff)
             buff = ""
-
-quota = False
+in_str = False
 for i , l in enumerate(text):
     token = [] ; buff = ""
     for t in l:
         if t == '"':
-            quota = not quota
-        if not quota and t in ('(' , ' ' , ')'):
+            in_str = not in_str
+        if not in_str and t in ('(' , ' ' , ')'):
             if buff:
                 token.append(buff)
                 buff = ""
@@ -34,3 +33,4 @@ for i , l in enumerate(text):
         else:
             buff += t
     text[i] = token
+print(text)
