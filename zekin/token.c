@@ -7,6 +7,21 @@
 FILE *stream;
 char ss[300];
 
+token new_token(char *p , token next){
+    token new_tok = (token)malloc(sizeof(token_t));
+    new_tok->p = p;
+    new_tok->next = next;
+    return new_tok;
+}
+
+void free_token(token tok){
+    token pre = tok;
+    while(tok){
+        pre = tok , tok = tok->next;
+        free(pre->p) , free(pre);
+    }
+}
+
 char *input(){
     char *p;
     printf("... ");
@@ -38,29 +53,30 @@ char *tokstr(char *p){
     return p;
 }
 
-token newToken(char *p , token next){
-    token new_token = (token)malloc(sizeof(token_t));
-    new_token->p = p;
-    new_token->next = next;
-    return new_token;
-}
-
 void add_token(char *p , token *plast){
-    token new_token = newToken(p , NULL);
+    token new_tok = new_token(p , NULL);
     if(*plast)
-        (*plast)->next = new_token , (*plast) = new_token;
+        (*plast)->next = new_tok , (*plast) = new_tok;
     else
-        (*plast) = new_token;
+        (*plast) = new_tok;
 }
 
 char *add_quote(char *p , token *plast){
+    if(*p != '\'')
+        printf("unmatched quote %s\n" , p) , exit(0);
+    else
+        p += 1;
     while(*p == ' ') p++;
-    while(*p == '\'') p++;
-    if(*p == '('){
+    if(*p == '(' || *p == '\''){
         add_token(strdup("(") , plast);
         add_token(strdup("quote") , plast);
-        p = parse_list(p , &((*plast)->next));
-        while((*plast)->next) (*plast) = (*plast)->next;
+        if(*p == '('){
+            p = parse_list(p , &((*plast)->next));
+            while((*plast)->next) (*plast) = (*plast)->next;
+        }
+        else{
+            p = add_quote(p , plast);
+        }
         add_token(strdup(")") , plast);
         return p;
     }
@@ -73,29 +89,29 @@ char *add_quote(char *p , token *plast){
 }
 
 char *parse_atom(char *p , token *phead){
-    //stuff
-    token head = (*phead);
-    puts("                       \033[1A>>> parse Atom");
+    token_t head;
+    token last = &head;
     while(is_blank(*p)) p++;
-    if(*p == ')') puts("unmatched parse") , exit(1);
+    if(*p == ')') puts("unmatched paren") , exit(1);
     if(*p == '\'')
-        p = add_quote(p , phead);
+        p = add_quote(p , &last);
     else{
         char *d = tokstr(p);
-        add_token(strndup(p , d - p) , phead);
+        add_token(strndup(p , d - p) , &last);
         p = d;
     }
-    (*phead) = head;
+    (*phead) = head.next;
     return p;
 }
 
 char *parse_list(char *p , token *phead){
-    puts("                       \033[1A>>> parse List");
+    if(*p != '(')
+        printf("unmatched list %s\n" , p) , exit(0);
     p += 1;
     int paren = 1;
     char *str = NULL;
     token head , tail;
-    head = tail = newToken("(" , NULL);
+    head = tail = new_token("(" , NULL);
     while(paren){
         if(!*p){
             if(paren) p = input();
@@ -118,7 +134,8 @@ char *parse_list(char *p , token *phead){
                 break;
             case '"':
                 if(str)
-                    add_token(strndup(str , p - str) , &tail) , str = NULL;
+                    add_token(strndup(str , p - str + 1) , &tail)
+                        , str = NULL;
                 else
                     str = p;
                 break;
@@ -145,14 +162,6 @@ void print_token(token tok){
         printf(" %s %s" , tok->p , tok->next ? ", " : " \n");
 }
 
-void free_token(token tok){
-    token pre = tok;
-    while(tok){
-        pre = tok , tok = tok->next;
-        free(pre->p) , free(pre);
-    }
-}
-
 void tokenize(FILE *strm){
     size_t s = 100;
     char *p;
@@ -172,7 +181,5 @@ void tokenize(FILE *strm){
         }
         printf("> ");
     }
-    // bug on
-    // (1 2 3) x
-    // (1 2 3)
+    puts("");
 }
