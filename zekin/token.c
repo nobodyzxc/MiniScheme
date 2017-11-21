@@ -18,7 +18,8 @@ void free_token(token tok){
     token pre = tok;
     while(tok){
         pre = tok , tok = tok->next;
-        free(pre->p) , free(pre);
+        free(pre->p);
+        free(pre);
     }
 }
 
@@ -45,10 +46,19 @@ bool is_paren(char p){
         if(p == c[i]) return true;
     return false;
 }
+
+bool is_comnt(char p){
+    char *c = ";#";
+    for(int i = 0 ; i < strlen(c) ; i++)
+        if(p == c[i]) return true;
+    return false;
+}
+
 char *tokstr(char *p){
     while(*p
             && !(is_blank(*p))
-            && !(is_paren(*p)))
+            && !(is_paren(*p))
+            && !(is_comnt(*p)))
         p++;
     return p;
 }
@@ -70,13 +80,10 @@ char *add_quote(char *p , token *plast){
     if(*p == '(' || *p == '\''){
         add_token(strdup("(") , plast);
         add_token(strdup("quote") , plast);
-        if(*p == '('){
-            p = parse_list(p , &((*plast)->next));
-            while((*plast)->next) (*plast) = (*plast)->next;
-        }
-        else{
+        if(*p == '(')
+            p = parse_list(p , &((*plast)->next) , plast);
+        else
             p = add_quote(p , plast);
-        }
         add_token(strdup(")") , plast);
         return p;
     }
@@ -88,42 +95,43 @@ char *add_quote(char *p , token *plast){
     }
 }
 
-char *parse_atom(char *p , token *phead){
-    token_t head;
+char *parse_atom(char *p , token *phead , token *ptail){
+    token_t head = {.p = NULL , .next = NULL};
     token last = &head;
     while(is_blank(*p)) p++;
     if(*p == ')') puts("unmatched paren") , exit(1);
     if(*p == '\'')
         p = add_quote(p , &last);
+    else if(*p == ';' || *p == '#')
+        while(*p) p++;
     else{
         char *d = tokstr(p);
         add_token(strndup(p , d - p) , &last);
         p = d;
     }
     (*phead) = head.next;
+    if(ptail) (*ptail) = last;
     return p;
 }
 
-char *parse_list(char *p , token *phead){
+char *parse_list(char *p , token *phead , token *ptail){
     if(*p != '(')
         printf("unmatched list %s\n" , p) , exit(0);
     p += 1;
     int paren = 1;
     char *str = NULL;
     token head , tail;
-    head = tail = new_token("(" , NULL);
+    head = tail = new_token(strdup("(") , NULL); //must use strdup
     while(paren){
-        if(!*p){
+        while(!*p){
             if(paren) p = input();
             else break;
         }
         switch(*p){
             case '#':
             case ';':
-                if(!str)
-                    return strchr(p , '\0');
-                else
-                    break;
+                if(!str) p = strchr(p , '\0') - 1;
+                break;
             case '(':
             case ')':
                 if(!str){
@@ -144,7 +152,7 @@ char *parse_list(char *p , token *phead){
                     p = add_quote(p , &tail) - 1;
                 break;
             default:
-                if(!str && *p != ' '){
+                if(!str && !is_blank(*p)){
                     char *d = tokstr(p);
                     add_token(strndup(p , d - p) , &tail);
                     p = d - 1;
@@ -154,6 +162,7 @@ char *parse_list(char *p , token *phead){
         p += 1;
     }
     (*phead) = head;
+    if(ptail) (*ptail) = tail;
     return p;
 }
 
@@ -174,10 +183,10 @@ void tokenize(FILE *strm){
         while(*p){
             token head = NULL , t;
             while(*p && *p == ' ') p += 1;
-            if(*p == '(') p = parse_list(p , &head);
-            else p = parse_atom(p , &head);
+            if(*p == '(') p = parse_list(p , &head , NULL);
+            else p = parse_atom(p , &head , NULL);
             print_token(head);
-            //free_token(head);
+            free_token(head);
         }
         printf("> ");
     }

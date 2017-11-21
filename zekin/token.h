@@ -8,6 +8,6 @@ struct token_tag{
     token next;
 };
 
-char *parse_list(char *p , token *phead);
+char *parse_list(char *p , token *phead , token *ptail);
 void tokenize(FILE *);
 #endif
