@@ -1,0 +1,4 @@
+if [ ! -f main.exe ]; then
+    make
+fi
+rlwrap ./main.exe $*

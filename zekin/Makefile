@@ -2,13 +2,19 @@ CXX = gcc
 FLAG = -g
 MAIN     = main
 _MAIN    = ${MAIN:%=%.c}
-SRCS     = type token
+SRCS     = type token proc parse eval mem
 _SRCS    = ${SRCS:%=%.c}
 _OBJS    = ${SRCS:%=%.o}
-TARGET   = zekin
+TARGET   = main
 
 all:
 	$(CXX) $(FLAG) -c $(_SRCS)
 	$(CXX) $(FLAG) -o $(TARGET) $(_MAIN) $(_OBJS)
+c:
+	gcc $(FLAG) -c $(_SRCS)
+	#gcc $(FLAG) -o $(TARGET) $(_MAIN) $(_OBJS)
+cc:
+	g++ $(FLAG) -w -c type.c token.c proc.c #parse.c eval.c mem.c
+	#g++ $(FLAG) -o $(TARGET) $(_MAIN) $(_OBJS)
 clean:
 	rm -rf *.o *.exe

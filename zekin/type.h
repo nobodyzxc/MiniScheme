@@ -1,11 +1,20 @@
 #ifndef TYPE_H
 #define TYPE_H
 #include <stdio.h>
+#include <string.h>
 #include <stdbool.h>
-typedef enum types{
+#define EQS(a , b) (!strcmp(a , b))
+#define is_num(obj) \
+    ((obj)->type == INTEGER || (obj)->type == DECIMAL)
+#define num_of(obj) \
+    ((obj)->type == INTEGER ? (obj)->integer : (obj)->decimal)
+#define xstr(s) str(s)
+#define str(s)  #s
+
+enum types{
     BOOLEAN ,
     INTEGER ,
-    FLOAT ,
+    DECIMAL ,
     CHAR ,
     STRING ,
     SYMBOL ,
@@ -13,51 +22,59 @@ typedef enum types{
     KEYWORD ,
     NIL ,
     PAIR ,
-} type_t;
+};
 
+typedef enum types type_t;
 typedef struct obj_tag *Obj;
 typedef struct obj_tag obj_t;
 typedef const  obj_t   *kObj;
-
 typedef struct pair_tag *Pair;
 typedef struct pair_tag pair_t;
+typedef struct env_tag *Env;
+typedef struct proc_tag *Proc;
+typedef struct proc_tag proc_t;
 
-struct obj_tag{
-    type_t type;
-    union{
-        bool  boolean;
-        int   integer;
-        float floating;
-        char  character;
-        char  *symbol;
-        char  *string;
-        Pair  pair;
-    };
-};
+extern char type_name[10][10];
+/* char type_name[10][10] = {
+    "boolean"   ,
+    "integer"   ,
+    "floating"  ,
+    "character" ,
+    "string"    ,
+    "symbol"    ,
+    "procedure" ,
+    "keyword"   ,
+    "nil"       ,
+    "pair"      ,
+};                          */
 
 struct pair_tag{
     Obj  car;
     Pair cdr;
 };
 
-void print_bool (Obj);
-void print_int  (Obj);
-void print_float(Obj);
-void print_char (Obj);
-void print_str  (Obj);
-void print_sym  (Obj);
-void print_proc (Obj);
-void print_keyw (Obj);
-void print_nil  (Obj);
-void print_pair (Obj);
+struct proc_tag{
+    char *name;
+    Obj (*func)(Pair);
+};
 
-Obj  cons(kObj head , kObj body);
+struct obj_tag{
+    type_t type;
+    union{
+        bool         boolean;
+        long long    integer;
+        double       decimal;
+        char         character;
+        char         *symbol;
+        char         *string;
+        Pair         pair;
+        proc_t       proc;
+    };
+};
 
-Obj  new_obj(type_t type);
-
-Pair new_pair(kObj car  , Pair cdr);
-
-void print_obj(kObj obj);
+struct env_tag{
+    Env env;
+};
 
 extern kObj nil;
 
