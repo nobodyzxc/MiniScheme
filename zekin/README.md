@@ -1,8 +1,8 @@
 # zekin
 
-my scheme inerpreter start from zero
+Zekin is my scheme inerpreter started from zero.
 
-What I should provide ?
+What should I provide ?
 
 S expression parser (done)
 list structure      (done)
