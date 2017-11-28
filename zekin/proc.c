@@ -7,7 +7,7 @@
 #define make_proc_obj(op_name , op) \
 obj_t proc_ ## op_name = { \
     .type = PROCEDURE , \
-    { .proc = { xstr(op) , apply_ ## op_name } } , \
+    { .proc = { (char*)xstr(op) , apply_ ## op_name } } , \
 }
 #else
 #define make_proc_obj(op_name , op) \
@@ -141,18 +141,7 @@ Obj apply_length(Pair pr){
     rtn->integer = length(pr->car->pair);
     return rtn;
 }
-#ifdef __cplusplus //or __GNUG__
-obj_t proc_length = {
-    .type = PROCEDURE ,
-    { .proc = { "length" , apply_length } } ,
-};
-#else
-obj_t proc_length = {
-    .type = PROCEDURE  ,
-    .proc.name = "length" ,
-    .proc.func = apply_length   ,
-};
-#endif
+make_proc_obj(length , length);
 
 Obj apply_car(Pair pr){
     if(pr->car->type == PAIR)
@@ -163,18 +152,7 @@ Obj apply_car(Pair pr){
         printf("cannot apply car on ") , print_obj(pr->car);
     return NULL;
 }
-#ifdef __cplusplus //or __GNUG__
-obj_t proc_car = {
-    .type = PROCEDURE ,
-    { .proc = { "car" , apply_car } } ,
-};
-#else
-obj_t proc_car = {
-    .type = PROCEDURE  ,
-    .proc.name = "car" ,
-    .proc.func = apply_car   ,
-};
-#endif
+make_proc_obj(car , car);
 
 Obj apply_cdr(Pair pr){
     if(pr->car->type == PAIR){
@@ -189,19 +167,7 @@ Obj apply_cdr(Pair pr){
     return NULL;
 
 }
-
-#ifdef __cplusplus //or __GNUG__
-obj_t proc_cdr = {
-    .type = PROCEDURE ,
-    { .proc = { "cdr" , apply_cdr } } ,
-};
-#else
-obj_t proc_cdr = {
-    .type = PROCEDURE  ,
-    .proc.name = "cdr" ,
-    .proc.func = apply_cdr   ,
-};
-#endif
+make_proc_obj(cdr , cdr);
 
 Obj apply_cons(Pair pr){
     if(!pr || !pr->cdr)
@@ -216,18 +182,7 @@ Obj apply_cons(Pair pr){
     obj->pair = new_pair(head , body_pr);
     return obj;
 }
-#ifdef __cplusplus //or __GNUG__
-obj_t proc_cons = {
-    .type = PROCEDURE ,
-    { .proc = { "cons" , apply_cons } } ,
-};
-#else
-obj_t proc_cons = {
-    .type = PROCEDURE  ,
-    .proc.name = "cons" ,
-    .proc.func = apply_cons   ,
-};
-#endif
+make_proc_obj(cons , cons);
 
 bool cmp_num(Obj a , Obj b){
     if(a->type == b->type)
@@ -249,18 +204,7 @@ Obj apply_eqnum(Pair pr){
             rtn->boolean &= cmp_num(head , pr->car) , pr = pr->cdr;
     return rtn;
 }
-#ifdef __cplusplus //or __GNUG__
-obj_t proc_eqnum = {
-    .type = PROCEDURE ,
-    { .proc = { "eqnum" , apply_eqnum } } ,
-};
-#else
-obj_t proc_eqnum = {
-    .type = PROCEDURE  ,
-    .proc.name = "=" ,
-    .proc.func = apply_eqnum   ,
-};
-#endif
+make_proc_obj(eqnum , =);
 
 #define arith(pr , rtn , op , base) \
     Obj rtn = new_obj(INTEGER); \
@@ -375,5 +319,3 @@ bool is_keyw(char *s){
             return true;
     return false;
 }
-
-

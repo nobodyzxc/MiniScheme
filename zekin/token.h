@@ -13,7 +13,7 @@ struct token_tag{
 };
 
 char *tokenize(char * , Token *);
-char *input(char *prompt , bool lock);
+char *input(const char *prompt , bool lock);
 
 extern FILE *stream;
 

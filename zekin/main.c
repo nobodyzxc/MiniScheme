@@ -9,6 +9,7 @@
 #include "eval.h"
 #include "mem.h"
 
+#define free_obj(a) free_obj(a , __FILE__ ":" xstr(__LINE__))
 FILE *stream;
 
 Env gl_env;
@@ -44,7 +45,10 @@ int main(int args , char *argv[]){
         if(v) print_obj(v) , printf("\n");
         free_token(tok);
         free_obj(val);
-        if(val != v && v) free_obj(v);
+        if(val != v && v)// && v->type != PROCEDURE)
+            free_obj(v) , puts("free v");
+        else
+            printf("val = v ? %d , v ? %d , non\n" , val == v , v);
         tok = NULL , val = NULL , v = NULL;
     }
     stdin_printf("\n");

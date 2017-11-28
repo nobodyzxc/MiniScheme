@@ -8,7 +8,7 @@ char ss[300];
 
 char *tok_list(char *p , Token *phead , Token *ptail);
 
-char *input(char *prompt , bool lock){ //getline?
+char *input(const char *prompt , bool lock){ //getline?
     stdin_printf(prompt);
     if(lock)
         while(!fgets(ss , sizeof(ss) , stream));
@@ -110,7 +110,7 @@ char *tok_string(char *p , Token *phead , Token *ptail){
                 buf[l] = read_char();
             if(buf[l] == '"' && buf[l - 1] != '\\'){
                 add_token(strndup(buf , l + 1) , ptail);
-                p = input((char*)"" , true);
+                p = input("" , true);
                 break;
             }
             if(buf[l] == '\n') stdin_printf("... ") , l -= 1;
@@ -151,7 +151,7 @@ char *tok_list(char *p , Token *phead , Token *ptail){
     head = tail = new_token(strdup("(") , NULL); //must use strdup
     while(1){
         if(!*p)
-            p = input((char*)"... " , true);
+            p = input("... " , true);
         while(is_blank(*p)) p++;
         switch(*p){
             case ';':
@@ -192,7 +192,7 @@ void print_token(Token tok){
 }
 
 char *tokenize(char *p , Token *tok){
-    if(!*p) p = input((char*)"> " , false);
+    if(!*p) p = input("> " , false);
     Token head = NULL , t;
     while(*p && is_blank(*p)) p += 1;
     if(*p == '(') p = tok_list(p , &head , NULL);

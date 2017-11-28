@@ -1,62 +1,9 @@
-# MiniScheme
-MiniScheme by Racket R5RS(current ver)
+# MiniScheme (developing)
 
-What I should provide to replace Racket(R5RS)?
+To learn how to make a interpreter , I start the project.
 
-=> naive interp for repl.ss , it should contain
+The project contains two parts.
 
-S expression parser
-list structure
+1. MiniScheme runs on Racket R5RS (not ready yet)
 
-let , define , cons , car , cdr ... and so on.
-
-the naive interp would be python , c and so on.
-
-the function/special form I may need to impl.
-```
-; special forms
-define
-if
-else
-cond
-lambda
-and
-begin
-let
-set!
-
-; boolean funcs
-eq?
-list?
-pair?
-null?
-symbol?
-procedure?
-=
-not
-
-; structure funcs
-car
-cdr
-cons
-list
-
-; special funcs
-apply
-; read (like eval)
-
-; io funcs
-read
-display
-flush-output
-```
-The functions I needn't impl but should extend in other scheme file.
-```
-map
-cadr
-caddr
-cadddr
-assoc
-newline
-length
-```
+2. Provide a simple environment like Racket writing in C or Cpp to run the MiniScheme (not ready yet)

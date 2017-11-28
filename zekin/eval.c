@@ -1,11 +1,13 @@
 #include "eval.h"
 #include "mem.h"
 #define new_pair(a , b) new_pair(a , b , __FILE__ ":" xstr(__LINE__))
+#define free_pair(a)    free_pair(a , __FILE__ ":" xstr(__LINE__))
+#define free_obj(a) free_obj(a , __FILE__ ":" xstr(__LINE__))
 
 Obj lookup_symbol(char *p , Env env){
     Obj func = lookup_buildins(p);
-    if(func) return func;
-    printf("<symbol:%s> not found" , p);
+    if(func) return copy_obj(func); //think twice
+    printf("<symbol:%s> not found\n" , p);
     return NULL;
 }
 
@@ -29,15 +31,15 @@ Obj eval(Obj val , Env env){
     if(val->type == SYMBOL)
         return lookup_symbol(val->symbol , env);
     else if(val->type != PAIR)
-        return val;
+        return copy_obj(val); //think twice
     else if(val->type == PAIR){
         Obj car = val->pair->car;
         Pair cdr = val->pair->cdr;
         if(car->type != SYMBOL){
-            printf("cannot apply : ") , print_obj(car);
+            printf("cannot apply : ") , print_obj(car) , puts("");
             return NULL;
         }
-        if(is_keyw(car->symbol)){
+        else if(is_keyw(car->symbol)){
             if(EQS(car->symbol , "if")){
                 Obj tf = eval(cdr->car , env); //leak
                 if(tf->type == BOOLEAN
@@ -47,7 +49,7 @@ Obj eval(Obj val , Env env){
                     return eval(cdr->cdr->car , env);
             }
             else if(EQS(car->symbol , "quote")){
-                return cdr->car;
+                return copy_obj(cdr->car); //think twice
             }
             //define
             //lambda?
@@ -60,10 +62,17 @@ Obj eval(Obj val , Env env){
             Pair args = map_eval(cdr , env);
             if(!args) return NULL;
             else{ //for mem leak
-                val = eval(car , env)->proc.func(args);
-                free_pair(args);
+                Obj apply = eval(car , env); //think twice
+                val = apply->proc.func(args);
+                //free_pair_shallow(args);
+                free_pair(args); //think twice
+                free_obj(apply);
                 return val;
             }
+        }
+        else{
+            printf("cannot apply : %s\n" , car->symbol);
+            return NULL;
         }
     }
 }

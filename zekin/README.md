@@ -1,7 +1,63 @@
 # zekin
 
-my scheme inerpreter from zero
+my scheme inerpreter start from zero
 
+What I should provide ?
+
+S expression parser (done)
+list structure      (done)
+environment & closure
+
+the function/special form I may need to implement.
+```
+; special forms
+define
+if
+cond
+else
+lambda
+and
+begin
+let
+set!
+
+; boolean funcs
+eq?
+list?
+pair?
+null?
+symbol?
+procedure?
+=
+not
+
+; structure funcs
+car
+cdr
+cons
+list
+
+; special funcs
+apply
+; read (like eval)
+
+; io funcs
+read
+display
+flush-output
+```
+The functions I needn't impl but should extend in other scheme file.
+```
+map
+cadr
+caddr
+cadddr
+assoc
+newline
+length
+```
+
+CFG to ref:
 ```
 literals:
 <bool>           ::= #t | #f

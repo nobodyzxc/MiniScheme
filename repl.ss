@@ -1,5 +1,5 @@
 #lang r5rs
-
+; not ready yet
 (define (void? e)
   (eq? e (display "")))
 
