@@ -9,10 +9,7 @@
 #include "eval.h"
 #include "mem.h"
 
-#define free_obj(a) free_obj(a , __FILE__ ":" xstr(__LINE__))
 FILE *stream;
-
-Env gl_env;
 
 bool check_shell(char *p){
     while(*p && is_blank(*p)) p++;
@@ -30,6 +27,7 @@ int main(int args , char *argv[]){
     Token tok = NULL;
     bool fist_line = true;
     char *p = NULL;
+    init_buildins();
     while((p && *p) || (p = input("> " , false))){
         if(fist_line){
             fist_line = false;
@@ -41,14 +39,14 @@ int main(int args , char *argv[]){
         if(*p) p = tokenize(p , &tok);
         Obj val = parse(tok);
         Obj v = NULL;
-        v = eval(val , gl_env);
+        v = eval(val , glenv);
         if(v) print_obj(v) , printf("\n");
         free_token(tok);
-        free_obj(val);
-        if(val != v && v)// && v->type != PROCEDURE)
-            free_obj(v) , puts("free v");
-        else
-            printf("val = v ? %d , v ? %d , non\n" , val == v , v);
+        //free_obj(val);
+        if(val != v && v){}// && v->type != PROCEDURE)
+            //free_obj(v);
+        //else
+        //    printf("val = v ? %d , v ? %d , non\n" , val == v , v);
         tok = NULL , val = NULL , v = NULL;
     }
     stdin_printf("\n");

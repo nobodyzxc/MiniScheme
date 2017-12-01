@@ -2,123 +2,216 @@
 #include <stdlib.h>
 #define LEAKFILE ".leak"
 
-#define new_pair(a , b) new_pair(a , b , __FILE__ ":" xstr(__LINE__))
-#define free_pair(a)    free_pair(a , __FILE__ ":" xstr(__LINE__))
-#define free_obj(a) free_obj(a , __FILE__ ":" xstr(__LINE__))
-
 FILE *memchk = NULL;
 
-void *MALLOC(size_t size , const char *loc){
-    if(!memchk) memchk = fopen(LEAKFILE , "w");
-    void *p = malloc(size);
-    fprintf(memchk , "alloc %p %s->%s" ,
-            p , size == sizeof(obj_t) ? "obj" : "par" , loc);
-    return p;
+void *MALLOC(size_t size){
+    return malloc(size);
 }
 
-void *FREE(void *p , const char *t){
-    if(!memchk) memchk = fopen(LEAKFILE , "w");
-    fprintf(memchk , "free %p %s\n" , p , t);
+void *FREE(void *p){
     free(p);
 }
 
-Obj  new_obj(type_t type , const char *loc){
-    Obj obj = (Obj)MALLOC(sizeof(obj_t) , loc);
-    fprintf(memchk , "(%s)\n" , type_name[type]);
-    obj->type = type;
-    return obj;
+Obj new_obj(type_t type){
+    Obj inst = (Obj)MALLOC(sizeof(obj_t));
+    inst->type = type;
+    return inst;
+}
+
+Cons new_cons(kObj car , Cons cdr){
+    Cons inst = (Cons)MALLOC(sizeof(cons_t));
+    inst->car = (Obj)car , inst->cdr = cdr;
+    return inst;
+}
+
+Clos new_clos(Obj expr , Obj env){
+    Clos inst = (Clos)MALLOC(sizeof(clos_t));
+    inst->expr = expr , inst->env = env;
+    return inst;
+}
+
+Expr new_expr(char *name , Obj args , Obj body){
+    Expr inst = (Expr)MALLOC(sizeof(expr_t));
+    inst->name = name , inst->args = args , inst->body = body;
+    return inst;
+}
+
+Env new_env(Obj env){
+    Env inst = (Env)MALLOC(sizeof(env_t));
+    inst->symtab = NULL , inst->parent = env;
+    return inst;
+}
+
+Token new_token(char *p , Token next){
+    Token new_tok = (Token)MALLOC(sizeof(token_t));
+    new_tok->p = p;
+    new_tok->next = next;
+    return new_tok;
+}
+
+Obj new_BOOLEAN(bool v){
+    Obj inst = new_obj(BOOLEAN);
+    inst->boolean = v;
+    return inst;
+}
+
+Obj new_INTEGER(long long v){
+    Obj inst = new_obj(INTEGER);
+    inst->integer = v;
+    return inst;
+}
+
+Obj new_DECIMAL(double v){
+    Obj inst = new_obj(DECIMAL);
+    inst->decimal = v;
+    return inst;
+}
+
+Obj new_CHAR   (char v){
+    Obj inst = new_obj(CHAR);
+    inst->chr = v;
+    return inst;
+}
+
+Obj new_STRING (char *v){
+    Obj inst = new_obj(STRING);
+    inst->str = v;
+    return inst;
+}
+
+Obj new_SYMBOL (char* v){
+    Obj inst = new_obj(SYMBOL);
+    inst->str = v;
+    return inst;
+}
+
+Obj new_PAIR   (Cons kons){
+    Obj inst = new_obj(PAIR);
+    inst->pair = kons;
+    return inst;
+}
+
+Obj new_CLOSURE(Obj expr , Obj env){
+    Obj inst = new_obj(CLOSURE);
+    inst->clos = new_clos(expr , env);
+    return inst;
+}
+
+Obj new_EXPR   (char *name , Obj args , Obj body){
+    Obj inst = new_obj(EXPR);
+    inst->expr = new_expr(name , args , body);
+    return inst;
+}
+
+Obj new_ENV    (Obj env){
+    Obj inst = new_obj(ENV);
+    inst->env = new_env(env);
+    return inst;
+}
+
+Obj new_FUNCTION(char *name , func_ptr fp){
+    Obj inst = new_obj(FUNCTION);
+    inst->proc = (Proc)MALLOC(sizeof(proc_t));
+    inst->proc->name = name;
+    inst->proc->apply = fp;
+    return inst;
+}
+
+Obj new_SYNTAX(char *name , func_ptr fp){
+    Obj inst = new_FUNCTION(name , fp);
+    inst->type = SYNTAX;
+    return inst;
+}
+
+#define side(iter , diff) (diff < 0 ? (iter)->lt : (iter)->rt)
+void add_symbol(Obj sym , Obj val , Obj env_obj){
+    Symtree inst = (Symtree)MALLOC(sizeof(symtree_t));
+    inst->sym = sym , inst->val = val;
+    inst->lt = NULL , inst->rt = NULL;
+    Symtree iter = env_obj->env->symtab;
+    if(!iter) env_obj->env->symtab = inst;
+    else{
+        while(1){
+            int df = strcmp(iter->sym->str , sym->str);
+            if(!df) return; // redef symbol
+            if(side(iter , df))
+                iter = side(iter , df);
+            else{
+                if(df < 0)
+                    iter->lt = inst;
+                else
+                    iter->rt = inst;
+                return;
+            }
+        }
+    }
 }
 
 Obj  copy_obj(Obj obj){
     if(obj->type == NIL)
         return obj;
-    Obj rtn = new_obj(obj->type , "mm:27");
-    (*rtn) = (*obj);
-    if(rtn->type == STRING)
-        rtn->string = strdup(obj->string);
-    else if(rtn->type == SYMBOL
-            || rtn->type == KEYWORD)
-        rtn->symbol = strdup(obj->symbol);
-    else if(rtn->type == PAIR)
-        rtn->pair = copy_pair(obj->pair);
-    return rtn;
+    Obj inst = new_obj(obj->type);
+    (*inst) = (*obj);
+    if(inst->type == STRING)
+        inst->str = strdup(obj->str);
+    else if(inst->type == SYMBOL)
+        inst->str = strdup(obj->str);
+    else if(inst->type == PAIR)
+        inst->pair = copy_cons(obj->pair);
+    return inst;
 }
 
-Pair copy_pair(Pair pr){
-    Pair rtn = new_pair(copy_obj(pr->car) , NULL);
-    Pair it = rtn;
+Cons copy_cons(Cons pr){
+    Cons inst = new_cons(copy_obj(pr->car) , NULL);
+    Cons it = inst;
     pr = pr->cdr;
     while(pr){
-        it->cdr = new_pair(copy_obj(pr->car) , NULL);
+        it->cdr = new_cons(copy_obj(pr->car) , NULL);
         it = it->cdr , pr = pr->cdr;
     }
-    return rtn;
+    return inst;
 }
 
-#undef free_obj
-void free_obj(Obj obj , const char *loc){
+void free_obj(Obj obj){
+    if(!obj) return;
     if(obj->type == NIL)
         return;
     if(obj->type == PAIR)
-        free_pair(obj->pair);
+        free_cons(obj->pair);
     char s[100];
-    sprintf(s , "%s:(pair->%s)" , loc , type_name[obj->type]);
-    FREE(obj , loc);
+    FREE(obj);
 }
-#define free_obj(a) free_obj(a , __FILE__ ":" xstr(__LINE__))
 
-#undef new_pair
-Pair new_pair(kObj car , Pair cdr , const char *loc){
-    Pair pr = (Pair)MALLOC(sizeof(pair_t) , loc);
-    fprintf(memchk , "(non)\n");
-    pr->car = (Obj)car , pr->cdr = cdr;
-    return pr;
-}
-#define new_pair(a , b) new_pair(a , b , __FILE__ ":" xstr(__LINE__))
-
-#undef free_pair
-void free_pair(Pair pr , const char *loc){
+void free_cons(Cons pr){
+    if(!pr) return;
     char s[100];
     while(pr && pr->cdr){
         free_obj(pr->car);
-        Pair fp = pr;
+        Cons fp = pr;
         pr = pr->cdr;
-        sprintf(s , "%s:(pair->%s)" , loc , type_name[pr->car->type]);
-        FREE(fp , s);
+        FREE(fp);
     }
     if(pr->car->type == NIL){
-        sprintf(s , "%s:(pair->%s)" , loc , type_name[pr->car->type]);
-        FREE(pr , s);
+        FREE(pr);
     }
 }
-#define free_pair(a)    free_pair(a , __FILE__ ":" xstr(__LINE__))
 
-void free_pair_shallow(Pair pr){
+void free_cons_shallow(Cons pr){
     while(pr && pr->cdr){
-        Pair fp = pr;
+        Cons fp = pr;
         pr = pr->cdr;
-        FREE(fp , "shallow pr");
+        FREE(fp);
     }
     if(pr->car->type == NIL){
-        FREE(pr , "shallow pr");
+        FREE(pr);
     }
-}
-
-Token new_token(char *p , Token next){
-    if(!memchk) memchk = fopen(LEAKFILE , "w");
-    fprintf(memchk , "alloc %p %s\n" , p , "strdup");
-
-    Token new_tok = (Token)MALLOC(sizeof(token_t) , "tok:0x0\n");
-    new_tok->p = p;
-    new_tok->next = next;
-    return new_tok;
 }
 
 void free_token(Token tok){
     Token pre = tok;
     while(tok){
         pre = tok , tok = tok->next;
-        FREE(pre->p , "toklit");
-        FREE(pre , "tok");
+        FREE(pre->p);
+        FREE(pre);
     }
 }

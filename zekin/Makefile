@@ -2,7 +2,7 @@ CXX = gcc
 FLAG = -g
 MAIN     = main
 _MAIN    = ${MAIN:%=%.c}
-SRCS     = type token proc parse eval mem
+SRCS     = type token proc parse eval mem func syntax
 _SRCS    = ${SRCS:%=%.c}
 _OBJS    = ${SRCS:%=%.o}
 TARGET   = main

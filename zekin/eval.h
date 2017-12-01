@@ -4,6 +4,6 @@
 #include "type.h"
 #include "proc.h"
 #include "token.h"
-Obj eval(Obj val , Env env);
+Obj eval(Obj val , Obj env);
 
 #endif

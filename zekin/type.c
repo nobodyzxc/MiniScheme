@@ -1,37 +1,30 @@
+#include "mem.h"
 #include "type.h"
 
-char type_name[10][10] = {
-    "boolean"   ,
-    "integer"   ,
-    "floating"  ,
-    "character" ,
-    "string"    ,
-    "symbol"    ,
-    "procedure" ,
-    "keyword"   ,
-    "nil"       ,
-    "pair"      ,
+Obj glenv;
+
+char *type_name[] = {
+    "BOOLEAN ",
+    "INTEGER ",
+    "DECIMAL ",
+    "CHAR    ",
+    "STRING  ",
+    "SYMBOL  ",
+    "PAIR    ",
+    "NIL     ",
+    "SYNTAX  ",
+    "FUNCTION",
+    "CLOSURE ",
+    "EXPR    ",
+    "ENV     ",
 };
+
 #ifdef __cplusplus //or __GNUG__
-const pair_t nil_pr = {
-    .car = NULL ,
-    .cdr =  NULL ,
-};
-
-const obj_t nil_t = {
-    .type = NIL ,
-    (Pair)&nil_pr ,
-};
+const cons_t nil_pr = { .car = NULL , .cdr =  NULL , };
+const obj_t nil_t = { .type = NIL , (Cons)&nil_pr , };
 #else
-const pair_t nil_pr = {
-    .car = NULL ,
-    .cdr = NULL ,
-};
-
-const obj_t nil_t = {
-    .type = NIL ,
-    .pair = (Pair)&nil_pr ,
-};
+const cons_t nil_pr = { .car = NULL , .cdr = NULL , };
+const obj_t nil_t = { .type = NIL , .pair = (Cons)&nil_pr , };
 #endif
 
 kObj nil = &nil_t;
