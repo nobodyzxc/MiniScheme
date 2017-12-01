@@ -1,20 +1,6 @@
 #include "mem.h"
 #include "func.h"
-
-bool is_list(Cons pr){
-    while(pr->cdr)
-        pr = pr->cdr;
-    return pr->car->type == NIL;
-}
-
-int length(Cons pr){
-    int rtn = 0;
-    if(!is_list(pr))
-        error("apply length on pair\n");
-    while(pr->cdr)
-        rtn++ , pr = pr->cdr;
-    return rtn;
-}
+#include "util.h"
 
 Obj cons(kObj head , kObj body){
     Cons body_pr;
@@ -24,90 +10,6 @@ Obj cons(kObj head , kObj body){
         body_pr = body->pair;
 
     return new(PAIR , new_cons(head , body_pr));
-}
-
-void print_type(Obj obj){
-    if(obj->type == PAIR){
-        Obj pr = obj;
-        printf("(");
-        print_type(pr->pair->car);
-        Cons it = pr->pair->cdr;
-        while(it && it->cdr)
-            printf(" ") , print_type(it->car) , it = it->cdr;
-
-        if(it && it->car->type != NIL)
-            printf(" . ");
-        if(it)
-            printf(" ") , print_type(it->car);
-        printf(")");
-
-    }
-    else{
-        printf("%s" , type_name[obj->type]);
-    }
-}
-
-void print_pair(kObj pr){
-    print_cons(pr->pair);
-}
-
-void print_cons(Cons kons){
-    printf("(");
-    if(kons->car->type != NIL)
-        print_obj(kons->car);
-    kons = kons->cdr;
-    while(kons && kons->cdr)
-        printf(" ") , print_obj(kons->car) , kons = kons->cdr;
-    if(kons && kons->car->type != NIL)
-        printf(" . ") , print_obj(kons->car);
-    printf(")");
-}
-
-void print_obj(kObj obj){
-    if(!obj) printf("<void>");
-    else{
-        switch(obj->type){
-            case BOOLEAN :
-                printf("%s" , obj->boolean ? "#t" : "#f");
-                break;
-            case INTEGER :
-                printf("%lld" , obj->integer);
-                break;
-            case DECIMAL :
-                printf("%llf" , obj->decimal);
-                break;
-            case CHAR    :
-                printf("#\\%c" , obj->chr);
-                break;
-            case STRING  :
-                printf("\"%s\"" , obj->str);
-                break;
-            case SYMBOL  :
-                printf("'%s" , obj->str);
-                break;
-            case PAIR    :
-                print_pair(obj);
-                break;
-            case NIL     :
-                printf("nil");
-                break;
-            case SYNTAX  :
-                printf("<syntax:%s>" , obj->proc->name);
-                break;
-            case FUNCTION:
-                printf("<procedure:%s>" , obj->proc->name);
-                break;
-            case CLOSURE :
-                printf("<closure>");
-                break;
-            case EXPR    :
-                printf("<expression>");
-                break;
-            case ENV     :
-                printf("<environment>");
-                break;
-        }
-    }
 }
 
 Obj apply_listq(Cons pr , Obj env){
@@ -168,13 +70,6 @@ Obj apply_cons(Cons pr , Obj env){
     return new(PAIR , new_cons(head , body_pr));
 }
 
-bool cmp_num(Obj a , Obj b){
-    if(a->type == b->type)
-        return num_of(a) == num_of(b);
-    else
-        return (double)num_of(a) == (double)num_of(b);
-}
-
 Obj apply_eqnum(Cons pr , Obj env){
     if(length(pr) < 2)
         error("apply = on list whose length < 2\n");
@@ -186,6 +81,11 @@ Obj apply_eqnum(Cons pr , Obj env){
         else
             rtn->boolean &= cmp_num(head , pr->car) , pr = pr->cdr;
     return rtn;
+}
+
+Obj apply_not(Cons pr , Obj env){
+    //assert airth == 1
+    return new(BOOLEAN , is_false(pr->car));
 }
 
 #define arith(pr , rtn , op , base) \
@@ -232,13 +132,13 @@ Obj apply_eqnum(Cons pr , Obj env){
         } \
     }
 
-#define make_arith(op_name , op , base) \
+#define apply_opr(op_name , op , base) \
     Obj apply_ ## op_name(Cons pr , Obj env){ \
         arith(pr , rtn , op , base); \
         return rtn; \
     }
 
-make_arith(add , + , 0);
-make_arith(mul , * , 1);
-make_arith(sub , - , 0);
-make_arith(div , / , 1);
+apply_opr(add , + , 0);
+apply_opr(mul , * , 1);
+apply_opr(sub , - , 0);
+apply_opr(div , / , 1);

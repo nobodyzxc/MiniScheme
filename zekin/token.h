@@ -16,13 +16,6 @@ char *tokenize(char * , Token *);
 char *input(const char *prompt , bool lock);
 
 extern FILE *stream;
-
-#define error(fmt , ...) \
-    printf(fmt , ##__VA_ARGS__) , exit(1)
-
-#define stdin_printf(fmt , ...) \
-    printf(stream == stdin ? fmt : "" , ##__VA_ARGS__)
-
 bool is_blank(char p);
 void print_token(Token tok);
 #endif

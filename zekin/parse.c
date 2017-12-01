@@ -1,7 +1,8 @@
 #include <string.h>
 #include <ctype.h>
-#include "parse.h"
 #include "mem.h"
+#include "util.h"
+#include "parse.h"
 
 bool parse_bool(char *v){
     return *(v + 1) == 't' ? true : false;

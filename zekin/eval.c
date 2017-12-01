@@ -1,5 +1,6 @@
-#include "eval.h"
 #include "mem.h"
+#include "eval.h"
+#include "util.h"
 #include "func.h"
 
 Obj map_eval(Cons ls , Obj env){
@@ -22,18 +23,36 @@ Obj eval(Obj val , Obj env){
     if(val->type == SYMBOL)
         return lookup_symbol(val->str , env);
     else if(val->type == PAIR){ //bug here
-        Obj car = val->pair->car;
-        Cons cdr = val->pair->cdr;
-        if(car->type == SYMBOL){
-            if(!is_list(cdr)) error("cannot apply procedure on pair");
-            Obj pcr = lookup_symbol(car->str , env);
+        Obj app = val->pair->car;
+        Cons args = val->pair->cdr;
+        if(app->type == SYMBOL){
+            if(!is_list(args)) error("cannot apply procedure on pair");
+            Obj pcr = lookup_symbol(app->str , env);
             if(!pcr) return NULL;
-            if(pcr->type == SYNTAX)
-                return pcr->proc->apply(cdr , env);
-            else if(pcr->type == FUNCTION)
-                return pcr->proc->apply(map_eval(cdr , env)->pair , env);
+            if(pcr->type == SYNTAX){
+                return pcr->proc->apply(args , env);
+            }
+            else if(pcr->type == FUNCTION){
+                Obj args_obj = map_eval(args , env); //consider cost of space
+                return args_obj ? pcr->proc->apply(args_obj->pair , env) : NULL;
+            }
+            else if(pcr->type == CLOSURE){
+                //zip env and eval expr
+                Clos pcr_clos = pcr->clos;
+                Expr pcr_expr = pcr_clos->expr->expr;
+                if(length(args) != length(pcr_expr->args->pair))
+                    //if(length(args) != length(pcr->clos->expr->expr->args->pair))
+                    error("unmatched args");
+                Obj zipped_env = new(ENV , pcr->clos->env); // if add current env ?
+                Cons param = pcr->clos->expr->expr->args->pair;
+                while(param && !is_nil(param->car)){
+                    add_symbol(param->car , args->car , zipped_env);
+                    param = param->cdr , args = args->cdr;
+                }
+                return eval(pcr->clos->expr->expr->body , zipped_env);
+            }
         }
-        printf("cannot apply : ") , print_obj(car) , puts("");
+        printf("cannot apply : ") , print_obj(app) , puts("");
         return NULL;
     }
     else return val;

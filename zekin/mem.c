@@ -133,7 +133,10 @@ void add_symbol(Obj sym , Obj val , Obj env_obj){
     else{
         while(1){
             int df = strcmp(iter->sym->str , sym->str);
-            if(!df) return; // redef symbol
+            if(!df){ // redef symbol
+                iter->val = val;
+                return;
+            }
             if(side(iter , df))
                 iter = side(iter , df);
             else{
@@ -148,17 +151,38 @@ void add_symbol(Obj sym , Obj val , Obj env_obj){
 }
 
 Obj  copy_obj(Obj obj){
+    puts("copy_obj not ready yet");
+    exit(0);
     if(obj->type == NIL)
         return obj;
-    Obj inst = new_obj(obj->type);
-    (*inst) = (*obj);
-    if(inst->type == STRING)
-        inst->str = strdup(obj->str);
-    else if(inst->type == SYMBOL)
-        inst->str = strdup(obj->str);
-    else if(inst->type == PAIR)
-        inst->pair = copy_cons(obj->pair);
-    return inst;
+    else if(obj->type == STRING)
+        return new(STRING , strdup(obj->str));
+    else if(obj->type == SYMBOL)
+        return new(SYMBOL , strdup(obj->str));
+    else if(obj->type == PAIR)
+        return new(PAIR , copy_cons(obj->pair));
+    else if(obj->type == SYNTAX)
+        return new(SYNTAX , obj->proc->name , obj->proc->apply);
+    else if(obj->type == FUNCTION)
+        return new(FUNCTION , obj->proc->name , obj->proc->apply);
+    else if(obj->type == CLOSURE)
+        return new(CLOSURE ,
+                copy_obj(obj->clos->expr),
+                copy_obj(obj->clos->env));
+    else if(obj->type == EXPR)
+        return new(EXPR ,
+                strdup(obj->expr->name),
+                copy_obj(obj->expr->args),
+                copy_obj(obj->expr->body));
+    else if(obj->type == ENV)
+        return new(ENV , obj->env->parent);
+    else{
+        // shallow copy can handle
+        // bool , int , dec , chr
+        Obj inst = new_obj(obj->type);
+        (*inst) = (*obj);
+        return inst;
+    }
 }
 
 Cons copy_cons(Cons pr){

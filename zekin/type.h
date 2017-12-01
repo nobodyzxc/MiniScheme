@@ -8,6 +8,11 @@
     ((obj)->type == INTEGER || (obj)->type == DECIMAL)
 #define num_of(obj) \
     ((obj)->type == INTEGER ? (obj)->integer : (obj)->decimal)
+#define is_false(obj) \
+    ((obj)->type == BOOLEAN && (obj)->boolean == false)
+#define is_true(obj) \
+    ((obj)->type == BOOLEAN && (obj)->boolean == true)
+#define is_nil(obj) ((obj)->type == NIL)
 #define xstr(s) str(s)
 #define str(s)  #s
 

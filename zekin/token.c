@@ -1,4 +1,5 @@
 #include "token.h"
+#include "util.h"
 #include "mem.h"
 
 #include <string.h>

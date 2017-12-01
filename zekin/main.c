@@ -2,12 +2,13 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include "mem.h"
 #include "type.h"
-#include "token.h"
-#include "parse.h"
 #include "proc.h"
 #include "eval.h"
-#include "mem.h"
+#include "util.h"
+#include "token.h"
+#include "parse.h"
 
 FILE *stream;
 
@@ -27,6 +28,7 @@ int main(int args , char *argv[]){
     Token tok = NULL;
     bool fist_line = true;
     char *p = NULL;
+    stdin_printf("Welcome to Zekin v1.0 Beta\n");
     init_buildins();
     while((p && *p) || (p = input("> " , false))){
         if(fist_line){
