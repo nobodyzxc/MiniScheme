@@ -25,9 +25,10 @@ Obj eval(Obj val , Obj env){
     else if(val->type == PAIR){ //bug here
         Obj app = val->pair->car;
         Cons args = val->pair->cdr;
-        if(app->type == SYMBOL){
+        if(app->type == SYMBOL || app->type == PAIR){
             if(!is_list(args)) error("cannot apply procedure on pair");
-            Obj pcr = lookup_symbol(app->str , env);
+            Obj pcr = app->type == SYMBOL ?
+                lookup_symbol(app->str , env) : eval(app , env);
             if(!pcr) return NULL;
             if(pcr->type == SYNTAX){
                 return pcr->proc->apply(args , env);
@@ -38,6 +39,9 @@ Obj eval(Obj val , Obj env){
             }
             else if(pcr->type == CLOSURE){
                 //zip env and eval expr
+                Obj args_obj = map_eval(args , env);
+                if(args_obj == NULL) return NULL;
+                args = args_obj->pair;
                 Clos pcr_clos = pcr->clos;
                 Expr pcr_expr = pcr_clos->expr->expr;
                 if(length(args) != length(pcr_expr->args->pair))

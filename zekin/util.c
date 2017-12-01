@@ -95,7 +95,11 @@ void print_obj(kObj obj){
                 printf("<procedure:%s>" , obj->proc->name);
                 break;
             case CLOSURE :
-                printf("<closure>");
+                printf("<closure ");
+                print_obj(obj->clos->expr->expr->args);
+                printf(" . ");
+                print_obj(obj->clos->expr->expr->body);
+                printf(">");
                 break;
             case EXPR    :
                 printf("<expression>");

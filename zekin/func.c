@@ -77,7 +77,7 @@ Obj apply_eqnum(Cons pr , Obj env){
     Obj head = pr->car;
     while(pr->cdr && pr->car->type != NIL)
         if(!is_num(pr->car))
-            error("apply = on non-number obj");
+            print_obj(pr->car) , error("apply = on non-number obj");
         else
             rtn->boolean &= cmp_num(head , pr->car) , pr = pr->cdr;
     return rtn;
