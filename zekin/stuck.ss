@@ -1,5 +1,5 @@
-(define f (lambda (x) (if (= x 0) 0 (+ x (f (- x 1))))))
-(f 100)
-(f 1000)
-(f 3000)
-; (f 4000) segmentation fault
+(define f (lambda (i acc) (if (= i 0) acc (f (- i 1) (+ acc i)))))
+(f 10 1)
+;(f 10 1) ; segmentation fault , tlc-opt
+;(f 10000 1) ; segmentation fault , tlc-opt
+;(f 49000 1) ; segmentation fault , tlc-opt

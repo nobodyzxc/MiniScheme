@@ -5,31 +5,37 @@ Zekin is my scheme inerpreter started from zero.
 What should I provide ?
 
 S expression parser (done)
+
 list structure      (done)
+
 environment & closure
+
+garbage collection
 
 the function/special form I may need to implement.
 ```
 ; special forms
-define
-if
-cond
-else
-lambda
-and
-begin
-let
-set!
+v quote
+v define
+v if
+  cond
+  else
+v lambda
+v and
+v or
+  begin
+  let
+  set!
 
 ; boolean funcs
-eq?
-list?
-pair?
-null?
-symbol?
-procedure?
-=
-not
+  eq?
+  list?
+  pair?
+  null?
+  symbol?
+  procedure?
+v =
+v not
 
 ; structure funcs
 car

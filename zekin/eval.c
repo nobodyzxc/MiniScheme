@@ -3,19 +3,17 @@
 #include "util.h"
 #include "func.h"
 
-Obj map_eval(Cons ls , Obj env){
+Obj map_eval(Obj ls , Obj env){
     cons_t head;
     Cons last = &head;
-    for(Cons it = ls ; it ; it = it->cdr){
-        Obj obj = eval(it->car , env);
-        if(!obj){
-            free_cons(head.cdr);
-            return NULL;
-        }
-        last->cdr = new_cons(obj , NULL);
-        last = last->cdr;
+    for( ; !is_nil(ls) ; ls = ls->pair->cdr){
+        Obj obj = eval(ls->pair->car , env);
+        if(!obj) return NULL; // let gc do free
+        last->cdr = new(PAIR , new_cons(obj , NULL));
+        last = last->cdr->pair;
     }
-    return new(PAIR , head.cdr);
+    last->cdr = (Obj)nil;
+    return head.cdr;
 }
 
 Obj eval(Obj val , Obj env){
@@ -24,7 +22,7 @@ Obj eval(Obj val , Obj env){
         return lookup_symbol(val->str , env);
     else if(val->type == PAIR){ //bug here
         Obj app = val->pair->car;
-        Cons args = val->pair->cdr;
+        Obj args = val->pair->cdr;
         if(app->type == SYMBOL || app->type == PAIR){
             if(!is_list(args)) error("cannot apply procedure on pair");
             Obj pcr = app->type == SYMBOL ?
@@ -34,26 +32,24 @@ Obj eval(Obj val , Obj env){
                 return pcr->proc->apply(args , env);
             }
             else if(pcr->type == FUNCTION){
-                Obj args_obj = map_eval(args , env); //consider cost of space
-                return args_obj ? pcr->proc->apply(args_obj->pair , env) : NULL;
+                args = map_eval(args , env); //consider cost of space
+                return args ? pcr->proc->apply(args , env) : NULL;
             }
             else if(pcr->type == CLOSURE){
                 //zip env and eval expr
-                Obj args_obj = map_eval(args , env);
-                if(args_obj == NULL) return NULL;
-                args = args_obj->pair;
+                args = map_eval(args , env);
+                if(args == NULL) return NULL;
                 Clos pcr_clos = pcr->clos;
-                Expr pcr_expr = pcr_clos->expr->expr;
-                if(length(args) != length(pcr_expr->args->pair))
-                    //if(length(args) != length(pcr->clos->expr->expr->args->pair))
+                Expr pcr_expr = pcr_clos->exp->expr;
+                if(length(args) != length(pcr_expr->args))
                     error("unmatched args");
                 Obj zipped_env = new(ENV , pcr->clos->env); // if add current env ?
-                Cons param = pcr->clos->expr->expr->args->pair;
-                while(param && !is_nil(param->car)){
-                    add_symbol(param->car , args->car , zipped_env);
-                    param = param->cdr , args = args->cdr;
+                Obj param = pcr->clos->exp->expr->args;
+                while(param && !is_nil(param)){
+                    add_symbol(param->pair->car , args->pair->car , zipped_env);
+                    param = param->pair->cdr , args = args->pair->cdr;
                 }
-                return eval(pcr->clos->expr->expr->body , zipped_env);
+                return eval(pcr->clos->exp->expr->body , zipped_env);
             }
         }
         printf("cannot apply : ") , print_obj(app) , puts("");

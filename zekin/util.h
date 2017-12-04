@@ -1,9 +1,9 @@
 #ifndef UTIL_H
 #define UTIL_H
 #include "type.h"
-bool is_list(Cons pr);
+bool is_list(Obj pr);
 bool cmp_num(Obj a , Obj b);
-int length(Cons pr);
+int  length(Obj pr);
 void print_type(Obj obj);
 void print_pair(kObj pr);
 void print_cons(Cons kons);

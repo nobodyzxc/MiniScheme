@@ -18,15 +18,15 @@ Obj new_obj(type_t type){
     return inst;
 }
 
-Cons new_cons(kObj car , Cons cdr){
+Cons new_cons(kObj car , kObj cdr){
     Cons inst = (Cons)MALLOC(sizeof(cons_t));
-    inst->car = (Obj)car , inst->cdr = cdr;
+    inst->car = (Obj)car , inst->cdr = (Obj)cdr;
     return inst;
 }
 
 Clos new_clos(Obj expr , Obj env){
     Clos inst = (Clos)MALLOC(sizeof(clos_t));
-    inst->expr = expr , inst->env = env;
+    inst->exp = expr , inst->env = env;
     return inst;
 }
 
@@ -150,86 +150,86 @@ void add_symbol(Obj sym , Obj val , Obj env_obj){
     }
 }
 
-Obj  copy_obj(Obj obj){
-    puts("copy_obj not ready yet");
-    exit(0);
-    if(obj->type == NIL)
-        return obj;
-    else if(obj->type == STRING)
-        return new(STRING , strdup(obj->str));
-    else if(obj->type == SYMBOL)
-        return new(SYMBOL , strdup(obj->str));
-    else if(obj->type == PAIR)
-        return new(PAIR , copy_cons(obj->pair));
-    else if(obj->type == SYNTAX)
-        return new(SYNTAX , obj->proc->name , obj->proc->apply);
-    else if(obj->type == FUNCTION)
-        return new(FUNCTION , obj->proc->name , obj->proc->apply);
-    else if(obj->type == CLOSURE)
-        return new(CLOSURE ,
-                copy_obj(obj->clos->expr),
-                copy_obj(obj->clos->env));
-    else if(obj->type == EXPR)
-        return new(EXPR ,
-                strdup(obj->expr->name),
-                copy_obj(obj->expr->args),
-                copy_obj(obj->expr->body));
-    else if(obj->type == ENV)
-        return new(ENV , obj->env->parent);
-    else{
-        // shallow copy can handle
-        // bool , int , dec , chr
-        Obj inst = new_obj(obj->type);
-        (*inst) = (*obj);
-        return inst;
-    }
-}
+//Obj  copy_obj(Obj obj){
+//    puts("copy_obj not ready yet");
+//    // evil
+//    exit(0);
+//    if(obj->type == NIL)
+//        return obj;
+//    else if(obj->type == STRING)
+//        return new(STRING , strdup(obj->str));
+//    else if(obj->type == SYMBOL)
+//        return new(SYMBOL , strdup(obj->str));
+//    else if(obj->type == PAIR)
+//        return new(PAIR , copy_cons(obj->pair));
+//    else if(obj->type == SYNTAX)
+//        return new(SYNTAX , obj->proc->name , obj->proc->apply);
+//    else if(obj->type == FUNCTION)
+//        return new(FUNCTION , obj->proc->name , obj->proc->apply);
+//    else if(obj->type == CLOSURE)
+//        return new(CLOSURE ,
+//                copy_obj(obj->clos->exp),
+//                copy_obj(obj->clos->env));
+//    else if(obj->type == EXPR)
+//        return new(EXPR ,
+//                strdup(obj->expr->name),
+//                copy_obj(obj->expr->args),
+//                copy_obj(obj->expr->body));
+//    else if(obj->type == ENV)
+//        return new(ENV , obj->env->parent);
+//    else{
+//        // shallow copy can handle
+//        // bool , int , dec , chr
+//        Obj inst = new_obj(obj->type);
+//        (*inst) = (*obj);
+//        return inst;
+//    }
+//}
 
-Cons copy_cons(Cons pr){
-    Cons inst = new_cons(copy_obj(pr->car) , NULL);
-    Cons it = inst;
-    pr = pr->cdr;
-    while(pr){
-        it->cdr = new_cons(copy_obj(pr->car) , NULL);
-        it = it->cdr , pr = pr->cdr;
-    }
-    return inst;
-}
+//Cons copy_cons(Cons pr){
+//    Cons inst = new_cons(pr->car , NULL);
+//    Cons it = inst;
+//    pr = pr->cdr;
+//    while(pr){
+//        it->cdr = new_cons(pr->car , NULL);
+//        it = it->cdr , pr = pr->cdr;
+//    }
+//    return inst;
+//}
 
 void free_obj(Obj obj){
     if(!obj) return;
     if(obj->type == NIL)
         return;
-    if(obj->type == PAIR)
-        free_cons(obj->pair);
-    char s[100];
+    //if(obj->type == PAIR)
+    //    free_cons(obj->pair);
     FREE(obj);
 }
 
-void free_cons(Cons pr){
-    if(!pr) return;
-    char s[100];
-    while(pr && pr->cdr){
-        free_obj(pr->car);
-        Cons fp = pr;
-        pr = pr->cdr;
-        FREE(fp);
-    }
-    if(pr->car->type == NIL){
-        FREE(pr);
-    }
-}
-
-void free_cons_shallow(Cons pr){
-    while(pr && pr->cdr){
-        Cons fp = pr;
-        pr = pr->cdr;
-        FREE(fp);
-    }
-    if(pr->car->type == NIL){
-        FREE(pr);
-    }
-}
+//void free_cons(Cons pr){
+//    if(!pr) return;
+//    char s[100];
+//    while(pr && pr->cdr){
+//        free_obj(pr->car);
+//        Cons fp = pr;
+//        pr = pr->cdr;
+//        FREE(fp);
+//    }
+//    if(pr->car->type == NIL){
+//        FREE(pr);
+//    }
+//}
+//
+//void free_cons_shallow(Cons pr){
+//    while(pr && pr->cdr){
+//        Cons fp = pr;
+//        pr = pr->cdr;
+//        FREE(fp);
+//    }
+//    if(pr->car->type == NIL){
+//        FREE(pr);
+//    }
+//}
 
 void free_token(Token tok){
     Token pre = tok;

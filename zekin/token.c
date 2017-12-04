@@ -70,12 +70,23 @@ void add_token(char *p , Token *plast){
         (*plast) = new_tok;
 }
 
+char *get_non_blank(char *p){
+    while(*p && is_blank(*p)) p++;
+    while(!*p){
+        p = input("... " , true);
+        while(*p && is_blank(*p)) p++;
+    }
+    return p;
+}
+
 char *add_quote(char *p , Token *plast){
     if(*p != '\'')
         error("unmatched quote %s\n" , p);
     else
         p += 1;
-    while(*p == ' ') p++;
+
+    p = get_non_blank(p);
+
     add_token(strdup("(") , plast);
     add_token(strdup("quote") , plast);
     if(*p == '(' || *p == '\''){
@@ -123,8 +134,8 @@ char *tok_string(char *p , Token *phead , Token *ptail){
 
 char *tok_atom(char *p , Token *phead , Token *ptail){
     token_t head = {.p = NULL , .next = NULL};
-    Token last = &head;
-    while(is_blank(*p)) p++;
+    Token last = &head; // here
+    while(*p && is_blank(*p)) p++;
     if(is_paren_r(*p))
         error("unmatched paren while parsing atom\n");
     if(*p == '\'')
@@ -151,9 +162,7 @@ char *tok_list(char *p , Token *phead , Token *ptail){
     Token head , tail;
     head = tail = new_token(strdup("(") , NULL); //must use strdup
     while(1){
-        if(!*p)
-            p = input("... " , true);
-        while(is_blank(*p)) p++;
+        p = get_non_blank(p);
         switch(*p){
             case ';':
                 p = strchr(p , '\0') - 1;

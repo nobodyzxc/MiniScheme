@@ -52,7 +52,7 @@ Obj parse_listlit(Token tok){
 }
 
 Token parse_list(Token tok , Obj *rtn){
-    int last_elt_cnt = 0;
+    bool last_elt = false;
     if(!EQS(tok->p , "("))
         error("parse %s as (" , tok->p);
     cons_t head;
@@ -60,29 +60,32 @@ Token parse_list(Token tok , Obj *rtn){
     tok = tok->next;
     while(tok && !EQS(tok->p , ")")){
         if(EQS(tok->p , ".")){
-            if(last_elt_cnt)
+            if(last_elt)
                 error("unexpected token: .\n");
-            last_elt_cnt = 1;
+            last_elt = true;
             tok = tok->next;
             continue;
         }
-        if(last_elt_cnt) last_elt_cnt++;
-        if(last_elt_cnt > 2) error("expected one element after .\n");
+        if(last_elt) last_elt++;
+        if(last_elt > 2) error("expected one element after .\n");
         if(EQS(tok->p , "(")){
             Obj sublist;
             tok = parse_list(tok , &sublist);
-            pr->cdr = new_cons(sublist , NULL);
+            pr->cdr = new(PAIR , new_cons(sublist , NULL));
         }
         else{
-            pr->cdr = new_cons(parse_listlit(tok) , NULL);
+            if(last_elt)
+                pr->cdr = parse_listlit(tok);
+            else
+                pr->cdr = new(PAIR , new_cons(parse_listlit(tok) , NULL));
             tok = tok->next;
         }
-        pr = pr->cdr;
+        pr = pr->cdr->pair;
     }
     if(!tok) error("miss )");
     else tok = tok->next;
-    if(!last_elt_cnt)
-        pr->cdr = new_cons(nil , NULL);
-    (*rtn) = new(PAIR , head.cdr);
+    if(!last_elt)
+        pr->cdr = (Obj)nil;
+    (*rtn) = head.cdr;
     return tok;
 }

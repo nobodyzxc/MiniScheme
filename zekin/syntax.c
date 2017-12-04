@@ -2,63 +2,74 @@
 #include "eval.h"
 #include "util.h"
 
-Obj apply_if(Cons args , Obj env){
+Obj apply_if(Obj args , Obj env){
     //consider arity == 1
-    Cons cdr = args->cdr;
-    Obj predict = eval(args->car , env);
-    if(predict->type == BOOLEAN
-            && predict->boolean == false)
-        return eval(cdr->cdr->car , env);
-    else
-        return eval(cdr->car , env);
+    //assert arity <= 3
+    Obj cdr = args->pair->cdr;
+    Obj predict = eval(args->pair->car , env);
+    if(!is_false(predict))
+        return eval(cdr->pair->car , env);
+    else if (length(args) > 2)
+        return eval(cdr->pair->cdr->pair->car , env);
+    return NULL;
 }
 
-Obj apply_quote(Cons args , Obj env){
-    return args->car;
+Obj apply_quote(Obj args , Obj env){
+    //assert arity == 1
+    return args->pair->car;
 }
 
-Obj apply_and(Cons args , Obj env){
+Obj apply_and(Obj args , Obj env){
     if(!args) return new(BOOLEAN , true);
     while(1){
-        if(is_false(args->car))
-            return new(BOOLEAN , false);
-        if(is_nil(args->cdr->car))
+        if(is_nil(args))
             break;
-        args = args->cdr;
+        if(is_false(args->pair->car))
+            return new(BOOLEAN , false);
+        args = args->pair->cdr;
         if(!args) error("apply add on pair");
     }
-    return args->car;
+    return args->pair->car;
 }
 
-Obj apply_or(Cons args , Obj env){
+Obj apply_or(Obj args , Obj env){
     if(!args) return new(BOOLEAN , false);
     while(1){
-        if(!is_false(args->car))
-            return args->car;
-        if(is_nil(args->cdr->car))
+        if(is_nil(args))
             break;
-        args = args->cdr;
+        if(!is_false(args->pair->car))
+            return args->pair->car;
+        args = args->pair->cdr;
         if(!args) error("apply add on pair");
     }
     return new(BOOLEAN , false);
 }
 
-Obj apply_define(Cons args , Obj env){
+Obj apply_define(Obj args , Obj env){
     //assert args == 2
-    if(args->car->type == SYMBOL){
-        add_symbol(args->car , eval(args->cdr->car , env) , env);
+    if(args->pair->car->type == SYMBOL){
+        add_symbol(args->pair->car , eval(args->pair->cdr->pair->car , env) , env);
         return NULL;
     }
-    else if(args->car->type == PAIR){
-        puts("not ready yet");
+    else if(args->pair->car->type == PAIR){
+        if(is_list(args->pair->car)){
+            puts("not ready yet"); // short form
+        }
+        else{ // var args
+        }
         return NULL;
     }
     else{
-        error("bad syntax");
+        printf("def with a non-sym/non-pair obj : ");
+        print_obj(args->pair->car) , puts("");
+        return NULL;
     }
 }
 
-Obj apply_lambda(Cons args , Obj env){
+Obj apply_lambda(Obj args , Obj env){
     // assert arity = 2
-    return new(CLOSURE , new(EXPR , NULL , args->car , args->cdr->car) , env);
+    return new(CLOSURE ,
+            new(EXPR , NULL ,
+                args->pair->car ,
+                args->pair->cdr->pair->car) , env);
 }

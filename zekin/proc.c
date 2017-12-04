@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include "util.h"
 #include "proc.h"
 #include "mem.h"
 #include "func.h"
@@ -16,6 +17,7 @@ Obj lookup_symbol(char *v , Obj env_obj){
         env_obj = env_obj->env->parent;
     }
     printf("cannot find symbol %s\n" , v);
+    error("");
     return NULL;
 }
 

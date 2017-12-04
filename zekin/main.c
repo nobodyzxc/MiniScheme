@@ -40,24 +40,12 @@ int main(int args , char *argv[]){
         }
         if(*p) p = tokenize(p , &tok);
         Obj val = parse(tok);
-        Obj v = NULL;
-        v = eval(val , glenv);
+        Obj v = eval(val , glenv);
         if(v) print_obj(v) , printf("\n");
         free_token(tok);
-        //free_obj(val);
-        if(val != v && v){}// && v->type != PROCEDURE)
-            //free_obj(v);
-        //else
-        //    printf("val = v ? %d , v ? %d , non\n" , val == v , v);
         tok = NULL , val = NULL , v = NULL;
     }
     stdin_printf("\n");
     fclose(memchk);
     return 0;
 }
-
-/*   Obj obj = new_obj(INTEGER);
- *   obj->integer = 1;
- *   obj = cons(obj , cons(obj , nil));
-     print_obj(obj) , puts("");
-     print_obj(nil) , puts(""); */

@@ -1,10 +1,10 @@
 #include "util.h"
 #include <stdlib.h>
 
-bool is_list(Cons pr){
-    while(pr->cdr)
-        pr = pr->cdr;
-    return pr->car->type == NIL;
+bool is_list(Obj pr){
+    while(pr && pr->type == PAIR)
+        pr = pr->pair->cdr;
+    return pr && pr->type == NIL;
 }
 
 bool cmp_num(Obj a , Obj b){
@@ -14,12 +14,12 @@ bool cmp_num(Obj a , Obj b){
         return (double)num_of(a) == (double)num_of(b);
 }
 
-int length(Cons pr){
+int length(Obj pr){
     int rtn = 0;
     if(!is_list(pr))
         error("apply length on pair\n");
-    while(pr->cdr)
-        rtn++ , pr = pr->cdr;
+    while(!is_nil(pr))
+        rtn++ , pr = pr->pair->cdr;
     return rtn;
 }
 
@@ -28,14 +28,14 @@ void print_type(Obj obj){
         Obj pr = obj;
         printf("(");
         print_type(pr->pair->car);
-        Cons it = pr->pair->cdr;
-        while(it && it->cdr)
-            printf(" ") , print_type(it->car) , it = it->cdr;
+        pr = pr->pair->cdr;
+        while(pr && pr->type == PAIR)
+            printf(" ") , print_type(pr->pair->car) , pr = pr->pair->cdr;
 
-        if(it && it->car->type != NIL)
+        if(pr && !is_nil(pr))
             printf(" . ");
-        if(it)
-            printf(" ") , print_type(it->car);
+        if(pr)
+            printf(" ") , print_type(pr);
         printf(")");
 
     }
@@ -45,18 +45,13 @@ void print_type(Obj obj){
 }
 
 void print_pair(kObj pr){
-    print_cons(pr->pair);
-}
-
-void print_cons(Cons kons){
     printf("(");
-    if(kons->car->type != NIL)
-        print_obj(kons->car);
-    kons = kons->cdr;
-    while(kons && kons->cdr)
-        printf(" ") , print_obj(kons->car) , kons = kons->cdr;
-    if(kons && kons->car->type != NIL)
-        printf(" . ") , print_obj(kons->car);
+    print_obj(pr->pair->car);
+    pr = pr->pair->cdr;
+    while(pr && pr->type == PAIR)
+        printf(" ") , print_obj(pr->pair->car) , pr = pr->pair->cdr;
+    if(pr && !is_nil(pr))
+        printf(" . ") , print_obj(pr);
     printf(")");
 }
 
@@ -96,9 +91,9 @@ void print_obj(kObj obj){
                 break;
             case CLOSURE :
                 printf("<closure ");
-                print_obj(obj->clos->expr->expr->args);
+                print_obj(obj->clos->exp->expr->args);
                 printf(" . ");
-                print_obj(obj->clos->expr->expr->body);
+                print_obj(obj->clos->exp->expr->body);
                 printf(">");
                 break;
             case EXPR    :

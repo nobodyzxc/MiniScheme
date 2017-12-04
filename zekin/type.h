@@ -48,11 +48,11 @@ typedef struct symt_tag symtree_t;
 typedef struct symt_tag *Symtree;
 typedef struct env_tag  env_t;
 typedef struct env_tag  *Env;
-typedef Obj (*func_ptr)(Cons , Obj);
+typedef Obj (*func_ptr)(Obj , Obj);
 
 struct cons_tag{
-    Obj  car;
-    Cons cdr;
+    Obj car;
+    Obj cdr;
 };
 
 struct obj_tag{
@@ -91,7 +91,7 @@ struct expr_tag{
 };
 
 struct clos_tag{
-    Obj expr;
+    Obj exp;
     Obj env;
 };
 

@@ -22,8 +22,7 @@ void print_type (Obj);
 
 bool is_proc(char *s);
 bool is_keyw(char *s);
-bool is_list(Cons pr);
-int  length(Cons pr);
+bool is_list(Obj pr);
 
 Obj lookup_symbol(char *p , Obj env_obj);
 

@@ -7,7 +7,7 @@
     new_ ## TYPE(__VA_ARGS__)
 
 
-Cons new_cons(kObj car  , Cons cdr);
+Cons new_cons(kObj car  , kObj cdr);
 Token new_token(char *p , Token next);
 
 Obj  new_BOOLEAN(bool);
@@ -23,8 +23,8 @@ Obj  new_ENV    (Obj env);
 Obj  new_SYNTAX  (char *name , func_ptr fp);
 Obj  new_FUNCTION(char *name , func_ptr fp);
 
-Obj  copy_obj(Obj obj);
-Cons copy_cons(Cons pr);
+//Obj  copy_obj(Obj obj);
+//Cons copy_cons(Cons pr);
 
 void free_obj(Obj obj);
 void free_cons(Cons);
