@@ -9,7 +9,13 @@ Obj apply_source(Obj pr , Obj env){
     if(pr->pair->car->type != STRING)
         error("source file name must be string");
     FILE *prev_stream = stream;
-    stream = fopen(pr->pair->car->str , "r");
+    char *filename = pr->pair->car->str;
+    stream = fopen(filename , "r");
+    if(!stream){
+        printf("cannot open file %s\n" , filename);
+        stream = prev_stream;
+        return NULL;
+    }
     repl();
     fclose(stream);
     stream = prev_stream;
