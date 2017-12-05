@@ -4,19 +4,19 @@
 Obj glenv;
 
 char *type_name[] = {
-    "BOOLEAN ",
-    "INTEGER ",
-    "DECIMAL ",
-    "CHAR    ",
-    "STRING  ",
-    "SYMBOL  ",
-    "PAIR    ",
-    "NIL     ",
-    "SYNTAX  ",
-    "FUNCTION",
-    "CLOSURE ",
-    "EXPR    ",
-    "ENV     ",
+    (char*)"BOOLEAN ",
+    (char*)"INTEGER ",
+    (char*)"DECIMAL ",
+    (char*)"CHAR    ",
+    (char*)"STRING  ",
+    (char*)"SYMBOL  ",
+    (char*)"PAIR    ",
+    (char*)"NIL     ",
+    (char*)"SYNTAX  ",
+    (char*)"FUNCTION",
+    (char*)"CLOSURE ",
+    (char*)"EXPR    ",
+    (char*)"ENV     ",
 };
 
 #ifdef __cplusplus //or __GNUG__

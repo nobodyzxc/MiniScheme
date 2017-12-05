@@ -14,7 +14,7 @@ c:
 	gcc $(FLAG) -c $(_SRCS)
 	#gcc $(FLAG) -o $(TARGET) $(_MAIN) $(_OBJS)
 cc:
-	g++ $(FLAG) -c type.c token.c proc.c parse.c eval.c mem.c
+	g++ $(FLAG) -c $(_SRCS)
 	g++ $(FLAG) -o $(TARGET) $(_MAIN) $(_OBJS)
 clean:
 	rm -rf *.o *.exe

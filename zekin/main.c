@@ -20,16 +20,10 @@ bool check_shell(char *p){
         && (strncmp(p , "#\\" , 2));
 }
 
-int main(int args , char *argv[]){
-    stream = stdin;
-    if(args > 1)
-        if(!(stream = fopen(argv[1] , "r")))
-            printf("cannot open %s\n" , argv[1]) , exit(1);
+void repl(){
     Token tok = NULL;
     bool fist_line = true;
     char *p = NULL;
-    stdin_printf("Welcome to Zekin v1.0 Beta\n");
-    init_buildins();
     while((p && *p) || (p = input("> " , false))){
         if(fist_line){
             fist_line = false;
@@ -45,6 +39,21 @@ int main(int args , char *argv[]){
         free_token(tok);
         tok = NULL , val = NULL , v = NULL;
     }
+}
+
+int main(int args , char *argv[]){
+
+    init_buildins();
+    stream = fopen("ext.ss" , "r");
+    repl();
+    stream = stdin;
+    if(args > 1)
+        if(!(stream = fopen(argv[1] , "r")))
+            printf("cannot open %s\n" , argv[1]) , exit(1);
+    stdin_printf("Welcome to Zekin v1.0 Beta\n");
+    repl();
+    if(stream != stdin)
+        stream = stdin , repl();
     stdin_printf("\n");
     fclose(memchk);
     return 0;

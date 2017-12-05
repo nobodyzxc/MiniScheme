@@ -21,9 +21,7 @@ Obj apply_quote(Obj args , Obj env){
 
 Obj apply_and(Obj args , Obj env){
     if(!args) return new(BOOLEAN , true);
-    while(1){
-        if(is_nil(args))
-            break;
+    while(!is_nil(args)){
         if(is_false(args->pair->car))
             return new(BOOLEAN , false);
         args = args->pair->cdr;
@@ -34,9 +32,7 @@ Obj apply_and(Obj args , Obj env){
 
 Obj apply_or(Obj args , Obj env){
     if(!args) return new(BOOLEAN , false);
-    while(1){
-        if(is_nil(args))
-            break;
+    while(!is_nil(args)){
         if(!is_false(args->pair->car))
             return args->pair->car;
         args = args->pair->cdr;
@@ -47,23 +43,16 @@ Obj apply_or(Obj args , Obj env){
 
 Obj apply_define(Obj args , Obj env){
     //assert args == 2
-    if(args->pair->car->type == SYMBOL){
-        add_symbol(args->pair->car , eval(args->pair->cdr->pair->car , env) , env);
-        return NULL;
-    }
-    else if(args->pair->car->type == PAIR){
-        if(is_list(args->pair->car)){
-            puts("not ready yet"); // short form
-        }
-        else{ // var args
-        }
-        return NULL;
-    }
-    else{
-        printf("def with a non-sym/non-pair obj : ");
-        print_obj(args->pair->car) , puts("");
-        return NULL;
-    }
+    Obj car = args->pair->car;
+    Obj cdr = args->pair->cdr;
+    if(car->type == SYMBOL)
+        add_symbol(car , eval(cdr->pair->car , env) , env);
+    else if(car->type == PAIR) // func short form
+        add_symbol(car->pair->car , new(CLOSURE , new(EXPR , NULL ,
+                        car->pair->cdr , cdr->pair->car) , env) , env);
+    else
+        alert("def with a non-sym/non-pair obj : " , args->pair->car);
+    return NULL;
 }
 
 Obj apply_lambda(Obj args , Obj env){

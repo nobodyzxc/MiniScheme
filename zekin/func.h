@@ -3,6 +3,9 @@
 #include "type.h"
 #include "mem.h"
 
+Obj apply_senv(Obj pr , Obj env);
+Obj apply_apply(Obj pr , Obj env);
+Obj apply_nullq(Obj pr , Obj env);
 Obj apply_not(Obj pr , Obj env);
 Obj apply_car(Obj pr , Obj env);
 Obj apply_cdr(Obj pr , Obj env);
@@ -16,4 +19,7 @@ Obj apply_cons(Obj pr , Obj env);
 Obj apply_print(Obj pr , Obj env);
 Obj apply_listq(Obj pr , Obj env);
 Obj apply_pairq(Obj pr , Obj env);
+
+
+Obj apply_clos(Obj pcr , Obj args , Obj env);
 #endif

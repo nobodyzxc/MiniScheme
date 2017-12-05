@@ -1,5 +1,42 @@
+#include "mem.h"
+#include "type.h"
 #include "util.h"
 #include <stdlib.h>
+#define max(a , b) (a > b ? a : b)
+
+void print_symtree(Symtree tree){
+    if(tree == NULL) return;
+    print_symtree(tree->rt);
+    print_obj(tree->sym);
+    printf(" : ");
+    print_obj(tree->val);
+    puts("");
+    print_symtree(tree->lt);
+}
+
+Obj zipped_env(Obj syms , Obj args , Obj env){
+    //assert args is list
+    //len(sym) > len(args)
+    bool isls = is_list(syms);
+    int argslen = length(args);
+    if(isls && length(syms) != argslen ||
+            !isls && patnum(syms) > max(argslen , 1)){
+        printf("unmatch args: ") , print_obj(syms);
+        printf(" <- ") , print_obj(args) , error("");
+    }
+    env = new(ENV , env);
+    while(syms->type == PAIR){
+        add_symbol(
+                syms->pair->car ,
+                args->pair->car ,
+                env);
+        syms = syms->pair->cdr;
+        args = args->pair->cdr;
+    }
+    if(!is_nil(syms))
+        add_symbol(syms , args , env);
+    return env;
+}
 
 bool is_list(Obj pr){
     while(pr && pr->type == PAIR)
@@ -14,6 +51,13 @@ bool cmp_num(Obj a , Obj b){
         return (double)num_of(a) == (double)num_of(b);
 }
 
+int patnum(Obj pr){
+    int rtn = 0;
+    while(pr && !is_nil(pr))
+        rtn ++ , pr = pr->pair->cdr;
+    return rtn;
+}
+
 int length(Obj pr){
     int rtn = 0;
     if(!is_list(pr))
@@ -21,6 +65,10 @@ int length(Obj pr){
     while(!is_nil(pr))
         rtn++ , pr = pr->pair->cdr;
     return rtn;
+}
+
+Obj cons(kObj head , kObj body){
+    return new(PAIR , new_cons(head , body));
 }
 
 void print_type(Obj obj){

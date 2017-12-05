@@ -28,6 +28,8 @@ Obj lookup_symbol(char *v , Obj env_obj){
 
 void init_buildins(){
     glenv = new(ENV , NULL);
+    BIND(FUNCTION , "apply"   , &apply_apply  , glenv);
+    BIND(FUNCTION , "null?"   , &apply_nullq  , glenv);
     BIND(FUNCTION , "+"       , &apply_add    , glenv);
     BIND(FUNCTION , "*"       , &apply_mul    , glenv);
     BIND(FUNCTION , "-"       , &apply_sub    , glenv);
@@ -41,10 +43,12 @@ void init_buildins(){
     BIND(FUNCTION , "display" , &apply_print  , glenv);
     BIND(FUNCTION , "list?"   , &apply_listq  , glenv);
     BIND(FUNCTION , "pair?"   , &apply_pairq  , glenv);
+    BIND(FUNCTION , "senv"    , &apply_senv   , glenv);
     BIND(SYNTAX   , "if"      , &apply_if     , glenv);
     BIND(SYNTAX   , "and"     , &apply_and    , glenv);
     BIND(SYNTAX   , "or"      , &apply_or     , glenv);
     BIND(SYNTAX   , "quote"   , &apply_quote  , glenv);
     BIND(SYNTAX   , "define"  , &apply_define , glenv);
     BIND(SYNTAX   , "lambda"  , &apply_lambda , glenv);
+    add_symbol(new(SYMBOL , strdup("global")) , glenv , glenv);
 }

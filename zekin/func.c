@@ -1,14 +1,44 @@
 #include "mem.h"
 #include "func.h"
 #include "util.h"
+#include "eval.h"
 
-Obj cons(kObj head , kObj body){
-    return new(PAIR , new_cons(head , body));
+
+Obj apply_senv(Obj pr , Obj env){
+    //assert len(pr) == 1
+    pr = pr->pair->car;
+    if(pr->type == ENV)
+        print_symtree(pr->env->symtab);
+    return NULL;
+}
+
+Obj apply_clos(Obj pcr , Obj args , Obj env){
+
+    Clos pcr_clos = pcr->clos; // if ref cur env ?
+    Expr pcr_expr = pcr_clos->exp->expr;
+    env = zipped_env(pcr_expr->args , args , pcr_clos->env);
+    return eval(pcr->clos->exp->expr->body , env);
+}
+
+Obj apply_apply(Obj pr , Obj env){
+    // assert arity == 2
+    // avoid apply special form
+    if(pr->pair->car->type == CLOSURE)
+        return apply_clos(pr->pair->car ,
+                pr->pair->cdr->pair->car , env);
+    else if(pr->pair->car->type == FUNCTION)
+        return pr->pair->car->proc->apply(
+                pr->pair->cdr->pair->car , env);
+    alert("cannot apply " , pr->pair->car);
+    return NULL;
+}
+
+Obj apply_nullq(Obj pr , Obj env){
+    // assert arith == 1
+    return new(BOOLEAN , is_nil(pr->pair->car));
 }
 
 Obj apply_listq(Obj pr , Obj env){
-    if(pr->pair->car->type != PAIR)
-        return new(BOOLEAN , false);
     return new(BOOLEAN , is_list(pr->pair->car));
 }
 
@@ -24,8 +54,7 @@ Obj apply_print(Obj pr , Obj env){
 
 Obj apply_length(Obj pr , Obj env){
     if(pr->pair->car->type != PAIR){
-        printf("cannot apply length on ");
-        print_type(pr->pair->car);
+        alert("cannot apply length on " , pr->pair->car);
         return NULL;
     }
     return new(INTEGER , length(pr->pair->car));
@@ -34,20 +63,16 @@ Obj apply_length(Obj pr , Obj env){
 Obj apply_car(Obj pr , Obj env){
     if(pr->pair->car->type == PAIR)
         return pr->pair->car->pair->car;
-    else if(pr->pair->car->type == NIL)
-        printf("cannot apply car on nil");
     else
-        printf("cannot apply car on ") , print_obj(pr->pair->car);
+        alert("cannot apply car on " , pr->pair->car);
     return NULL;
 }
 
 Obj apply_cdr(Obj pr , Obj env){
     if(pr->pair->car->type == PAIR)
         return pr->pair->car->pair->cdr;
-    else if(pr->pair->car->type == NIL)
-        printf("cannot apply cdr on nil");
     else
-        printf("cannot apply cdr on ") , print_obj(pr->pair->car);
+        alert("cannot apply car on " , pr->pair->car);
     return NULL;
 }
 
@@ -96,7 +121,7 @@ Obj apply_not(Obj pr , Obj env){
     } \
     for( ; pr ; pr = pr->pair->cdr){ \
         if(pr->type == NIL) \
-            break; \
+        break; \
         if(6 op 3 == 2){ \
             if(num_of(pr->pair->car) == 0) \
             error("cannot div zero"); \

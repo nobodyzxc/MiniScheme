@@ -36,20 +36,9 @@ Obj eval(Obj val , Obj env){
                 return args ? pcr->proc->apply(args , env) : NULL;
             }
             else if(pcr->type == CLOSURE){
-                //zip env and eval expr
                 args = map_eval(args , env);
                 if(args == NULL) return NULL;
-                Clos pcr_clos = pcr->clos;
-                Expr pcr_expr = pcr_clos->exp->expr;
-                if(length(args) != length(pcr_expr->args))
-                    error("unmatched args");
-                Obj zipped_env = new(ENV , pcr->clos->env); // if add current env ?
-                Obj param = pcr->clos->exp->expr->args;
-                while(param && !is_nil(param)){
-                    add_symbol(param->pair->car , args->pair->car , zipped_env);
-                    param = param->pair->cdr , args = args->pair->cdr;
-                }
-                return eval(pcr->clos->exp->expr->body , zipped_env);
+                return apply_clos(pcr , args , env);
             }
         }
         printf("cannot apply : ") , print_obj(app) , puts("");
