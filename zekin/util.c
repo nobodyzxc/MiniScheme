@@ -4,6 +4,17 @@
 #include <stdlib.h>
 #define max(a , b) (a > b ? a : b)
 
+void print_esc(char *str){
+    char *k = "abfnrtv\\'?" , *v = "\a\b\f\n\r\t\v\\\'\?";
+    while(*str){
+        if(*str == '\\' && strchr("abfnrtv\\'?" , *(str + 1)))
+            putchar(v[strchr(k , *(str + 1)) - k]) , str++;
+        else
+            putchar(*str);
+        *str++;
+    }
+}
+
 void print_symtree(Symtree tree){
     if(tree == NULL) return;
     print_symtree(tree->rt);

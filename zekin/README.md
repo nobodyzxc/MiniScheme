@@ -29,32 +29,31 @@ v or
 
 ; boolean funcs
   eq?
-  list?
-  pair?
-  null?
+v list?
+v pair?
+v null?
   symbol?
   procedure?
 v =
 v not
 
 ; structure funcs
-car
-cdr
-cons
-list
+v car
+v cdr
+v cons
+v list(L)
 
 ; special funcs
-apply
-; read (like eval)
+v apply
 
 ; io funcs
 read
-display
+v display
 flush-output
 ```
 The functions I needn't impl but should extend in other scheme file.
 ```
-map
+v map
 cadr
 caddr
 cadddr

@@ -18,4 +18,5 @@ char *input(const char *prompt , bool lock);
 extern FILE *stream;
 bool is_blank(char p);
 void print_token(Token tok);
+void clear_buf(void);
 #endif

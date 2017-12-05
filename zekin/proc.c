@@ -45,6 +45,7 @@ void init_buildins(){
     BIND(FUNCTION , "list?"   , &apply_listq  , glenv);
     BIND(FUNCTION , "pair?"   , &apply_pairq  , glenv);
     BIND(FUNCTION , "senv"    , &apply_senv   , glenv);
+    BIND(FUNCTION , "source"  , &apply_source , glenv);
     BIND(SYNTAX   , "if"      , &apply_if     , glenv);
     BIND(SYNTAX   , "and"     , &apply_and    , glenv);
     BIND(SYNTAX   , "or"      , &apply_or     , glenv);

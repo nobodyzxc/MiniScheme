@@ -2,7 +2,19 @@
 #include "func.h"
 #include "util.h"
 #include "eval.h"
+#include "main.h"
 
+Obj apply_source(Obj pr , Obj env){
+    //assert pr->pair->car is STRING
+    if(pr->pair->car->type != STRING)
+        error("source file name must be string");
+    FILE *prev_stream = stream;
+    stream = fopen(pr->pair->car->str , "r");
+    repl();
+    fclose(stream);
+    stream = prev_stream;
+    return NULL;
+}
 
 Obj apply_senv(Obj pr , Obj env){
     //assert len(pr) == 1
@@ -46,9 +58,13 @@ Obj apply_pairq(Obj pr , Obj env){
     return new(BOOLEAN , pr->pair->car->type == PAIR);
 }
 
+
 Obj apply_display(Obj pr , Obj env){
-    print_obj(pr->pair->car);
-    printf("\n");
+    if(pr->pair->car->type == STRING){
+        print_esc(pr->pair->car->str);
+    }
+    else
+        print_obj(pr->pair->car);
     return NULL;
 }
 

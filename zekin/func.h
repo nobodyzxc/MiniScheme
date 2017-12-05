@@ -3,6 +3,7 @@
 #include "type.h"
 #include "mem.h"
 
+Obj apply_source(Obj pr , Obj env);
 Obj apply_senv(Obj pr , Obj env);
 Obj apply_apply(Obj pr , Obj env);
 Obj apply_nullq(Obj pr , Obj env);

@@ -12,6 +12,7 @@ void print_obj(kObj obj);
 void print_symtree(Symtree tree);
 Obj cons(kObj head , kObj body);
 Obj zipped_env(Obj syms , Obj args , Obj env);
+void print_esc(char *str);
 
 #define error(fmt , ...) \
     printf(fmt , ##__VA_ARGS__) , exit(1)

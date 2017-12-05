@@ -27,7 +27,7 @@ Obj new_lit(char *v){
             obj = new(DECIMAL , parse_decimal(v));
     }
     else if(v[0] == '"')
-        obj = new(STRING ,strndup(v + 1 , strlen(v) - 2));
+        obj = new(STRING , strndup(v + 1 , strlen(v) - 2));
     else if(EQS(v , "nil"))
         obj = (Obj)nil;
     else

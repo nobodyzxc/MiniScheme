@@ -9,6 +9,10 @@ char ss[300];
 
 char *tok_list(char *p , Token *phead , Token *ptail);
 
+void clear_buf(void){
+    memset(ss , 0 , sizeof(ss));
+}
+
 char *input(const char *prompt , bool lock){ //getline?
     stdin_printf(prompt);
     if(lock)
