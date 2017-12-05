@@ -15,8 +15,9 @@ Obj apply_add(Obj pr , Obj env);
 Obj apply_sub(Obj pr , Obj env);
 Obj apply_mul(Obj pr , Obj env);
 Obj apply_div(Obj pr , Obj env);
+Obj apply_mod(Obj pr , Obj env);
 Obj apply_cons(Obj pr , Obj env);
-Obj apply_print(Obj pr , Obj env);
+Obj apply_display(Obj pr , Obj env);
 Obj apply_listq(Obj pr , Obj env);
 Obj apply_pairq(Obj pr , Obj env);
 

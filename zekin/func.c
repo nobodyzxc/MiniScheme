@@ -46,7 +46,7 @@ Obj apply_pairq(Obj pr , Obj env){
     return new(BOOLEAN , pr->pair->car->type == PAIR);
 }
 
-Obj apply_print(Obj pr , Obj env){
+Obj apply_display(Obj pr , Obj env){
     print_obj(pr->pair->car);
     printf("\n");
     return NULL;
@@ -127,21 +127,14 @@ Obj apply_not(Obj pr , Obj env){
             error("cannot div zero"); \
         } \
         if(!is_num(pr->pair->car)) \
-        error("cannot apply " xstr(op) " on non-number obj"); \
+            error("cannot apply " xstr(op) " on non-number obj"); \
         else if(rtn->type == DECIMAL){ \
-            if(pr->pair->car->type == INTEGER) \
-            rtn->decimal op ## = (double) pr->pair->car->integer; \
-            else if(pr->pair->car->type == DECIMAL) \
-            rtn->decimal op ## = pr->pair->car->decimal; \
+            HANDEL_DEC1(pr , rtn , op , base) \
         } \
         else if(rtn->type == INTEGER){ \
             if(pr->pair->car->type == INTEGER) \
-            rtn->integer op ## = pr->pair->car->integer; \
-            else if(pr->pair->car->type == DECIMAL){ \
-                rtn->type = DECIMAL; \
-                rtn->decimal = rtn->integer; \
-                rtn->decimal op ## = pr->pair->car->decimal; \
-            } \
+                rtn->integer op ## = pr->pair->car->integer; \
+            HANDEL_DEC2(pr , rtn , op , base) \
         } \
     }
 
@@ -151,7 +144,31 @@ Obj apply_not(Obj pr , Obj env){
         return rtn; \
     }
 
+#define HANDEL_DEC1(pr , rtn , op , base) \
+    if(pr->pair->car->type == INTEGER) \
+        rtn->decimal op ## = (double) pr->pair->car->integer; \
+    else if(pr->pair->car->type == DECIMAL) \
+        rtn->decimal op ## = pr->pair->car->decimal; \
+
+#define HANDEL_DEC2(pr , rtn , op , base) \
+    else if(pr->pair->car->type == DECIMAL){ \
+                rtn->type = DECIMAL; \
+                rtn->decimal = rtn->integer; \
+                rtn->decimal op ## = pr->pair->car->decimal; \
+            }
+
 apply_opr(add , + , 0);
 apply_opr(mul , * , 1);
 apply_opr(sub , - , 0);
 apply_opr(div , / , 1);
+
+#undef HANDEL_DEC1
+#undef HANDEL_DEC2
+#define HANDEL_DEC1(pr , rtn , op , base) \
+    error("cannot apply %% on decimal");
+#define HANDEL_DEC2(pr , rtn , op , base) \
+    else if(pr->pair->car->type == DECIMAL){ \
+        error("cannot apply %% on decimal"); \
+    }
+
+apply_opr(mod , % , 1);

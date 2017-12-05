@@ -17,7 +17,6 @@ Obj lookup_symbol(char *v , Obj env_obj){
         env_obj = env_obj->env->parent;
     }
     printf("cannot find symbol %s\n" , v);
-    error("");
     return NULL;
 }
 
@@ -34,13 +33,15 @@ void init_buildins(){
     BIND(FUNCTION , "*"       , &apply_mul    , glenv);
     BIND(FUNCTION , "-"       , &apply_sub    , glenv);
     BIND(FUNCTION , "/"       , &apply_div    , glenv);
+    BIND(FUNCTION , "%"       , &apply_mod    , glenv);
     BIND(FUNCTION , "="       , &apply_eqnum  , glenv);
+    BIND(FUNCTION , "mod"       , &apply_mod    , glenv);
     BIND(FUNCTION , "not"     , &apply_not    , glenv);
     BIND(FUNCTION , "car"     , &apply_car    , glenv);
     BIND(FUNCTION , "cdr"     , &apply_cdr    , glenv);
     BIND(FUNCTION , "cons"    , &apply_cons   , glenv);
     BIND(FUNCTION , "length"  , &apply_length , glenv);
-    BIND(FUNCTION , "display" , &apply_print  , glenv);
+    BIND(FUNCTION , "display" , &apply_display, glenv);
     BIND(FUNCTION , "list?"   , &apply_listq  , glenv);
     BIND(FUNCTION , "pair?"   , &apply_pairq  , glenv);
     BIND(FUNCTION , "senv"    , &apply_senv   , glenv);

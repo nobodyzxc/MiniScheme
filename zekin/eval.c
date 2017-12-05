@@ -37,8 +37,7 @@ Obj eval(Obj val , Obj env){
             }
             else if(pcr->type == CLOSURE){
                 args = map_eval(args , env);
-                if(args == NULL) return NULL;
-                return apply_clos(pcr , args , env);
+                return args ? apply_clos(pcr , args , env) : NULL;
             }
         }
         printf("cannot apply : ") , print_obj(app) , puts("");
