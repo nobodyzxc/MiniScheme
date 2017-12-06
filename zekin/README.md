@@ -15,6 +15,7 @@ garbage collection
 from wiki:
 
 Standard forms in the language R5RS Scheme
+
 |Purpose|Forms|
 |Definition|define|
 |Binding constructs|lambda, do (L), let (L), let\* (L), letrec (L)|
@@ -27,6 +28,7 @@ Standard forms in the language R5RS Scheme
 |Delayed evaluation|delay (L)|
 
 Standard procedures in the language R5RS Scheme
+
 |Purpose|Procedures|
 |Construction|vector, make-vector, make-string, list|
 |Equivalence predicates|eq?, eqv?, equal?, string=?, string-ci=?, char=?, char-ci=?|
@@ -47,6 +49,7 @@ Standard procedures in the language R5RS Scheme
 |Booleans|boolean? not|
 
 Standard numeric procedures in the language R5RS Scheme
+
 |Purpose|Procedures|
 |Basic arithmetic operators|+, -, *, /, abs, quotient, remainder, modulo, gcd, lcm, expt, sqrt|
 |Rational numbers|numerator, denominator, rational?, rationalize|
@@ -59,7 +62,7 @@ Standard numeric procedures in the language R5RS Scheme
 |Exponentials|exp, log|
 |Complex numbers|make-rectangular, make-polar, real-part, imag-part, magnitude, angle, complex?|
 |Input-output|number->string, string->number|
-|Type predicates|integer?, rational?, real?, complex?, number?
+|Type predicates|integer?, rational?, real?, complex?, number?|
 
 CFG to ref:
 ```
