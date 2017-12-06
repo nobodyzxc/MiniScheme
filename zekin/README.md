@@ -17,6 +17,7 @@ from wiki:
 Standard forms in the language R5RS Scheme
 
 |Purpose|Forms|
+| ------------- | ------------- |
 |Definition|define|
 |Binding constructs|lambda, do (L), let (L), let\* (L), letrec (L)|
 |Conditional evaluation|if, cond (L), case (L), and (L), or (L)|
@@ -30,6 +31,7 @@ Standard forms in the language R5RS Scheme
 Standard procedures in the language R5RS Scheme
 
 |Purpose|Procedures|
+| ------------- | ------------- |
 |Construction|vector, make-vector, make-string, list|
 |Equivalence predicates|eq?, eqv?, equal?, string=?, string-ci=?, char=?, char-ci=?|
 |Type conversion|vector->list, list->vector, number->string, string->number, symbol->string, string->symbol, char->integer, integer->char, string->list, list->string|
@@ -51,6 +53,7 @@ Standard procedures in the language R5RS Scheme
 Standard numeric procedures in the language R5RS Scheme
 
 |Purpose|Procedures|
+| ------------- | ------------- |
 |Basic arithmetic operators|+, -, *, /, abs, quotient, remainder, modulo, gcd, lcm, expt, sqrt|
 |Rational numbers|numerator, denominator, rational?, rationalize|
 |Approximation|floor, ceiling, truncate, round|
