@@ -27,6 +27,7 @@ Obj lookup_symbol(char *v , Obj env_obj){
 
 void init_buildins(){
     glenv = new(ENV , NULL);
+    BIND(FUNCTION , "cons"    , &apply_cons   , glenv);
     BIND(FUNCTION , "apply"   , &apply_apply  , glenv);
     BIND(FUNCTION , "null?"   , &apply_nullq  , glenv);
     BIND(FUNCTION , "+"       , &apply_add    , glenv);
@@ -35,7 +36,6 @@ void init_buildins(){
     BIND(FUNCTION , "/"       , &apply_div    , glenv);
     BIND(FUNCTION , "%"       , &apply_mod    , glenv);
     BIND(FUNCTION , "="       , &apply_eqnum  , glenv);
-    BIND(FUNCTION , "cons"    , &apply_cons   , glenv);
     BIND(FUNCTION , "mod"     , &apply_mod    , glenv);
     BIND(FUNCTION , "not"     , &apply_not    , glenv);
     BIND(FUNCTION , "car"     , &apply_car    , glenv);
@@ -46,7 +46,6 @@ void init_buildins(){
     BIND(FUNCTION , "pair?"   , &apply_pairq  , glenv);
     BIND(FUNCTION , "senv"    , &apply_senv   , glenv);
     BIND(FUNCTION , "source"  , &apply_source , glenv);
-    BIND(FUNCTION   , "gc"      , &apply_gc     , glenv);
     BIND(SYNTAX   , "if"      , &apply_if     , glenv);
     BIND(SYNTAX   , "and"     , &apply_and    , glenv);
     BIND(SYNTAX   , "or"      , &apply_or     , glenv);
@@ -54,4 +53,5 @@ void init_buildins(){
     BIND(SYNTAX   , "define"  , &apply_define , glenv);
     BIND(SYNTAX   , "lambda"  , &apply_lambda , glenv);
     add_symbol(new(SYMBOL , strdup("global")) , glenv , glenv);
+    //BIND(FUNCTION   , "gc"      , &apply_gc     , glenv);
 }

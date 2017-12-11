@@ -26,6 +26,7 @@ void mark(Obj obj){
     if(!obj) return;
     if(obj->mark) return;
     obj->mark = true;
+    printf("mark: ") , print_obj(obj) , puts("");
     if(obj->type == PAIR)
         mark(obj->pair->car) , mark(obj->pair->cdr);
     else if(obj->type == CLOSURE)

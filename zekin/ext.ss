@@ -29,3 +29,4 @@
 (define (cadddr l) (car (cdr (cdr (cdr l)))))
 (define (tab) (senv global))
 (define (newline) (display "\n"))
+(gc)
