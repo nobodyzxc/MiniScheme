@@ -49,7 +49,7 @@ Obj apply_define(Obj args , Obj env){
         add_symbol(car , eval(cdr->pair->car , env) , env);
     else if(car->type == PAIR) // func short form
         add_symbol(car->pair->car , new(CLOSURE , new(EXPR , NULL ,
-                        car->pair->cdr , cdr->pair->car) , env) , env);
+                        car->pair->cdr , cdr) , env) , env);
     else
         alert("def with a non-sym/non-pair obj : " , args->pair->car);
     return NULL;
@@ -60,5 +60,5 @@ Obj apply_lambda(Obj args , Obj env){
     return new(CLOSURE ,
             new(EXPR , NULL ,
                 args->pair->car ,
-                args->pair->cdr->pair->car) , env);
+                args->pair->cdr) , env);
 }

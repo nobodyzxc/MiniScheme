@@ -2,6 +2,7 @@
 #define MEM_H
 #include "type.h"
 #include "token.h"
+#include "gc.h"
 
 #define new(TYPE , ...) \
     new_ ## TYPE(__VA_ARGS__)

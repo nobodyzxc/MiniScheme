@@ -1,5 +1,8 @@
 #include "mem.h"
+#include "gc.h"
+#include "util.h"
 #include <stdlib.h>
+#include <assert.h>
 #define LEAKFILE ".leak"
 
 FILE *memchk = NULL;
@@ -15,6 +18,7 @@ void *FREE(void *p){
 Obj new_obj(type_t type){
     Obj inst = (Obj)MALLOC(sizeof(obj_t));
     inst->type = type;
+    gc_list_cons(inst);
     return inst;
 }
 
@@ -125,6 +129,7 @@ Obj new_SYNTAX(char *name , func_ptr fp){
 
 #define side(iter , diff) (diff < 0 ? (iter)->lt : (iter)->rt)
 void add_symbol(Obj sym , Obj val , Obj env_obj){
+    assert(sym->type == SYMBOL);
     Symtree inst = (Symtree)MALLOC(sizeof(symtree_t));
     inst->sym = sym , inst->val = val;
     inst->lt = NULL , inst->rt = NULL;
@@ -197,12 +202,24 @@ void add_symbol(Obj sym , Obj val , Obj env_obj){
 //    return inst;
 //}
 
+void free_symtree(Symtree tree){
+    if(!tree) return;
+    if(tree->lt) free_symtree(tree->lt);
+    if(tree->rt) free_symtree(tree->rt);
+    free(tree);
+}
+
 void free_obj(Obj obj){
+    printf("free : ") , print_obj(obj) , puts("");
     if(!obj) return;
     if(obj->type == NIL)
         return;
-    //if(obj->type == PAIR)
-    //    free_cons(obj->pair);
+    if(obj->type == STRING || obj->type == SYMBOL)
+        free(obj->str);
+    else if(obj->type == EXPR)
+        free(obj->expr->name);
+    else if(obj->type == ENV)
+        free_symtree(obj->env->symtab);
     FREE(obj);
 }
 

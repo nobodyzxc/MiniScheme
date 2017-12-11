@@ -4,6 +4,11 @@
 #include "eval.h"
 #include "main.h"
 
+Obj apply_gc(Obj pr , Obj env){
+    gc();
+    return NULL;
+}
+
 Obj apply_source(Obj pr , Obj env){
     //assert pr->pair->car is STRING
     if(pr->pair->car->type != STRING)
@@ -35,7 +40,10 @@ Obj apply_clos(Obj pcr , Obj args , Obj env){
     Clos pcr_clos = pcr->clos; // if ref cur env ?
     Expr pcr_expr = pcr_clos->exp->expr;
     env = zipped_env(pcr_expr->args , args , pcr_clos->env);
-    return eval(pcr->clos->exp->expr->body , env);
+    Obj iter = pcr->clos->exp->expr->body , val;
+    while(!is_nil(iter))
+        val = eval(iter->pair->car , env) , iter = iter->pair->cdr;
+    return val;
 }
 
 Obj apply_apply(Obj pr , Obj env){
@@ -94,7 +102,7 @@ Obj apply_cdr(Obj pr , Obj env){
     if(pr->pair->car->type == PAIR)
         return pr->pair->car->pair->cdr;
     else
-        alert("cannot apply car on " , pr->pair->car);
+        alert("cannot apply cdr on " , pr->pair->car);
     return NULL;
 }
 
