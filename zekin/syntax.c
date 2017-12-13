@@ -62,3 +62,11 @@ Obj apply_lambda(Obj args , Obj env){
                 args->pair->car ,
                 args->pair->cdr) , env);
 }
+
+Obj apply_define_syntax(Obj args , Obj env){
+    return NULL;
+}
+
+Obj apply_syntax_rules(Obj args , Obj env){
+    return NULL;
+}

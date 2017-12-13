@@ -24,9 +24,13 @@
       (cons (car l) (filter f (cdr l)))
       (filter f (cdr l)))))
 
+(define (caar l) (car (car l)))
 (define (cadr l) (car (cdr l)))
 (define (caddr l) (car (cdr (cdr l))))
 (define (cadddr l) (car (cdr (cdr (cdr l)))))
 (define (tab) (senv global))
 (define (newline) (display "\n"))
+(define (assoc elt ls)
+  (if (null? ls) #f
+    (if (= elt (caar ls)) (car ls) (assoc elt (cdr ls)))))
 (gc)

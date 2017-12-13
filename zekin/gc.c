@@ -26,7 +26,6 @@ void mark(Obj obj){
     if(!obj) return;
     if(obj->mark) return;
     obj->mark = true;
-    printf("mark: ") , print_obj(obj) , puts("");
     if(obj->type == PAIR)
         mark(obj->pair->car) , mark(obj->pair->cdr);
     else if(obj->type == CLOSURE)
@@ -61,8 +60,14 @@ void unmark(){
         it->v->mark = false;
 }
 
+void smark(){
+    for(ObjList it = head ; it ; it = it->next)
+        print_obj(it->v) , printf(" : %d\n" , it->v->mark);
+}
+
 void gc(){
     if(!head) return;
+    //smark();
     mark(glenv);
     sweep();
     unmark();

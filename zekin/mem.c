@@ -18,6 +18,7 @@ void *FREE(void *p){
 Obj new_obj(type_t type){
     Obj inst = (Obj)MALLOC(sizeof(obj_t));
     inst->type = type;
+    inst->mark = false;
     gc_list_cons(inst);
     return inst;
 }
@@ -210,7 +211,7 @@ void free_symtree(Symtree tree){
 }
 
 void free_obj(Obj obj){
-    printf("free : ") , print_obj(obj) , puts("");
+    //printf("free : ") , print_obj(obj) , puts("");
     if(!obj) return;
     if(obj->type == NIL)
         return;

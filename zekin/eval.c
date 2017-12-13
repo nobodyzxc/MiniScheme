@@ -18,27 +18,34 @@ Obj map_eval(Obj ls , Obj env){
 
 Obj eval(Obj val , Obj env){
     if(!val) return NULL;
-    if(val->type == SYMBOL)
-        return lookup_symbol(val->str , env);
+    if(val->type == SYMBOL){
+        Obj elt = lookup_symbol(val->str , env);
+        if(elt && elt->type == SYNTAX){
+            printf("bad syntax : ");
+            print_obj(elt) , puts("");
+            elt = NULL;
+        }
+        return elt;
+    }
     else if(val->type == PAIR){ //bug here
         Obj app = val->pair->car;
         Obj args = val->pair->cdr;
         if(app->type == SYMBOL || app->type == PAIR){
             if(!is_list(args)) error("cannot apply procedure on pair");
-            Obj pcr = app->type == SYMBOL ?
+
+
+            app = app->type == SYMBOL ?
                 lookup_symbol(app->str , env) : eval(app , env);
-            if(!pcr) return NULL;
-            if(pcr->type == SYNTAX){
-                return pcr->proc->apply(args , env);
-            }
-            else if(pcr->type == FUNCTION){
-                args = map_eval(args , env); //consider cost of space
-                return args ? pcr->proc->apply(args , env) : NULL;
-            }
-            else if(pcr->type == CLOSURE){
-                args = map_eval(args , env);
-                return args ? apply_clos(pcr , args , env) : NULL;
-            }
+
+            if(!app) return NULL;
+
+            if(app->type == SYNTAX)
+                return app->proc->apply(args , env);
+            args = map_eval(args , env); //consider cost of space
+            if(app->type == FUNCTION)
+                return args ? app->proc->apply(args , env) : NULL;
+            else if(app->type == CLOSURE)
+                return args ? apply_clos(app , args , env) : NULL;
         }
         printf("cannot apply : ") , print_obj(app) , puts("");
         return NULL;
