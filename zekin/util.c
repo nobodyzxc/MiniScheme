@@ -4,6 +4,33 @@
 #include <stdlib.h>
 #define max(a , b) (a > b ? a : b)
 
+Obj lssym(Obj ls , Obj sym){
+    if(sym->type != SYMBOL) return NULL;
+    for(Obj it = ls ; it &&
+            it != nil ; it = it->pair->cdr)
+        if(it->pair->car->type == SYMBOL)
+            if(EQS(it->pair->car->str , sym->str))
+                return it;
+    return NULL;
+}
+
+Obj lsobj(Obj ls , Obj obj){
+    for(Obj it = ls ; it &&
+            it != nil ; it = it->pair->cdr)
+        if(it->pair->car == obj) return it;
+    return NULL;
+}
+
+void detail(Obj obj){
+    if(obj->type == CLOSURE){
+        printf("<closure ");
+        print_obj(obj->clos->exp->expr->args);
+        printf(" . ");
+        print_obj(obj->clos->exp->expr->body);
+        printf(">");
+    }
+}
+
 void print_esc(char *str){
     char *k = "abfnrtv\\'?" , *v = "\a\b\f\n\r\t\v\\\'\?";
     while(*str){
@@ -24,6 +51,26 @@ void print_symtree(Symtree tree){
     puts("");
     print_symtree(tree->lt);
 }
+
+Obj zipped_pat(Obj pat , Obj args , Obj env){
+    bool isls = is_list(pat);
+    int argslen = length(args);
+    env = new(ENV , env);
+    while(pat->type == PAIR){
+        if(EQS(pat->pair->car->str , "...")){
+            add_symbol(pat->pair->car , args , env);
+            return env;
+        }
+        add_symbol(
+                pat->pair->car ,
+                args->pair->car ,
+                env);
+        pat = pat->pair->cdr;
+        args = args->pair->cdr;
+    }
+    return env;
+}
+
 
 Obj zipped_env(Obj syms , Obj args , Obj env){
     //assert args is list
@@ -82,27 +129,6 @@ Obj cons(kObj head , kObj body){
     return new(PAIR , new_cons(head , body));
 }
 
-void print_type(Obj obj){
-    if(obj->type == PAIR){
-        Obj pr = obj;
-        printf("(");
-        print_type(pr->pair->car);
-        pr = pr->pair->cdr;
-        while(pr && pr->type == PAIR)
-            printf(" ") , print_type(pr->pair->car) , pr = pr->pair->cdr;
-
-        if(pr && !is_nil(pr))
-            printf(" . ");
-        if(pr)
-            printf(" ") , print_type(pr);
-        printf(")");
-
-    }
-    else{
-        printf("%s" , type_name[obj->type]);
-    }
-}
-
 void print_pair(kObj pr){
     printf("(");
     print_obj(pr->pair->car);
@@ -145,15 +171,14 @@ void print_obj(kObj obj){
             case SYNTAX  :
                 printf("<syntax:%s>" , obj->proc->name);
                 break;
+            case MACRO   :
+                printf("<macro>");
+                break;
             case FUNCTION:
                 printf("<procedure:%s>" , obj->proc->name);
                 break;
             case CLOSURE :
-                printf("<closure ");
-                print_obj(obj->clos->exp->expr->args);
-                printf(" . ");
-                print_obj(obj->clos->exp->expr->body);
-                printf(">");
+                printf("<closure>");
                 break;
             case EXPR    :
                 printf("<expression>");

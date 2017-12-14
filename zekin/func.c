@@ -4,6 +4,17 @@
 #include "eval.h"
 #include "main.h"
 
+Obj apply_clos(Obj pcr , Obj args , Obj env){
+
+    Clos pcr_clos = pcr->clos; // if ref cur env ?
+    Expr pcr_expr = pcr_clos->exp->expr;
+    env = zipped_env(pcr_expr->args , args , pcr_clos->env);
+    Obj iter = pcr->clos->exp->expr->body , val;
+    while(!is_nil(iter))
+        val = eval(iter->pair->car , env) , iter = iter->pair->cdr;
+    return val;
+}
+
 Obj apply_gc(Obj pr , Obj env){
     gc();
     return NULL;
@@ -33,17 +44,6 @@ Obj apply_senv(Obj pr , Obj env){
     if(pr->type == ENV)
         print_symtree(pr->env->symtab);
     return NULL;
-}
-
-Obj apply_clos(Obj pcr , Obj args , Obj env){
-
-    Clos pcr_clos = pcr->clos; // if ref cur env ?
-    Expr pcr_expr = pcr_clos->exp->expr;
-    env = zipped_env(pcr_expr->args , args , pcr_clos->env);
-    Obj iter = pcr->clos->exp->expr->body , val;
-    while(!is_nil(iter))
-        val = eval(iter->pair->car , env) , iter = iter->pair->cdr;
-    return val;
 }
 
 Obj apply_apply(Obj pr , Obj env){

@@ -29,6 +29,7 @@ enum types{
     FUNCTION,
     CLOSURE ,
     EXPR    ,
+    MACRO   ,
     ENV     ,
 };
 
@@ -46,6 +47,8 @@ typedef struct expr_tag expr_t;
 typedef struct expr_tag *Expr;
 typedef struct symt_tag symtree_t;
 typedef struct symt_tag *Symtree;
+typedef struct mac_tag  mac_t;
+typedef struct mac_tag  *Mac;
 typedef struct env_tag  env_t;
 typedef struct env_tag  *Env;
 typedef Obj (*func_ptr)(Obj , Obj);
@@ -68,20 +71,9 @@ struct obj_tag{
         Cons         pair;
         Clos         clos;
         Expr         expr;
+        Mac          mac;
         Env          env;
     };
-};
-
-struct symt_tag{
-    Obj sym;
-    Obj val;
-    Symtree lt;
-    Symtree rt;
-};
-
-struct env_tag{
-    Symtree symtab;
-    Obj parent;
 };
 
 struct expr_tag{
@@ -100,7 +92,23 @@ struct proc_tag{
     func_ptr apply;
 };
 
+struct symt_tag{
+    Obj sym;
+    Obj val;
+    Symtree lt;
+    Symtree rt;
+};
+
+struct mac_tag{
+    Obj keyws;
+    Obj rules;
+};
+
+struct env_tag{
+    Symtree symtab;
+    Obj parent;
+};
+
 extern kObj nil;
 extern Obj glenv;
-extern char *type_name[];
 #endif

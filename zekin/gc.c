@@ -30,6 +30,8 @@ void mark(Obj obj){
         mark(obj->pair->car) , mark(obj->pair->cdr);
     else if(obj->type == CLOSURE)
         mark(obj->clos->exp) , mark(obj->clos->env);
+    else if(obj->type == MACRO)
+        mark(obj->mac->keyws) , mark(obj->mac->rules);
     else if(obj->type == EXPR)
         free(obj->expr->name) ,
             mark(obj->expr->args) ,

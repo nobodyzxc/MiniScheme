@@ -33,4 +33,19 @@
 (define (assoc elt ls)
   (if (null? ls) #f
     (if (= elt (caar ls)) (car ls) (assoc elt (cdr ls)))))
+
+(define or
+  (syntax-rules ()
+    ((_) #t)
+    ((_ exp) (if exp #t #f))
+    ((_ exp rest ...) (if exp #t (or rest ...))))
+  )
+
+(define and
+  (syntax-rules ()
+    ((_) #f)
+    ((_ exp) (if exp #t #f))
+    ((_ exp rest ...) (if exp (and rest ...) #f)))
+  )
+
 (gc)

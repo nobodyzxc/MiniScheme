@@ -2,6 +2,7 @@
 #include "eval.h"
 #include "util.h"
 #include "func.h"
+#include "syntax.h"
 
 Obj map_eval(Obj ls , Obj env){
     cons_t head;
@@ -31,8 +32,8 @@ Obj eval(Obj val , Obj env){
         Obj app = val->pair->car;
         Obj args = val->pair->cdr;
         if(app->type == SYMBOL || app->type == PAIR){
-            if(!is_list(args)) error("cannot apply procedure on pair");
 
+            if(!is_list(args)) error("cannot apply procedure on pair");
 
             app = app->type == SYMBOL ?
                 lookup_symbol(app->str , env) : eval(app , env);
@@ -41,7 +42,11 @@ Obj eval(Obj val , Obj env){
 
             if(app->type == SYNTAX)
                 return app->proc->apply(args , env);
+            else if(app->type == MACRO)
+                return apply_macro(app , args , env);
+
             args = map_eval(args , env); //consider cost of space
+
             if(app->type == FUNCTION)
                 return args ? app->proc->apply(args , env) : NULL;
             else if(app->type == CLOSURE)

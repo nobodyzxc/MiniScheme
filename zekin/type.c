@@ -3,22 +3,6 @@
 
 Obj glenv;
 
-char *type_name[] = {
-    (char*)"BOOLEAN ",
-    (char*)"INTEGER ",
-    (char*)"DECIMAL ",
-    (char*)"CHAR    ",
-    (char*)"STRING  ",
-    (char*)"SYMBOL  ",
-    (char*)"PAIR    ",
-    (char*)"NIL     ",
-    (char*)"SYNTAX  ",
-    (char*)"FUNCTION",
-    (char*)"CLOSURE ",
-    (char*)"EXPR    ",
-    (char*)"ENV     ",
-};
-
 #ifdef __cplusplus //or __GNUG__
 const obj_t nil_t = { .type = NIL , .mark = true};
 #else

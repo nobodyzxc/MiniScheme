@@ -96,12 +96,6 @@ Obj new_PAIR   (Cons kons){
     return inst;
 }
 
-Obj new_CLOSURE(Obj expr , Obj env){
-    Obj inst = new_obj(CLOSURE);
-    inst->clos = new_clos(expr , env);
-    return inst;
-}
-
 Obj new_EXPR   (char *name , Obj args , Obj body){
     Obj inst = new_obj(EXPR);
     inst->expr = new_expr(name , args , body);
@@ -122,9 +116,23 @@ Obj new_FUNCTION(char *name , func_ptr fp){
     return inst;
 }
 
+Obj new_CLOSURE(Obj expr , Obj env){
+    Obj inst = new_obj(CLOSURE);
+    inst->clos = new_clos(expr , env);
+    return inst;
+}
+
 Obj new_SYNTAX(char *name , func_ptr fp){
     Obj inst = new_FUNCTION(name , fp);
     inst->type = SYNTAX;
+    return inst;
+}
+
+Obj new_MACRO(Obj keyws , Obj rules){
+    Obj inst = new_obj(MACRO);
+    inst->mac = malloc(sizeof(mac_t));
+    inst->mac->keyws = keyws;
+    inst->mac->rules = rules;
     return inst;
 }
 
