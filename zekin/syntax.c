@@ -128,7 +128,6 @@ Obj expand(Obj rule , Obj args){
 }
 
 Obj apply_macro(Obj macro , Obj args , Obj env){
-    // go go go
     //for syntax rules
     for(Obj rules = macro->mac->rules ;
             rules && rules != nil ; rules = rules->pair->cdr){
@@ -147,7 +146,6 @@ Obj apply_macro(Obj macro , Obj args , Obj env){
             return eval(expansion , env);
         }
     }
-    exit(0);
     printf("cannot match any rule");
     return NULL;
 }

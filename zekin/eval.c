@@ -21,7 +21,7 @@ Obj eval(Obj val , Obj env){
     if(!val) return NULL;
     if(val->type == SYMBOL){
         Obj elt = lookup_symbol(val->str , env);
-        if(elt && elt->type == SYNTAX){
+        if(elt && (elt->type == SYNTAX || elt->type == MACRO)){
             printf("bad syntax : ");
             print_obj(elt) , puts("");
             elt = NULL;
