@@ -48,13 +48,15 @@ void init_buildins(){
     BIND(FUNCTION , "pair?"   , &apply_pairq  , glenv);
     BIND(FUNCTION , "source"  , &apply_source , glenv);
     BIND(SYNTAX   , "if"      , &apply_if     , glenv);
-    //BIND(SYNTAX   , "and"     , &apply_and    , glenv);
-    //BIND(SYNTAX   , "or"      , &apply_or     , glenv);
     BIND(SYNTAX   , "quote"   , &apply_quote  , glenv);
     BIND(SYNTAX   , "lambda"  , &apply_lambda , glenv);
     BIND(SYNTAX   , "define"  , &apply_define , glenv);
     BIND(SYNTAX   , "syntax-rules"  , &apply_syntax_rules , glenv);
     add_symbol(new(SYMBOL , strdup("global")) , glenv , glenv);
-    BIND(FUNCTION   , "gc"      , &apply_gc     , glenv); 
+    BIND(FUNCTION   , "gc"      , &apply_gc     , glenv);
     BIND(FUNCTION , "senv"    , &apply_senv   , glenv);
+
+    /* the proc below provide in macro form */
+    //BIND(SYNTAX   , "and"     , &apply_and    , glenv);
+    //BIND(SYNTAX   , "or"      , &apply_or     , glenv);
 }

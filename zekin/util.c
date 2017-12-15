@@ -4,6 +4,21 @@
 #include <stdlib.h>
 #define max(a , b) (a > b ? a : b)
 
+Obj lssym_rec(Obj ls , Obj sym){
+    if(sym->type != SYMBOL) return NULL;
+    for(Obj it = ls ; it &&
+            it != nil ; it = it->pair->cdr)
+        if(car(it)->type == SYMBOL){
+            if(EQS(it->pair->car->str , sym->str))
+                return it;
+        }
+        else if(car(it)->type == PAIR){
+            Obj s = lssym_rec(car(it) , sym);
+            if(s) return s;
+        }
+    return NULL;
+}
+
 Obj lssym(Obj ls , Obj sym){
     if(sym->type != SYMBOL) return NULL;
     for(Obj it = ls ; it &&
@@ -52,25 +67,61 @@ void print_symtree(Symtree tree){
     print_symtree(tree->lt);
 }
 
-Obj zipped_pat(Obj pat , Obj args , Obj env){
-    bool isls = is_list(pat);
-    int argslen = length(args);
-    env = new(ENV , env);
-    while(pat->type == PAIR){
-        if(EQS(pat->pair->car->str , "...")){
-            add_symbol(pat->pair->car , args , env);
-            return env;
+Obj map_car(Obj ls){
+    cons_t head;
+    Cons last = &head;
+    for( ; ls && !is_nil(ls) ; ls = cdr(ls)){
+        last->cdr = new(PAIR , new_cons(caar(ls) , NULL));
+        last = last->cdr->pair;
+    }
+    last->cdr = (Obj)nil;
+    return head.cdr;
+}
+
+void set_map_cdr(Obj ls){
+    for( ; ls && !is_nil(ls) ; ls = cdr(ls))
+        car(ls) = cdr(car(ls));
+}
+
+Obj zip_pat(Obj pat , Obj args , Obj env);
+
+Obj zip_elipat(Obj pat , Obj args , Obj env){
+    if(pat->type == SYMBOL)
+        add_symbol(pat , args , env);
+    else if(pat->type == PAIR){
+        for( ; pat && !is_nil(pat) ; pat = cdr(pat)){
+            zip_elipat(car(pat) , map_car(args) , env);
+            set_map_cdr(args);
         }
-        add_symbol(
-                pat->pair->car ,
-                args->pair->car ,
-                env);
-        pat = pat->pair->cdr;
-        args = args->pair->cdr;
+    }
+    else{
+        error("wrong eli zip type");
     }
     return env;
 }
 
+Obj zip_pat(Obj pat , Obj args , Obj env){
+    bool isls = is_list(pat);
+    int argslen = length(args);
+    while(pat->type == PAIR){
+        Obj mch = car(pat);
+        Obj nxt = cdr(pat);
+        nxt = nxt ? (nxt->type == PAIR ? car(nxt) : nxt) : NULL;
+        if(nxt == eli)
+            return zip_elipat(mch , args , env);
+
+        if(mch->type == PAIR){ /* rec zip */
+            zip_pat(mch , car(args) , env);
+        }
+        else if(mch->type == SYMBOL){
+            if(is_nil(args)) error("is nil? in util.c");
+            add_symbol(mch , car(args) , env);
+        }
+        pat = cdr(pat);
+        args = cdr(args);
+    }
+    return env;
+}
 
 Obj zipped_env(Obj syms , Obj args , Obj env){
     //assert args is list
@@ -78,7 +129,7 @@ Obj zipped_env(Obj syms , Obj args , Obj env){
     bool isls = is_list(syms);
     int argslen = length(args);
     if(isls && length(syms) != argslen ||
-            !isls && patnum(syms) > max(argslen , 1)){
+            !isls && pat_num(syms) > max(argslen , 1)){
         printf("unmatch args: ") , print_obj(syms);
         printf(" <- ") , print_obj(args) , error("");
     }
@@ -109,7 +160,7 @@ bool cmp_num(Obj a , Obj b){
         return (double)num_of(a) == (double)num_of(b);
 }
 
-int patnum(Obj pr){
+int pat_num(Obj pr){
     int rtn = 0;
     while(pr && !is_nil(pr))
         rtn ++ , pr = pr->pair->cdr;

@@ -30,6 +30,8 @@ Obj new_lit(char *v){
         obj = new(STRING , strndup(v + 1 , strlen(v) - 2));
     else if(EQS(v , "nil"))
         obj = (Obj)nil;
+    else if(EQS(v , "..."))
+        obj = (Obj)eli;
     else
         obj = new(SYMBOL , strdup(v));
     return obj;

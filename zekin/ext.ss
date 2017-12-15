@@ -48,4 +48,16 @@
     ((_ exp rest ...) (if exp (and rest ...) #f)))
   )
 
+(define let
+  (syntax-rules ()
+    ((_ ((bind args) ...) body ...)
+     ((lambda (bind ...) body ...) args ...))
+    ))
+
+(define begin
+  (syntax-rules ()
+    ((_ expr ...)
+     ((lambda () expr ...)))
+    ))
+
 (gc)

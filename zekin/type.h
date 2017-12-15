@@ -110,5 +110,7 @@ struct env_tag{
 };
 
 extern kObj nil;
+extern kObj eli; /* ellipsis */
 extern Obj glenv;
+
 #endif

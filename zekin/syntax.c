@@ -1,6 +1,7 @@
 #include "mem.h"
 #include "eval.h"
 #include "util.h"
+bool match(Obj keyws , Obj patn , Obj args);
 
 int least_elts(Obj pats){
     int cnt = 0;
@@ -13,64 +14,101 @@ int least_elts(Obj pats){
     return cnt;
 }
 
+bool has_eli(Obj ls){
+    for( ; ls && !is_nil(ls) ; ls = cdr(ls))
+        if(car(ls) == eli) return true;
+    return false;
+}
+
+bool eli_match(Obj keyws , Obj patn , Obj largs){
+    bool v = true;
+    for( ; largs && !is_nil(largs) ; largs = cdr(largs))
+        v &= match(keyws , patn , car(largs));
+    return v;
+}
+
 bool match(Obj keyws , Obj patn , Obj args){
-    patn = cdr(patn); /* discard _ */
-    //alert("patn is " , patn);
-    if(least_elts(patn) > length(args)) return false;
-    Obj t = patn , k = args;
-    Obj t_elt = t , k_elt = NULL;
-    for( ; t && k && t != nil && k != nil ;
-            t = t->pair->cdr , k = k->pair->cdr){
-        t_elt = t->pair->car;
-        k_elt = k->pair->car;
-        if(EQS(t_elt->str , "...")) return true;;
-        if(lssym(keyws , t_elt))
-            if(k_elt->type != SYMBOL ||
-                    strcmp(k_elt->str , t_elt->str))
+    int v = true;
+    if(patn->type == SYMBOL){
+        if(lssym(keyws , patn)) /* literal identifier */
+            v &= args->type == SYMBOL && EQS(patn->str , args->str);
+        else /* pattern varible */
+            v &= args != nil;
+    }
+    else if(patn->type == PAIR){
+        if(has_eli(patn)){
+            int psym_len = length(patn) - 2; /* 'rest '... */
+            ASSERT(psym_len >= 0 , "misplaced ellipsis in pattern");
+            if(psym_len > length(args)){
                 return false;
+            }
+            for( ; psym_len ; psym_len-- ,
+                    patn = cdr(patn) , args = cdr(args)){
+                if(!match(keyws , car(patn) , car(args)))
+                    v &= false;
+            }
+            v &= eli_match(keyws , car(patn) , args);
+        }
+        else{
+            if(is_list(patn)){
+                if(length(patn) != length(args))
+                    return false;
+            }
+            else{ /* improper pattern */
+                if(pat_num(patn) > pat_num(args))
+                    return false;
+            }
+            for( ; patn && patn->type == PAIR ;
+                    patn = cdr(patn) , args = cdr(args))
+                if(!match(keyws , car(patn) , car(args)))
+                    v &= false;
+            if(patn != nil)
+                if(!match(keyws , patn , args))
+                    v &= false;
+            v &= patn == args;
+        }
     }
-    if(t->type == PAIR && EQS(car(t)->str , "...")){
-        return true;
+    else{
+        v &= patn == args;
     }
-    return t == k;
+    //if(!v){
+    //    printf("mismatch ") , print_obj(patn) , printf(" , ");
+    //    print_obj(args) , puts("");
+    //}
+    return v;
 }
 
 Obj substitute(Obj tml , Obj pat , Obj tab){
     cons_t head;
     Cons last = &head;
-    //alert("tml is " , tml);
-    //alert("pat is " , pat);
-    //exit(0);
     if(tml->type != PAIR)
-        return tml->type == SYMBOL && lssym(pat , tml) ?
+        return tml->type == SYMBOL && lssym_rec(pat , tml) ?
             lookup_symbol(tml->str , tab) : tml;
-    for( ; !is_nil(tml) ; tml = tml->pair->cdr){
-        Obj unit = tml->pair->car;
+    for( ; tml && !is_nil(tml) ; tml = cdr(tml)){
+        Obj unit = car(tml);
+        Obj next = is_nil(cdr(tml)) ? NULL : (cadr(tml));
+        if(next && next == eli && unit->type != SYMBOL)
+            error("ellipsis must follow a symbol in template");
         if(unit->type == PAIR){
             last->cdr = new(PAIR , new_cons(NULL , NULL));
-            last->cdr->pair->car = substitute(unit , pat , tab);
+            car(last->cdr) = substitute(unit , pat , tab);
         }
-        else if(unit->type == SYMBOL && lssym(pat , unit)){
+        else if(next && next == eli){
             Obj sub = lookup_symbol(unit->str , tab);
-            if(EQS(unit->str , "...")){
-                if(is_nil(sub)) continue;
+            if(is_nil(sub)) continue;
+            last->cdr = new(PAIR , new_cons(NULL , NULL));
+            car(last->cdr) = car(sub);
+            for(Obj it = cdr(sub) ;
+                    !is_nil(it) ; it = cdr(it)){
+                last = last->cdr->pair;
                 last->cdr = new(PAIR , new_cons(NULL , NULL));
-                last->cdr->pair->car = car(sub);
-                for(Obj it = cdr(sub) ;
-                        !is_nil(it) ; it = cdr(it)){
-                    last = last->cdr->pair;
-                    last->cdr = new(PAIR , new_cons(NULL , NULL));
-                    last->cdr->pair->car = it->pair->car;
-                }
+                car(last->cdr) = car(it);
             }
-            else{
-                last->cdr = new(PAIR , new_cons(NULL , NULL));
-                last->cdr->pair->car = sub;
-            }
+            tml = cdr(tml);
         }
         else{
             last->cdr = new(PAIR , new_cons(NULL , NULL));
-            last->cdr->pair->car = unit;
+            car(last->cdr) = substitute(unit , pat , tab);
         }
         last = last->cdr->pair;
     }
@@ -81,10 +119,11 @@ Obj substitute(Obj tml , Obj pat , Obj tab){
 Obj expand(Obj rule , Obj args){
     Obj pat = car(rule) , tml = cadr(rule);
     pat = cdr(pat); /* discard _ */
-    Obj tab = zipped_pat(pat , args , NULL);
-//    print_obj(pat) , puts("");
-//    print_obj(args) , puts("");
-//    print_obj(tml) , puts("");
+    Obj tab = zip_pat(pat , args , new(ENV , NULL));
+    //print_symtree(tab->env->symtab);
+    //print_obj(pat) , puts("");
+    //print_obj(args) , puts("");
+    //print_obj(tml) , puts("");
     return substitute(tml , pat , tab);
 }
 
@@ -95,14 +134,21 @@ Obj apply_macro(Obj macro , Obj args , Obj env){
             rules && rules != nil ; rules = rules->pair->cdr){
         Obj rule = car(rules);
         Obj patn = car(rule);
-        if(match(macro->mac->keyws , patn , args)){
+        /* cdr(patn) to discard _ */
+        int v = match(macro->mac->keyws , cdr(patn) , args);
+        //print_obj(cdr(patn));
+        //printf(" : ") , print_obj(args);
+        //printf(" -> %d\n" , v);
+
+        if(match(macro->mac->keyws , cdr(patn) , args)){
+
             Obj expansion = expand(rule , args);
             alert("expand : " , expansion);
             return eval(expansion , env);
         }
     }
-    printf("cannot match any rule");
     exit(0);
+    printf("cannot match any rule");
     return NULL;
 }
 
@@ -161,6 +207,7 @@ Obj apply_define(Obj args , Obj env){
 
 Obj apply_lambda(Obj args , Obj env){
     // assert arity = 2
+    // assert car(args) all symbol
     return new(CLOSURE ,
             new(EXPR , NULL ,
                 args->pair->car ,
