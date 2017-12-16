@@ -1,6 +1,7 @@
 #include "mem.h"
 #include "gc.h"
 #include "util.h"
+#include "opt.h"
 #include <stdlib.h>
 #include <assert.h>
 #define LEAKFILE ".leak"
@@ -92,8 +93,12 @@ Obj new_STRING (char *v){
 }
 
 Obj new_SYMBOL (char* v){
-    Obj inst = new_obj(SYMBOL);
+    Obj inst;
+    if(inst = lookup_sym_pool(v))
+        return inst;
+    inst = new_obj(SYMBOL);
     inst->str = v;
+    push_sym_pool(inst);
     return inst;
 }
 

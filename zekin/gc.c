@@ -62,7 +62,7 @@ void unmark(){
 
 void smark(){
     for(ObjList it = head ; it ; it = it->next)
-        print_obj(it->v) , printf(" : %d\n" , it->v->mark);
+        print_obj(it->v) , printf(" : %p\n" , it->v);
 }
 
 void gc(){
