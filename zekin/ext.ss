@@ -35,6 +35,21 @@
   (if (null? ls) #f
     (if (= elt (caar ls)) (car ls) (assoc elt (cdr ls)))))
 
+(define (index-of-iter cmp elt ls cur)
+  (if (null? ls) -1
+    (if (cmp (car ls) elt) cur
+      (index-of-iter cmp elt (cdr ls) (+ cur 1)))
+    ))
+
+(define (index-of cmp elt ls)
+  (index-of-iter cmp elt ls 0))
+
+(define indexof
+  (syntax-rules
+    (in with)
+    ((_ elt in ls with cmp) (indexof cmp elt ls)))
+  )
+
 (define or
   (syntax-rules
     ()
@@ -70,7 +85,19 @@
     (else)
     ((_) (void))
     ((_ (else expr) rest ...)
-     (if #t expr (cond rest ...)))
+     (if #t expr))
     ((_ (pred expr) rest ...)
      (if pred expr (cond rest ...))))
+  )
+
+(define case
+  (syntax-rules
+    (else)
+    ((_ pred) (void))
+    ((_ want (else expr) rest ...)
+     (if #t expr))
+    ((_ want (pred expr) rest ...)
+     (if (>= (index-of equal? want 'pred) 0)
+       expr (case want rest ...)))
+    )
   )

@@ -20,7 +20,7 @@ Obj new_lit(char *v){
     Obj obj;
     if(v[0] == '#') // not impl char yet
         obj = new(BOOLEAN , parse_bool(v));
-    else if(isdigit(v[0])){
+    else if(isdigit(v[0]) || v[0] == '-' && isdigit(v[1])){
         if(!strchr(v , '.'))
             obj = new(INTEGER, parse_integer(v));
         else

@@ -12,7 +12,7 @@
     ((obj)->type == BOOLEAN && (obj)->boolean == false)
 #define is_true(obj) \
     ((obj)->type == BOOLEAN && (obj)->boolean == true)
-#define is_nil(obj) ((obj)->type == NIL)
+#define is_nil(obj) (obj == nil) //((obj)->type == NIL)
 #define xstr(s) str(s)
 #define str(s)  #s
 

@@ -140,6 +140,22 @@ Obj apply_equalq(Obj pr , Obj env){
     return new(BOOLEAN , equal(car(pr) , cadr(pr)));
 }
 
+#define apply_cmp(name , op) \
+Obj apply_ ## name (Obj pr , Obj env){ \
+    for( ; pr && !is_nil(pr) && !is_nil(cdr(pr)) ; \
+            pr = cdr(pr)) \
+        if(!(num_of(car(pr)) op num_of(cadr(pr)))) \
+            return (Obj)false_obj; \
+    return (Obj)true_obj; \
+}
+
+apply_cmp(lt , <);
+apply_cmp(gt , >);
+apply_cmp(let , <=);
+apply_cmp(get , >=);
+
+
+
 Obj apply_not(Obj pr , Obj env){
     //assert airth == 1
     return new(BOOLEAN , is_false(car(pr)));
