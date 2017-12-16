@@ -1,6 +1,6 @@
 (define (list . args)
-    (if (null? args) '()
-      (cons (car args) (apply list (cdr args)))))
+  (if (null? args) '()
+    (cons (car args) (apply list (cdr args)))))
 
 (define (append a b)
   (if (null? a) b
@@ -30,32 +30,47 @@
 (define (cadddr l) (car (cdr (cdr (cdr l)))))
 (define (tab) (senv global))
 (define (newline) (display "\n"))
+
 (define (assoc elt ls)
   (if (null? ls) #f
     (if (= elt (caar ls)) (car ls) (assoc elt (cdr ls)))))
 
 (define or
-  (syntax-rules ()
+  (syntax-rules
+    ()
     ((_) #t)
     ((_ exp) (if exp #t #f))
     ((_ exp rest ...) (if exp #t (or rest ...))))
   )
 
 (define and
-  (syntax-rules ()
+  (syntax-rules
+    ()
     ((_) #f)
     ((_ exp) (if exp #t #f))
     ((_ exp rest ...) (if exp (and rest ...) #f)))
   )
 
 (define let
-  (syntax-rules ()
+  (syntax-rules
+    ()
     ((_ ((bind args) ...) body ...)
-     ((lambda (bind ...) body ...) args ...))
-    ))
+     ((lambda (bind ...) body ...) args ...)))
+  )
 
 (define begin
-  (syntax-rules ()
+  (syntax-rules
+    ()
     ((_ expr ...)
-     ((lambda () expr ...)))
-    ))
+     ((lambda () expr ...))))
+  )
+
+(define cond
+  (syntax-rules
+    (else)
+    ((_) (void))
+    ((_ (else expr) rest ...)
+     (if #t expr (cond rest ...)))
+    ((_ (pred expr) rest ...)
+     (if pred expr (cond rest ...))))
+  )

@@ -21,7 +21,7 @@ bool check_shell(char *p){
         && (strncmp(p , "#\\" , 2));
 }
 
-void repl(){
+void repl(bool feedback){
     Token tok = NULL;
     bool fist_line = true;
     char *p = NULL;
@@ -34,12 +34,13 @@ void repl(){
             }
         }
         if(*p) p = tokenize(p , &tok);
+        if(!tok) continue;
         Obj val = parse(tok);
         Obj v = eval(val , glenv);
-        if(v) print_obj(v) , printf("\n");
+        if(feedback) print_obj(v) , printf("\n");
         free_token(tok);
         tok = NULL , val = NULL , v = NULL;
-        //auto_try_gc();
+        auto_try_gc();
     }
     clear_buf();
 }
@@ -48,13 +49,13 @@ int main(int args , char *argv[]){
 
     init_buildins();
     stream = fopen("ext.ss" , "r");
-    repl(); fclose(stream);
+    repl(false); fclose(stream);
     stream = stdin;
     if(args > 1)
         if(!(stream = fopen(argv[1] , "r")))
             printf("cannot open %s\n" , argv[1]) , exit(1);
     stdin_printf("Welcome to Zekin v1.0 Beta\n");
-    repl(); stdin_printf("\n");
+    repl(true); stdin_printf("\n");
     fclose(memchk);
     return 0;
 }

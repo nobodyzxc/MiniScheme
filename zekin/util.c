@@ -154,10 +154,42 @@ bool is_list(Obj pr){
 }
 
 bool cmp_num(Obj a , Obj b){
+    if(!is_num(a) || !is_num(b))
+        return false;
     if(a->type == b->type)
         return num_of(a) == num_of(b);
     else
         return (double)num_of(a) == (double)num_of(b);
+}
+
+bool eqv(Obj a , Obj b){
+    if(a == b)
+        return true;
+    if(a->type != b->type)
+        return false;
+    switch(a->type){
+        case INTEGER:
+        case DECIMAL:
+            return cmp_num(a , b);
+        case STRING:
+            return EQS(a->str , b->str);
+        default:
+            return false;
+    }
+}
+
+bool equal(Obj a , Obj b){
+    if(a->type != b->type)
+        return false;
+    if(eqv(a , b)) return true;
+    if(a->type == PAIR){
+        if(is_list(a) != is_list(b)) return false;
+        if(pat_num(a) != pat_num(b)) return false;
+        for( ; a && !is_nil(a) ; a = cdr(a) , b = cdr(b))
+            if(!equal(car(a) , car(b))) return false;
+        return true;
+    }
+    return false;
 }
 
 int pat_num(Obj pr){

@@ -81,9 +81,10 @@ bool match(Obj keyws , Obj patn , Obj args){
 Obj substitute(Obj tml , Obj pat , Obj tab){
     cons_t head;
     Cons last = &head;
-    if(tml->type != PAIR)
+    if(tml->type != PAIR){
         return tml->type == SYMBOL && lssym_rec(pat , tml) ?
             lookup_symbol(tml->str , tab) : tml;
+    }
     for( ; tml && !is_nil(tml) ; tml = cdr(tml)){
         Obj unit = car(tml);
         Obj next = is_nil(cdr(tml)) ? NULL : (cadr(tml));
@@ -94,7 +95,9 @@ Obj substitute(Obj tml , Obj pat , Obj tab){
             car(last->cdr) = substitute(unit , pat , tab);
         }
         else if(next && next == eli){
+            tml = cdr(tml); /* discard ... */
             Obj sub = lookup_symbol(unit->str , tab);
+            if(!sub) error("ellipsis must follow pat var");
             if(is_nil(sub)) continue;
             last->cdr = new(PAIR , new_cons(NULL , NULL));
             car(last->cdr) = car(sub);
@@ -104,7 +107,6 @@ Obj substitute(Obj tml , Obj pat , Obj tab){
                 last->cdr = new(PAIR , new_cons(NULL , NULL));
                 car(last->cdr) = car(it);
             }
-            tml = cdr(tml);
         }
         else{
             last->cdr = new(PAIR , new_cons(NULL , NULL));

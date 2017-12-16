@@ -47,6 +47,11 @@ void init_buildins(){
     BIND(FUNCTION , "list?"   , &apply_listq  , glenv);
     BIND(FUNCTION , "pair?"   , &apply_pairq  , glenv);
     BIND(FUNCTION , "source"  , &apply_source , glenv);
+    BIND(FUNCTION , "void"    , &apply_void   , glenv);
+    BIND(FUNCTION , "void?"   , &apply_voidq  , glenv);
+    BIND(FUNCTION , "eq?"     , &apply_eqq    , glenv);
+    BIND(FUNCTION , "eqv?"    , &apply_eqvq   , glenv);
+    BIND(FUNCTION , "equal?"  , &apply_equalq , glenv);
     BIND(SYNTAX   , "if"      , &apply_if     , glenv);
     BIND(SYNTAX   , "quote"   , &apply_quote  , glenv);
     BIND(SYNTAX   , "lambda"  , &apply_lambda , glenv);

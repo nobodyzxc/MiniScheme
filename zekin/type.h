@@ -111,6 +111,8 @@ struct env_tag{
 
 extern kObj nil;
 extern kObj eli; /* ellipsis */
+extern kObj true_obj;
+extern kObj false_obj;
 extern Obj glenv;
 
 #endif

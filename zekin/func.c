@@ -11,7 +11,7 @@ Obj apply_clos(Obj pcr , Obj args , Obj env){
     env = zipped_env(pcr_expr->args , args , pcr_clos->env);
     Obj iter = pcr->clos->exp->expr->body , val;
     while(!is_nil(iter))
-        val = eval(iter->pair->car , env) , iter = iter->pair->cdr;
+        val = eval(car(iter) , env) , iter = cdr(iter);
     return val;
 }
 
@@ -21,11 +21,11 @@ Obj apply_gc(Obj pr , Obj env){
 }
 
 Obj apply_source(Obj pr , Obj env){
-    //assert pr->pair->car is STRING
-    if(pr->pair->car->type != STRING)
+    //assert car(pr) is STRING
+    if(car(pr)->type != STRING)
         error("source file name must be string");
     FILE *prev_stream = stream;
-    char *filename = pr->pair->car->str;
+    char *filename = car(pr)->str;
     stream = fopen(filename , "r");
     if(!stream){
         printf("cannot open file %s\n" , filename);
@@ -40,7 +40,7 @@ Obj apply_source(Obj pr , Obj env){
 
 Obj apply_senv(Obj pr , Obj env){
     //assert len(pr) == 1
-    pr = pr->pair->car;
+    pr = car(pr);
     if(pr->type == ENV)
         print_symtree(pr->env->symtab);
     return NULL;
@@ -49,66 +49,66 @@ Obj apply_senv(Obj pr , Obj env){
 Obj apply_apply(Obj pr , Obj env){
     // assert arity == 2
     // avoid apply special form
-    if(pr->pair->car->type == CLOSURE)
-        return apply_clos(pr->pair->car ,
-                pr->pair->cdr->pair->car , env);
-    else if(pr->pair->car->type == FUNCTION)
-        return pr->pair->car->proc->apply(
-                pr->pair->cdr->pair->car , env);
-    alert("cannot apply " , pr->pair->car);
+    if(car(pr)->type == CLOSURE)
+        return apply_clos(car(pr) ,
+                cadr(pr) , env);
+    else if(car(pr)->type == FUNCTION)
+        return car(pr)->proc->apply(
+                cadr(pr) , env);
+    alert("cannot apply " , car(pr));
     return NULL;
 }
 
 Obj apply_nullq(Obj pr , Obj env){
     // assert arith == 1
-    return new(BOOLEAN , is_nil(pr->pair->car));
+    return new(BOOLEAN , is_nil(car(pr)));
 }
 
 Obj apply_listq(Obj pr , Obj env){
-    return new(BOOLEAN , is_list(pr->pair->car));
+    return new(BOOLEAN , is_list(car(pr)));
 }
 
 Obj apply_pairq(Obj pr , Obj env){
-    return new(BOOLEAN , pr->pair->car->type == PAIR);
+    return new(BOOLEAN , car(pr)->type == PAIR);
 }
 
 
 Obj apply_display(Obj pr , Obj env){
-    if(pr->pair->car->type == STRING){
-        print_esc(pr->pair->car->str);
+    if(car(pr)->type == STRING){
+        print_esc(car(pr)->str);
     }
     else
-        print_obj(pr->pair->car);
+        print_obj(car(pr));
     return NULL;
 }
 
 Obj apply_length(Obj pr , Obj env){
-    if(pr->pair->car->type != PAIR){
-        alert("cannot apply length on " , pr->pair->car);
+    if(car(pr)->type != PAIR){
+        alert("cannot apply length on " , car(pr));
         return NULL;
     }
-    return new(INTEGER , length(pr->pair->car));
+    return new(INTEGER , length(car(pr)));
 }
 
 Obj apply_car(Obj pr , Obj env){
-    if(pr->pair->car->type == PAIR)
-        return pr->pair->car->pair->car;
+    if(car(pr)->type == PAIR)
+        return caar(pr);
     else
-        alert("cannot apply car on " , pr->pair->car);
+        alert("cannot apply car on " , car(pr));
     return NULL;
 }
 
 Obj apply_cdr(Obj pr , Obj env){
-    if(pr->pair->car->type == PAIR)
-        return pr->pair->car->pair->cdr;
+    if(car(pr)->type == PAIR)
+        return cdar(pr);
     else
-        alert("cannot apply cdr on " , pr->pair->car);
+        alert("cannot apply cdr on " , car(pr));
     return NULL;
 }
 
 Obj apply_cons(Obj pr , Obj env){
     // assert arity == 2
-    kObj head = pr->pair->car , body = pr->pair->cdr->pair->car;
+    kObj head = car(pr) , body = cadr(pr);
     return new(PAIR , new_cons(head , body));
 }
 
@@ -117,18 +117,40 @@ Obj apply_eqnum(Obj pr , Obj env){
     if(length(pr) < 2)
         error("apply = on list whose length < 2\n");
     Obj rtn = new(BOOLEAN , true);
-    Obj head = pr->pair->car;
+    Obj head = car(pr);
     while(pr->type == PAIR)
-        if(!is_num(pr->pair->car))
-            print_obj(pr->pair->car) , error("apply = on non-number obj");
+        if(!is_num(car(pr)))
+            print_obj(car(pr)) , error("apply = on non-number obj");
         else
-            rtn->boolean &= cmp_num(head , pr->pair->car) , pr = pr->pair->cdr;
+            rtn->boolean &= cmp_num(head , car(pr)) , pr = cdr(pr);
     return rtn;
+}
+
+Obj apply_eqq(Obj pr , Obj env){
+    //assert arity == 2
+    return new(BOOLEAN , car(pr) == cadr(pr));
+}
+
+Obj apply_eqvq(Obj pr , Obj env){
+    //assert arity == 2
+    return new(BOOLEAN , eqv(car(pr) , cadr(pr)));
+}
+
+Obj apply_equalq(Obj pr , Obj env){
+    return new(BOOLEAN , equal(car(pr) , cadr(pr)));
 }
 
 Obj apply_not(Obj pr , Obj env){
     //assert airth == 1
-    return new(BOOLEAN , is_false(pr->pair->car));
+    return new(BOOLEAN , is_false(car(pr)));
+}
+
+Obj apply_void(Obj pr , Obj env){
+    return NULL;
+}
+
+Obj apply_voidq(Obj pr , Obj env){
+    return new(BOOLEAN , car(pr) == NULL);
 }
 
 #define arith(pr , rtn , op , base) \
@@ -136,34 +158,34 @@ Obj apply_not(Obj pr , Obj env){
     int pr_len = length(pr); /* here*/ \
     int chk = 6 op 2; \
     if((6 op 2 > 5 && pr_len) || pr_len > 1){ \
-        if(pr->pair->car->type == INTEGER){ \
-            rtn->integer = pr->pair->car->integer; \
+        if(car(pr)->type == INTEGER){ \
+            rtn->integer = car(pr)->integer; \
         } \
-        else if(pr->pair->car->type == DECIMAL){ \
+        else if(car(pr)->type == DECIMAL){ \
             rtn->type = DECIMAL; \
-            rtn->decimal = pr->pair->car->decimal; \
+            rtn->decimal = car(pr)->decimal; \
         } \
         else{ \
             printf("cannot apply " xstr(op) " on non-number obj"); \
-            print_obj(pr->pair->car); error("");\
+            print_obj(car(pr)); error("");\
         } \
-        pr = pr->pair->cdr; \
+        pr = cdr(pr); \
     } \
-    for( ; pr ; pr = pr->pair->cdr){ \
+    for( ; pr ; pr = cdr(pr)){ \
         if(pr->type == NIL) \
         break; \
         if(6 op 3 == 2){ \
-            if(num_of(pr->pair->car) == 0) \
+            if(num_of(car(pr)) == 0) \
             error("cannot div zero"); \
         } \
-        if(!is_num(pr->pair->car)) \
+        if(!is_num(car(pr))) \
             error("cannot apply " xstr(op) " on non-number obj"); \
         else if(rtn->type == DECIMAL){ \
             HANDEL_DEC1(pr , rtn , op , base) \
         } \
         else if(rtn->type == INTEGER){ \
-            if(pr->pair->car->type == INTEGER) \
-                rtn->integer op ## = pr->pair->car->integer; \
+            if(car(pr)->type == INTEGER) \
+                rtn->integer op ## = car(pr)->integer; \
             HANDEL_DEC2(pr , rtn , op , base) \
         } \
     }
@@ -175,16 +197,16 @@ Obj apply_not(Obj pr , Obj env){
     }
 
 #define HANDEL_DEC1(pr , rtn , op , base) \
-    if(pr->pair->car->type == INTEGER) \
-        rtn->decimal op ## = (double) pr->pair->car->integer; \
-    else if(pr->pair->car->type == DECIMAL) \
-        rtn->decimal op ## = pr->pair->car->decimal; \
+    if(car(pr)->type == INTEGER) \
+        rtn->decimal op ## = (double) car(pr)->integer; \
+    else if(car(pr)->type == DECIMAL) \
+        rtn->decimal op ## = car(pr)->decimal; \
 
 #define HANDEL_DEC2(pr , rtn , op , base) \
-    else if(pr->pair->car->type == DECIMAL){ \
+    else if(car(pr)->type == DECIMAL){ \
                 rtn->type = DECIMAL; \
                 rtn->decimal = rtn->integer; \
-                rtn->decimal op ## = pr->pair->car->decimal; \
+                rtn->decimal op ## = car(pr)->decimal; \
             }
 
 apply_opr(add , + , 0);
@@ -197,7 +219,7 @@ apply_opr(div , / , 1);
 #define HANDEL_DEC1(pr , rtn , op , base) \
     error("cannot apply %% on decimal");
 #define HANDEL_DEC2(pr , rtn , op , base) \
-    else if(pr->pair->car->type == DECIMAL){ \
+    else if(car(pr)->type == DECIMAL){ \
         error("cannot apply %% on decimal"); \
     }
 

@@ -10,6 +10,8 @@
 #define cdaar(p) (cdr(car(car(p))))
 bool is_list(Obj pr);
 bool cmp_num(Obj a , Obj b);
+bool eqv(Obj a , Obj b);
+bool equal(Obj a , Obj b);
 int pat_num(Obj pr);
 int  length(Obj pr);
 void print_pair(kObj pr);

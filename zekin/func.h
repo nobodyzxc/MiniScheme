@@ -22,6 +22,11 @@ Obj apply_cons(Obj pr , Obj env);
 Obj apply_display(Obj pr , Obj env);
 Obj apply_listq(Obj pr , Obj env);
 Obj apply_pairq(Obj pr , Obj env);
+Obj apply_void(Obj pr , Obj env);
+Obj apply_voidq(Obj pr , Obj env);
+Obj apply_eqq(Obj pr , Obj env);
+Obj apply_eqvq(Obj pr , Obj env);
+Obj apply_equalq(Obj pr , Obj env);
 
 
 Obj apply_clos(Obj pcr , Obj args , Obj env);

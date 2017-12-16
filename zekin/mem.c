@@ -63,9 +63,7 @@ Token new_token(char *p , Token next){
 }
 
 Obj new_BOOLEAN(bool v){
-    Obj inst = new_obj(BOOLEAN);
-    inst->boolean = v;
-    return inst;
+    return (Obj)(v ? true_obj : false_obj);
 }
 
 Obj new_INTEGER(long long v){
