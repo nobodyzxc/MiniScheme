@@ -5,6 +5,12 @@
 #include <assert.h>
 #define LEAKFILE ".leak"
 
+long long obj_count = 0;
+
+long long get_obj_num(){
+    return obj_count;
+}
+
 FILE *memchk = NULL;
 
 void *MALLOC(size_t size){
@@ -16,6 +22,7 @@ void *FREE(void *p){
 }
 
 Obj new_obj(type_t type){
+    obj_count++;
     Obj inst = (Obj)MALLOC(sizeof(obj_t));
     inst->type = type;
     inst->mark = false;
@@ -220,6 +227,7 @@ void free_symtree(Symtree tree){
 
 void free_obj(Obj obj){
     //printf("free : ") , print_obj(obj) , puts("");
+    obj_count--;
     if(!obj) return;
     if(obj->type == NIL)
         return;

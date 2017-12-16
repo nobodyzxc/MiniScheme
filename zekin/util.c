@@ -233,6 +233,8 @@ void print_obj(kObj obj){
                 break;
             case EXPR    :
                 printf("<expression>");
+                print_obj(obj->expr->args);
+                alert(" " , obj->expr->body);
                 break;
             case ENV     :
                 printf("<environment>");

@@ -33,6 +33,9 @@ void free_cons(Cons);
 void free_cons_shallow(Cons pr);
 void free_token(Token tok);
 
+long long get_obj_num();
+
 void add_symbol(Obj sym , Obj val , Obj env_obj);
 extern FILE *memchk;
+
 #endif

@@ -1,11 +1,10 @@
 #include "gc.h"
 #include "util.h"
+#include "mem.h"
 
 ObjList head = NULL;
-long long obj_count = 0;
 
 void gc_list_cons(Obj obj){
-    obj_count++;
     ObjList inst = malloc(sizeof(obj_list_t));
     inst->v = obj;
     inst->next = head ? head : NULL;
@@ -52,7 +51,6 @@ void sweep(){
             if(toFree == head) head = toFree->next;
             free_obj(toFree->v) , free(toFree);
             if(pre) it = pre;
-            obj_count--;
         }
     } // todo
 }
@@ -69,8 +67,15 @@ void smark(){
 
 void gc(){
     if(!head) return;
-    //smark();
     mark(glenv);
     sweep();
     unmark();
+}
+
+void auto_try_gc(){
+    static long long pre_obj_num = 0;
+    if(get_obj_num() > pre_obj_num * 2){
+        gc() , pre_obj_num = get_obj_num();
+        printf("auto gc end , %d obj left\n" , pre_obj_num);
+    }
 }

@@ -9,6 +9,7 @@
 #include "util.h"
 #include "token.h"
 #include "parse.h"
+#include "gc.h"
 
 FILE *stream;
 
@@ -38,6 +39,7 @@ void repl(){
         if(v) print_obj(v) , printf("\n");
         free_token(tok);
         tok = NULL , val = NULL , v = NULL;
+        auto_try_gc();
     }
     clear_buf();
 }

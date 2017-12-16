@@ -14,4 +14,5 @@ struct obj_list_tag{
 
 void gc_list_cons(Obj obj);
 void gc();
+void auto_try_gc();
 #endif
