@@ -47,6 +47,8 @@ Obj eval(Obj val , Obj env){
 
             args = map_eval(args , env); //consider cost of space
 
+            if(!args) return NULL;
+
             if(app->type == FUNCTION)
                 return args ? app->proc->apply(args , env) : NULL;
             else if(app->type == CLOSURE)

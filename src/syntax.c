@@ -157,6 +157,7 @@ Obj apply_if(Obj args , Obj env){
     //assert arity <= 3
     Obj cdr = args->pair->cdr;
     Obj predict = eval(args->pair->car , env);
+    if(!predict) return NULL;
     if(!is_false(predict))
         return eval(cdr->pair->car , env);
     else if (length(args) > 2)
@@ -173,8 +174,11 @@ Obj apply_define(Obj args , Obj env){
     //assert args == 2
     Obj id = car(args);
     Obj expr = cdr(args);
-    if(id->type == SYMBOL)
-        add_symbol(id , eval(car(expr) , env) , env);
+    if(id->type == SYMBOL){
+        Obj val = eval(car(expr) , env);
+        if(!val) return NULL;
+        add_symbol(id , val , env);
+    }
     else if(id->type == PAIR) // func short form
         add_symbol(car(id) , new(CLOSURE , new(EXPR , NULL ,
                         cdr(id) , expr) , env) , env);
@@ -207,6 +211,7 @@ Obj apply_set(Obj args , Obj env){
     // assert id == SYM
     Obj id = car(args);
     Obj expr = eval(cadr(args) , env);
+    if(!eval) return NULL;
     if(env = lookup_symenv(id->str , env)){
         add_symbol(id , expr , env);
     }
