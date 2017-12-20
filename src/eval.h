@@ -1,6 +1,5 @@
 #ifndef EVAL_H
 #define EVAL_H
-//#include "env.h"
 #include "type.h"
 #include "proc.h"
 #include "token.h"
