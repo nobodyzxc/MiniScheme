@@ -1,0 +1,9 @@
+DST=src
+if [ -f main.c ];then
+    DST=.
+fi
+if [ ! -f $DST/main.exe ]; then
+    cd $DST ; make ; cd -
+fi
+cd $DST
+rlwrap ./main.exe $*

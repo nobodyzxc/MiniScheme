@@ -6,20 +6,35 @@
 #include "syntax.h"
 
 Obj lookup_symbol(char *v , Obj env_obj){
-    Obj env_it = env_obj;
-    while(env_it){
-        Symtree iter = env_it->env->symtab;
+    while(env_obj){
+        Symtree iter = env_obj->env->symtab;
         while(iter){
             int df = strcmp(iter->sym->str , v);
             if(!df) return iter->val;
             if(df < 0) iter = iter->lt;
             else iter = iter->rt;
         }
-        env_it = env_it->env->parent;
+        env_obj = env_obj->env->parent;
     }
     printf("cannot find symbol %s\n" , v);
     return NULL;
 }
+
+Obj lookup_symenv(char *v , Obj env_obj){
+    while(env_obj){
+        Symtree iter = env_obj->env->symtab;
+        while(iter){
+            int df = strcmp(iter->sym->str , v);
+            if(!df) return env_obj;
+            if(df < 0) iter = iter->lt;
+            else iter = iter->rt;
+        }
+        env_obj = env_obj->env->parent;
+    }
+    printf("cannot find symbol %s\n" , v);
+    return NULL;
+}
+
 
 #define BIND(TYPE , SYM , PROC , ENV) \
     add_symbol(\
@@ -60,12 +75,9 @@ void init_buildins(){
     BIND(SYNTAX   , "quote"   , &apply_quote  , glenv);
     BIND(SYNTAX   , "lambda"  , &apply_lambda , glenv);
     BIND(SYNTAX   , "define"  , &apply_define , glenv);
+    BIND(SYNTAX   , "set!"    , &apply_set    , glenv);
     BIND(SYNTAX   , "syntax-rules"  , &apply_syntax_rules , glenv);
     add_symbol(new(SYMBOL , strdup("global")) , glenv , glenv);
     BIND(FUNCTION   , "gc"      , &apply_gc     , glenv);
     BIND(FUNCTION , "senv"    , &apply_senv   , glenv);
-
-    /* the proc below provide in macro form */
-    //BIND(SYNTAX   , "and"     , &apply_and    , glenv);
-    //BIND(SYNTAX   , "or"      , &apply_or     , glenv);
 }

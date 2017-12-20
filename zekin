@@ -1,5 +1,1 @@
-if [ ! -f src/main.exe ]; then
-    cd src ; make ; cd ..
-fi
-cd src
-rlwrap ./main.exe $*
+src/zekin

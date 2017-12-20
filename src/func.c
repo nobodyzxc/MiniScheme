@@ -116,14 +116,14 @@ Obj apply_eqnum(Obj pr , Obj env){
     // assert arity > 1
     if(length(pr) < 2)
         error("apply = on list whose length < 2\n");
-    Obj rtn = new(BOOLEAN , true);
+    bool rtn = true;
     Obj head = car(pr);
     while(pr->type == PAIR)
         if(!is_num(car(pr)))
             print_obj(car(pr)) , error("apply = on non-number obj");
         else
-            rtn->boolean &= cmp_num(head , car(pr)) , pr = cdr(pr);
-    return rtn;
+            rtn &= cmp_num(head , car(pr)) , pr = cdr(pr);
+    return new(BOOLEAN , rtn);
 }
 
 Obj apply_eqq(Obj pr , Obj env){
@@ -153,8 +153,6 @@ apply_cmp(lt , <);
 apply_cmp(gt , >);
 apply_cmp(let , <=);
 apply_cmp(get , >=);
-
-
 
 Obj apply_not(Obj pr , Obj env){
     //assert airth == 1

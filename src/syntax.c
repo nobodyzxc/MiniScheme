@@ -169,39 +169,17 @@ Obj apply_quote(Obj args , Obj env){
     return args->pair->car;
 }
 
-Obj apply_and(Obj args , Obj env){
-    if(!args) return new(BOOLEAN , true);
-    while(!is_nil(args)){
-        if(is_false(args->pair->car))
-            return new(BOOLEAN , false);
-        args = args->pair->cdr;
-        if(!args) error("apply add on pair");
-    }
-    return args->pair->car;
-}
-
-Obj apply_or(Obj args , Obj env){
-    if(!args) return new(BOOLEAN , false);
-    while(!is_nil(args)){
-        if(!is_false(args->pair->car))
-            return args->pair->car;
-        args = args->pair->cdr;
-        if(!args) error("apply add on pair");
-    }
-    return new(BOOLEAN , false);
-}
-
 Obj apply_define(Obj args , Obj env){
     //assert args == 2
-    Obj car = args->pair->car;
-    Obj cdr = args->pair->cdr;
-    if(car->type == SYMBOL)
-        add_symbol(car , eval(cdr->pair->car , env) , env);
-    else if(car->type == PAIR) // func short form
-        add_symbol(car->pair->car , new(CLOSURE , new(EXPR , NULL ,
-                        car->pair->cdr , cdr) , env) , env);
+    Obj id = car(args);
+    Obj expr = cdr(args);
+    if(id->type == SYMBOL)
+        add_symbol(id , eval(car(expr) , env) , env);
+    else if(id->type == PAIR) // func short form
+        add_symbol(car(id) , new(CLOSURE , new(EXPR , NULL ,
+                        cdr(id) , expr) , env) , env);
     else
-        alert("def with a non-sym/non-pair obj : " , args->pair->car);
+        alert("def with a non-sym/non-pair obj : " , id);
     return NULL;
 }
 
@@ -223,4 +201,15 @@ Obj apply_syntax_rules(Obj args , Obj env){
     return new(MACRO ,
             args->pair->car ,
             args->pair->cdr);
+}
+
+Obj apply_set(Obj args , Obj env){
+    // assert id == SYM
+    Obj id = car(args);
+    Obj expr = eval(cadr(args) , env);
+    if(env = lookup_symenv(id->str , env)){
+        add_symbol(id , expr , env);
+    }
+    else printf("cannot find symbol");
+    return NULL;
 }

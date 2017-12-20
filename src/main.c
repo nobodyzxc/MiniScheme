@@ -37,7 +37,8 @@ void repl(bool feedback){
         if(!tok) continue;
         Obj val = parse(tok);
         Obj v = eval(val , glenv);
-        if(feedback) print_obj(v) , printf("\n");
+        if(feedback && stream == stdin)
+            print_obj(v) , printf("\n");
         free_token(tok);
         tok = NULL , val = NULL , v = NULL;
         auto_try_gc();

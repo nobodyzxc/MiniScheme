@@ -4,7 +4,6 @@
 #include "opt.h"
 #include <stdlib.h>
 #include <assert.h>
-#define LEAKFILE ".leak"
 
 long long obj_count = 0;
 
@@ -174,53 +173,6 @@ void add_symbol(Obj sym , Obj val , Obj env_obj){
     }
 }
 
-//Obj  copy_obj(Obj obj){
-//    puts("copy_obj not ready yet");
-//    // evil
-//    exit(0);
-//    if(obj->type == NIL)
-//        return obj;
-//    else if(obj->type == STRING)
-//        return new(STRING , strdup(obj->str));
-//    else if(obj->type == SYMBOL)
-//        return new(SYMBOL , strdup(obj->str));
-//    else if(obj->type == PAIR)
-//        return new(PAIR , copy_cons(obj->pair));
-//    else if(obj->type == SYNTAX)
-//        return new(SYNTAX , obj->proc->name , obj->proc->apply);
-//    else if(obj->type == FUNCTION)
-//        return new(FUNCTION , obj->proc->name , obj->proc->apply);
-//    else if(obj->type == CLOSURE)
-//        return new(CLOSURE ,
-//                copy_obj(obj->clos->exp),
-//                copy_obj(obj->clos->env));
-//    else if(obj->type == EXPR)
-//        return new(EXPR ,
-//                strdup(obj->expr->name),
-//                copy_obj(obj->expr->args),
-//                copy_obj(obj->expr->body));
-//    else if(obj->type == ENV)
-//        return new(ENV , obj->env->parent);
-//    else{
-//        // shallow copy can handle
-//        // bool , int , dec , chr
-//        Obj inst = new_obj(obj->type);
-//        (*inst) = (*obj);
-//        return inst;
-//    }
-//}
-
-//Cons copy_cons(Cons pr){
-//    Cons inst = new_cons(pr->car , NULL);
-//    Cons it = inst;
-//    pr = pr->cdr;
-//    while(pr){
-//        it->cdr = new_cons(pr->car , NULL);
-//        it = it->cdr , pr = pr->cdr;
-//    }
-//    return inst;
-//}
-
 void free_symtree(Symtree tree){
     if(!tree) return;
     if(tree->lt) free_symtree(tree->lt);
@@ -229,7 +181,6 @@ void free_symtree(Symtree tree){
 }
 
 void free_obj(Obj obj){
-    //printf("free : ") , print_obj(obj) , puts("");
     obj_count--;
     if(!obj) return;
     if(obj->type == NIL)
@@ -242,31 +193,6 @@ void free_obj(Obj obj){
         free_symtree(obj->env->symtab);
     FREE(obj);
 }
-
-//void free_cons(Cons pr){
-//    if(!pr) return;
-//    char s[100];
-//    while(pr && pr->cdr){
-//        free_obj(pr->car);
-//        Cons fp = pr;
-//        pr = pr->cdr;
-//        FREE(fp);
-//    }
-//    if(pr->car->type == NIL){
-//        FREE(pr);
-//    }
-//}
-//
-//void free_cons_shallow(Cons pr){
-//    while(pr && pr->cdr){
-//        Cons fp = pr;
-//        pr = pr->cdr;
-//        FREE(fp);
-//    }
-//    if(pr->car->type == NIL){
-//        FREE(pr);
-//    }
-//}
 
 void free_token(Token tok){
     Token pre = tok;

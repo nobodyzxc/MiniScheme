@@ -8,9 +8,9 @@ S expression parser (done)
 
 list structure      (done)
 
-environment & closure
+environment & closure (done)
 
-garbage collection
+garbage collection (done)
 
 from wiki:
 
