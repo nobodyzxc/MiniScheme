@@ -24,7 +24,7 @@ bool check_shell(char *p){
 void repl(bool feedback){
     Token tok = NULL;
     bool fist_line = true;
-    char *p = NULL;
+    char *p = "";
     while((p && *p) || (p = input("> " , false))){
         if(fist_line){
             fist_line = false;

@@ -3,6 +3,7 @@
 #include "util.h"
 #include "eval.h"
 #include "main.h"
+#include "parse.h"
 
 Obj apply_clos(Obj pcr , Obj args , Obj env){
 
@@ -10,7 +11,7 @@ Obj apply_clos(Obj pcr , Obj args , Obj env){
     Expr pcr_expr = pcr_clos->exp->expr;
     env = zipped_env(pcr_expr->args , args , pcr_clos->env);
     Obj iter = pcr->clos->exp->expr->body , val;
-    while(!is_nil(iter))
+    while(!IS_NIL(iter))
         val = eval(car(iter) , env) , iter = cdr(iter);
     return val;
 }
@@ -61,7 +62,7 @@ Obj apply_apply(Obj pr , Obj env){
 
 Obj apply_nullq(Obj pr , Obj env){
     // assert arith == 1
-    return new(BOOLEAN , is_nil(car(pr)));
+    return new(BOOLEAN , IS_NIL(car(pr)));
 }
 
 Obj apply_listq(Obj pr , Obj env){
@@ -142,7 +143,7 @@ Obj apply_equalq(Obj pr , Obj env){
 
 #define apply_cmp(name , op) \
 Obj apply_ ## name (Obj pr , Obj env){ \
-    for( ; pr && !is_nil(pr) && !is_nil(cdr(pr)) ; \
+    for( ; pr && !IS_NIL(pr) && !IS_NIL(cdr(pr)) ; \
             pr = cdr(pr)) \
         if(!(num_of(car(pr)) op num_of(cadr(pr)))) \
             return (Obj)false_obj; \
@@ -156,7 +157,7 @@ apply_cmp(get , >=);
 
 Obj apply_not(Obj pr , Obj env){
     //assert airth == 1
-    return new(BOOLEAN , is_false(car(pr)));
+    return new(BOOLEAN , IS_FALSE(car(pr)));
 }
 
 Obj apply_void(Obj pr , Obj env){
@@ -165,6 +166,25 @@ Obj apply_void(Obj pr , Obj env){
 
 Obj apply_voidq(Obj pr , Obj env){
     return new(BOOLEAN , car(pr) == NULL);
+}
+
+Obj apply_symbolq(Obj pr , Obj env){
+    return new(BOOLEAN , car(pr)->type == SYMBOL);
+}
+
+Obj apply_procedureq(Obj pr , Obj env){
+    return new(BOOLEAN ,
+            car(pr)->type == CLOSURE
+            || car(pr)->type == FUNCTION);
+}
+
+Obj apply_read(Obj pr , Obj env){
+    char *p = input("" , false);
+    Token tok = NULL;
+    tokenize(p , &tok);
+    Obj val = eval(parse(tok) , env);
+    free_token(tok);
+    return val;
 }
 
 #define arith(pr , rtn , op , base) \

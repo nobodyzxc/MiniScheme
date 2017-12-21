@@ -5,14 +5,29 @@
 #include <stdbool.h>
 #define EQS(a , b) (!strcmp(a , b))
 #define is_num(obj) \
-    ((obj)->type == INTEGER || (obj)->type == DECIMAL)
+    ((obj) && ((obj)->type == INTEGER || (obj)->type == DECIMAL))
 #define num_of(obj) \
     ((obj)->type == INTEGER ? (obj)->integer : (obj)->decimal)
-#define is_false(obj) \
-    ((obj)->type == BOOLEAN && (obj)->boolean == false)
-#define is_true(obj) \
-    ((obj)->type == BOOLEAN && (obj)->boolean == true)
-#define is_nil(obj) (obj == nil) //((obj)->type == NIL)
+#define IS_FALSE(obj) \
+    ((obj) && (obj)->type == BOOLEAN && (obj)->boolean == false)
+#define IS_TRUE(obj) \
+    (!(obj) || !IS_FALSE(obj))
+
+#define IS_NIL(obj) (obj == nil) //((obj)->type == NIL)
+
+#define IS_SELFEVAL(expr) \
+    ((expr) && (expr)->type != PAIR)
+
+#define IS_EXPR_OF(expr , call) \
+    ((expr) && (expr)->type == PAIR \
+     && car(expr)->type == SYMBOL \
+     && EQS(car(expr)->str , call))
+
+#define IS_SELFEVAL(expr) ((expr) && (expr)->type != PAIR)
+
+#define IS_PAIR(expr) ((expr) && (expr)->type == PAIR)
+#define IS_SYMBOL(expr) ((expr) && (expr)->type == PAIR)
+
 #define xstr(s) str(s)
 #define str(s)  #s
 

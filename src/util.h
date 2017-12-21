@@ -4,6 +4,8 @@
 #define cdr(p) ((p)->pair->cdr)
 #define car(p) ((p)->pair->car)
 #define cadr(p) (car(cdr(p)))
+#define caddr(p) (car(cdr(cdr(p))))
+#define cadddr(p) (car(cdr(cdr(cdr(p)))))
 #define caar(p) (car(car(p)))
 #define caaar(p) (car(car(car(p))))
 #define cdar(p) (cdr(car(p)))

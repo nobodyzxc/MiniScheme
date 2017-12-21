@@ -74,8 +74,10 @@ void gc(){
 
 void auto_try_gc(){
     static long long pre_obj_num = 0;
-    if(get_obj_num() > pre_obj_num * 2){
+    int pre_num = get_obj_num();
+    if(pre_num > pre_obj_num * 2){
         gc() , pre_obj_num = get_obj_num();
-        printf("auto gc end , %d obj left\n" , pre_obj_num);
+        printf("auto gc end , %d obj cleared , %d obj left\n" ,
+                pre_num - pre_obj_num , pre_obj_num);
     }
 }

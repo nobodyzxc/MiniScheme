@@ -15,14 +15,14 @@ int least_elts(Obj pats){
 }
 
 bool has_eli(Obj ls){
-    for( ; ls && !is_nil(ls) ; ls = cdr(ls))
+    for( ; ls && !IS_NIL(ls) ; ls = cdr(ls))
         if(car(ls) == eli) return true;
     return false;
 }
 
 bool eli_match(Obj keyws , Obj patn , Obj largs){
     bool v = true;
-    for( ; largs && !is_nil(largs) ; largs = cdr(largs))
+    for( ; largs && !IS_NIL(largs) ; largs = cdr(largs))
         v &= match(keyws , patn , car(largs));
     return v;
 }
@@ -85,9 +85,9 @@ Obj substitute(Obj tml , Obj pat , Obj tab){
         return tml->type == SYMBOL && lssym_rec(pat , tml) ?
             lookup_symbol(tml->str , tab) : tml;
     }
-    for( ; tml && !is_nil(tml) ; tml = cdr(tml)){
+    for( ; tml && !IS_NIL(tml) ; tml = cdr(tml)){
         Obj unit = car(tml);
-        Obj next = is_nil(cdr(tml)) ? NULL : (cadr(tml));
+        Obj next = IS_NIL(cdr(tml)) ? NULL : (cadr(tml));
         if(next && next == eli && unit->type != SYMBOL)
             error("ellipsis must follow a symbol in template");
         if(unit->type == PAIR){
@@ -98,11 +98,11 @@ Obj substitute(Obj tml , Obj pat , Obj tab){
             tml = cdr(tml); /* discard ... */
             Obj sub = lookup_symbol(unit->str , tab);
             if(!sub) error("ellipsis must follow pat var");
-            if(is_nil(sub)) continue;
+            if(IS_NIL(sub)) continue;
             last->cdr = new(PAIR , new_cons(NULL , NULL));
             car(last->cdr) = car(sub);
             for(Obj it = cdr(sub) ;
-                    !is_nil(it) ; it = cdr(it)){
+                    !IS_NIL(it) ; it = cdr(it)){
                 last = last->cdr->pair;
                 last->cdr = new(PAIR , new_cons(NULL , NULL));
                 car(last->cdr) = car(it);
@@ -158,7 +158,7 @@ Obj apply_if(Obj args , Obj env){
     Obj cdr = args->pair->cdr;
     Obj predict = eval(args->pair->car , env);
     if(!predict) return NULL;
-    if(!is_false(predict))
+    if(!IS_FALSE(predict))
         return eval(cdr->pair->car , env);
     else if (length(args) > 2)
         return eval(cdr->pair->cdr->pair->car , env);

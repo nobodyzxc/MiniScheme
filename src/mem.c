@@ -147,6 +147,12 @@ Obj new_MACRO(Obj keyws , Obj rules){
 
 #define side(iter , diff) (diff < 0 ? (iter)->lt : (iter)->rt)
 void add_symbol(Obj sym , Obj val , Obj env_obj){
+    if(sym->type != SYMBOL){
+        print_obj(sym);
+        print_obj(val);
+        puts("ff");
+        exit(0);
+    }
     assert(sym->type == SYMBOL);
     Symtree inst = (Symtree)MALLOC(sizeof(symtree_t));
     inst->sym = sym , inst->val = val;

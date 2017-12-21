@@ -13,7 +13,7 @@ void clear_buf(void){
     memset(ss , 0 , sizeof(ss));
 }
 
-char *input(const char *prompt , bool lock){ //getline?
+char *input(const char *prompt , bool lock){
     stdin_printf(prompt);
     if(lock)
         while(!fgets(ss , sizeof(ss) , stream));

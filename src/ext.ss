@@ -84,20 +84,20 @@
   (syntax-rules
     (else)
     ((_) (void))
-    ((_ (else expr) rest ...)
-     (if #t expr))
-    ((_ (pred expr) rest ...)
-     (if pred expr (cond rest ...))))
+    ((_ (else expr ...) rest ...)
+     (if #t (begin expr ...)))
+    ((_ (pred expr ...) rest ...)
+     (if pred (begin expr ...) (cond rest ...))))
   )
 
 (define case
   (syntax-rules
     (else)
     ((_ pred) (void))
-    ((_ want (else expr) rest ...)
-     (if #t expr))
-    ((_ want (pred expr) rest ...)
+    ((_ want (else expr ...) rest ...)
+     (if #t (begin expr ...)))
+    ((_ want (pred expr ...) rest ...)
      (if (>= (index-of equal? want 'pred) 0)
-       expr (case want rest ...)))
+       (begin expr ...) (case want rest ...)))
     )
   )

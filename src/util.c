@@ -70,7 +70,7 @@ void print_symtree(Symtree tree){
 Obj map_car(Obj ls){
     cons_t head;
     Cons last = &head;
-    for( ; ls && !is_nil(ls) ; ls = cdr(ls)){
+    for( ; ls && !IS_NIL(ls) ; ls = cdr(ls)){
         last->cdr = new(PAIR , new_cons(caar(ls) , NULL));
         last = last->cdr->pair;
     }
@@ -79,7 +79,7 @@ Obj map_car(Obj ls){
 }
 
 void set_map_cdr(Obj ls){
-    for( ; ls && !is_nil(ls) ; ls = cdr(ls))
+    for( ; ls && !IS_NIL(ls) ; ls = cdr(ls))
         car(ls) = cdr(car(ls));
 }
 
@@ -89,7 +89,7 @@ Obj zip_elipat(Obj pat , Obj args , Obj env){
     if(pat->type == SYMBOL)
         add_symbol(pat , args , env);
     else if(pat->type == PAIR){
-        for( ; pat && !is_nil(pat) ; pat = cdr(pat)){
+        for( ; pat && !IS_NIL(pat) ; pat = cdr(pat)){
             zip_elipat(car(pat) , map_car(args) , env);
             set_map_cdr(args);
         }
@@ -114,7 +114,7 @@ Obj zip_pat(Obj pat , Obj args , Obj env){
             zip_pat(mch , car(args) , env);
         }
         else if(mch->type == SYMBOL){
-            if(is_nil(args)) error("is nil? in util.c");
+            if(IS_NIL(args)) error("is nil? in util.c");
             add_symbol(mch , car(args) , env);
         }
         pat = cdr(pat);
@@ -142,7 +142,7 @@ Obj zipped_env(Obj syms , Obj args , Obj env){
         syms = syms->pair->cdr;
         args = args->pair->cdr;
     }
-    if(!is_nil(syms))
+    if(!IS_NIL(syms))
         add_symbol(syms , args , env);
     return env;
 }
@@ -185,7 +185,7 @@ bool equal(Obj a , Obj b){
     if(a->type == PAIR){
         if(is_list(a) != is_list(b)) return false;
         if(pat_num(a) != pat_num(b)) return false;
-        for( ; a && !is_nil(a) ; a = cdr(a) , b = cdr(b))
+        for( ; a && !IS_NIL(a) ; a = cdr(a) , b = cdr(b))
             if(!equal(car(a) , car(b))) return false;
         return true;
     }
@@ -194,7 +194,7 @@ bool equal(Obj a , Obj b){
 
 int pat_num(Obj pr){
     int rtn = 0;
-    while(pr && !is_nil(pr))
+    while(pr && !IS_NIL(pr))
         rtn ++ , pr = pr->pair->cdr;
     return rtn;
 }
@@ -203,7 +203,7 @@ int length(Obj pr){
     int rtn = 0;
     if(!is_list(pr))
         error("apply length on pair\n");
-    while(!is_nil(pr))
+    while(!IS_NIL(pr))
         rtn++ , pr = pr->pair->cdr;
     return rtn;
 }
@@ -218,7 +218,7 @@ void print_pair(kObj pr){
     pr = pr->pair->cdr;
     while(pr && pr->type == PAIR)
         printf(" ") , print_obj(pr->pair->car) , pr = pr->pair->cdr;
-    if(pr && !is_nil(pr))
+    if(pr && !IS_NIL(pr))
         printf(" . ") , print_obj(pr);
     printf(")");
 }
@@ -261,12 +261,13 @@ void print_obj(kObj obj){
                 printf("<procedure:%s>" , obj->proc->name);
                 break;
             case CLOSURE :
-                printf("<closure>");
+                printf("<closure> = ");
+                print_obj(obj->clos->exp);
                 break;
             case EXPR    :
-                printf("<expression>");
+                printf("<expression> : ");
                 print_obj(obj->expr->args);
-                alert(" " , obj->expr->body);
+                alert(" . " , obj->expr->body);
                 break;
             case ENV     :
                 printf("<environment>");

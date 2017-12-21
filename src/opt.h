@@ -5,6 +5,7 @@
 
 Obj lookup_sym_pool(char *s);
 void push_sym_pool(Obj sym);
+Obj find_tail(Obj expr , Obj env);
 
 typedef struct map_obj_tag MapObj;
 

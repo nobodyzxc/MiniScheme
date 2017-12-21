@@ -4,5 +4,5 @@
 #include "proc.h"
 #include "token.h"
 Obj eval(Obj val , Obj env);
-
+Obj map_eval(Obj val , Obj env);
 #endif

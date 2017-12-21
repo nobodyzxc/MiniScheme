@@ -27,10 +27,13 @@ Obj apply_voidq(Obj pr , Obj env);
 Obj apply_eqq(Obj pr , Obj env);
 Obj apply_eqvq(Obj pr , Obj env);
 Obj apply_equalq(Obj pr , Obj env);
+Obj apply_symbolq(Obj pr , Obj env);
+Obj apply_procedureq(Obj pr , Obj env);
 Obj apply_lt(Obj pr , Obj env);
 Obj apply_gt(Obj pr , Obj env);
 Obj apply_let(Obj pr , Obj env);
 Obj apply_get(Obj pr , Obj env);
+Obj apply_read(Obj pr , Obj env);
 
 Obj apply_clos(Obj pcr , Obj args , Obj env);
 #endif
