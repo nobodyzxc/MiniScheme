@@ -47,6 +47,7 @@
 (define indexof
   (syntax-rules
     (in with)
+    ((_ elt ls) (index-of equal? elt ls))
     ((_ elt in ls with cmp) (index-of cmp elt ls)))
   )
 
