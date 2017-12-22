@@ -11,6 +11,7 @@
 #include "parse.h"
 #include "gc.h"
 
+#define EXTENSION "lib.ss"
 FILE *stream;
 
 bool check_shell(char *p){
@@ -49,7 +50,7 @@ void repl(bool feedback){
 int main(int args , char *argv[]){
 
     init_buildins();
-    stream = fopen("ext.ss" , "r");
+    stream = fopen(EXTENSION , "r");
     repl(false); fclose(stream);
     stream = stdin;
     if(args > 1)

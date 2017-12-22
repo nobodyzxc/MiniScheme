@@ -4,6 +4,7 @@
 #include "mem.h"
 #include "func.h"
 #include "syntax.h"
+#include "opt.h"
 
 Obj lookup_symbol(char *v , Obj env_obj){
     while(env_obj){
@@ -74,13 +75,15 @@ void init_buildins(){
     BIND(FUNCTION , "symbol?"    , &apply_symbolq   , glenv);
     BIND(FUNCTION , "procedure?" , &apply_procedureq, glenv);
     BIND(FUNCTION , "read"       , &apply_read      , glenv);
-    BIND(SYNTAX   , "if"         , &apply_if        , glenv);
-    BIND(SYNTAX   , "quote"      , &apply_quote     , glenv);
-    BIND(SYNTAX   , "lambda"     , &apply_lambda    , glenv);
-    BIND(SYNTAX   , "define"     , &apply_define    , glenv);
-    BIND(SYNTAX   , "set!"       , &apply_set       , glenv);
-    BIND(SYNTAX   , "syntax-rules"  , &apply_syntax_rules , glenv);
+
+    BIND(SYNTAX ,  "if"         , &apply_if        , glenv);
+    BIND(SYNTAX ,  "quote"      , &apply_quote     , glenv);
+    BIND(SYNTAX ,  "lambda"     , &apply_lambda    , glenv);
+    BIND(SYNTAX ,  "define"     , &apply_define    , glenv);
+    BIND(SYNTAX ,  "set!"       , &apply_set       , glenv);
+
     add_symbol(new(SYMBOL , strdup("global")) , glenv , glenv);
+    BIND(SYNTAX   , "syntax-rules"  , &apply_syntax_rules , glenv);
     BIND(FUNCTION   , "gc"       , &apply_gc        , glenv);
     BIND(FUNCTION , "senv"       , &apply_senv      , glenv);
 }

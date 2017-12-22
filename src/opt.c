@@ -5,6 +5,7 @@
 #define TAB_SIZE 1000
 
 /* symbol aloc opt */
+
 int hash_cnt = 0;
 
 MapObj sym_hashtab[TAB_SIZE] = {
@@ -62,7 +63,7 @@ Obj build_tail(Obj expr , Obj env){
                     NULL , /* name */
                     eval(expr , env) , /* args */
                     NULL) , /* body */
-                env);
+                NULL);
     }
     else if(IS_EXPR_OF(expr , "begin")){
         return find_tail(cdr(expr) , env);
@@ -73,27 +74,25 @@ Obj build_tail(Obj expr , Obj env){
             (length(expr) == 3 ? NULL :
              build_tail(cadddr(expr) , env));
     }
-    //else if(IS_EXPR_OF(expr , "cond")){}
-    //else if(IS_EXPR_OF(expr , "let")){}
     else if(IS_PAIR(expr)){
         return new(CLOSURE ,
                 new(EXPR ,
                     NULL , /* name */
                     map_eval(cdr(expr) , env) , /* args */
                     eval(car(expr) , env)) , /* body */
-                env);
+                NULL);
     }
-    printf("cannot tail eval : ");
+    printf("cannot do tail eval : ");
     print_obj(expr); puts("");
     return NULL;
 }
 
 Obj find_tail(Obj body , Obj env){
-    Obj iter = body , last = NULL;
+    Obj iter = body , last_expr = NULL;
     while(!IS_NIL(iter)){
-        if(last) eval(last , env);
-        last = car(iter);
+        if(last_expr) eval(last_expr , env);
+        last_expr = car(iter);
         iter = cdr(iter);
     }
-    return build_tail(last , env);
+    return build_tail(last_expr , env);
 }

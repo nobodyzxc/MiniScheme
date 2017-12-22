@@ -77,7 +77,7 @@ void auto_try_gc(){
     int pre_num = get_obj_num();
     if(pre_num > pre_obj_num * 2){
         gc() , pre_obj_num = get_obj_num();
-        printf("auto gc end , %d obj cleared , %d obj left\n" ,
-                pre_num - pre_obj_num , pre_obj_num);
+        //printf("auto gc end , %d obj cleared , %d obj left\n" ,
+        //        pre_num - pre_obj_num , pre_obj_num);
     }
 }

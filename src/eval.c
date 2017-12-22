@@ -34,7 +34,8 @@ Obj eval(Obj val , Obj env){
         Obj args = val->pair->cdr;
         if(app->type == SYMBOL || app->type == PAIR){
 
-            if(!is_list(args)) error("cannot apply procedure on pair");
+            if(!is_list(args))
+                error("cannot apply procedure on pair");
 
             app = app->type == SYMBOL ?
                 lookup_symbol(app->str , env) : eval(app , env);
@@ -53,6 +54,7 @@ Obj eval(Obj val , Obj env){
                 return args ? app->proc->apply(args , env) : NULL;
             else if(app->type == CLOSURE){
                 //return args ? apply_clos(app , args , env) : NULL;
+                /* closure of tail form */
                 app = new(CLOSURE , new(EXPR , NULL , args , app) , env);
                 while(app->clos->exp->expr->body){
                     args = app->clos->exp->expr->args;
