@@ -5,8 +5,9 @@ Zekin is my scheme inerpreter started from zero.
 feature :
 
    1. slow TCO
-   4. stupid gc
-   2. weird macro expansion
-   3. lack of char type , 4 bytes integer
-   5. autoload some functions defed in lib.ss
-   6. weak error handling
+   2. stupid gc
+   3. weird macro expansion
+   4. lack of char type.
+   5. 4 bytes integer
+   6. autoload some functions defed in lib.ss
+   7. weak error handling
