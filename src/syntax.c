@@ -144,7 +144,7 @@ Obj apply_macro(Obj macro , Obj args , Obj env){
         if(match(macro->mac->keyws , cdr(patn) , args)){
 
             Obj expansion = expand(rule , args);
-            alert("expand : " , expansion);
+            //alert("expand : " , expansion);
             return eval(expansion , env);
         }
     }
