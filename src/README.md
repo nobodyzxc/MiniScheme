@@ -14,62 +14,62 @@ feature :
 
 buildins :
 
-   * +
-   * -
-   * *
-   * /
-   * % (mod)
-   * =
-   * <
-   * >
-   * >=
-   * >=
-   * not
-   * cons
-   * car
-   * cdr
-   * length
-   * display
-   * source (source a scheme script)
-   * void
-   * void?
-   * null?
-   * eq?
-   * eqv?
-   * equal?
-   * symbol?
-   * procedure?
-   * list?
-   * pair?
-   * read
-   * apply
+   - \+
+   - \-
+   - \*
+   - /
+   - % (mod)
+   - =
+   - <
+   - \>
+   - <=
+   - \>=
+   - not
+   - cons
+   - car
+   - cdr
+   - length
+   - display
+   - source (source a scheme script)
+   - void
+   - void?
+   - null?
+   - eq?
+   - eqv?
+   - equal?
+   - symbol?
+   - procedure?
+   - list?
+   - pair?
+   - read
+   - apply
 
 syntax :
 
-   * if
-   * quote
-   * lambda
-   * define
-   * set!
+   - if
+   - quote
+   - lambda
+   - define
+   - set!
 
 library :
 
-   * list
-   * append
-   * map
-   * fold
-   * filter
-   * caar
-   * cadr
-   * caddr
-   * cadddr
-   * tab (show global env)
-   * newline
-   * assoc
-   * indexof (elt in list)
-   * or
-   * and
-   * let
-   * begin
-   * cond
-   * case
+   - list
+   - append
+   - map
+   - fold
+   - filter
+   - caar
+   - cadr
+   - caddr
+   - cadddr
+   - tab (show global env)
+   - newline
+   - assoc
+   - indexof (elt in list)
+   - or
+   - and
+   - let
+   - begin
+   - cond
+   - case
