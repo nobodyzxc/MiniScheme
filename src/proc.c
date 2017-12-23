@@ -44,7 +44,6 @@ Obj lookup_symenv(char *v , Obj env_obj){
 
 void init_buildins(){
     glenv = new(ENV , NULL);
-    glenv = new(ENV , NULL);
     BIND(FUNCTION , "cons"       , &apply_cons      , glenv);
     BIND(FUNCTION , "apply"      , &apply_apply     , glenv);
     BIND(FUNCTION , "null?"      , &apply_nullq     , glenv);

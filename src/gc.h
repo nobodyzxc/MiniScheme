@@ -5,7 +5,7 @@
 #include "mem.h"
 
 typedef struct obj_list_tag *ObjList;
-typedef struct obj_list_tag obj_list_t;;
+typedef struct obj_list_tag obj_list_t;
 
 struct obj_list_tag{
     Obj v;
