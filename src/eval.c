@@ -65,7 +65,7 @@ Obj eval(Obj val , Obj env){
                         Obj body = tl->clos->exp->expr->body;
                         Obj pars = tl->clos->exp->expr->args;
                         env  = zipped_env(pars , args , env);
-                        app = find_tail(body , env);
+                        app = find_tail(app , body , env);
                     }
                     else{
                         printf("cannot apply TCO");

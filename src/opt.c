@@ -47,9 +47,9 @@ void push_sym_pool(Obj sym){
     hash_cnt++;
 }
 
-Obj find_tail(Obj , Obj);
+Obj find_tail(Obj , Obj , Obj);
 /* tail call opt */
-Obj build_tail(Obj expr , Obj env){
+Obj build_tail(Obj clos , Obj expr , Obj env){
     if(IS_SELFEVAL(expr)
             || IS_EXPR_OF(expr , "define")
             || IS_EXPR_OF(expr , "quote")
@@ -66,34 +66,38 @@ Obj build_tail(Obj expr , Obj env){
                 NULL);
     }
     else if(IS_EXPR_OF(expr , "begin")){
-        return find_tail(cdr(expr) , env);
+        return find_tail(clos , cdr(expr) , env);
     }
     else if(IS_EXPR_OF(expr , "if")){
         return IS_TRUE(eval(cadr(expr) , env)) ?
-            build_tail(caddr(expr) , env) :
+            build_tail(clos , caddr(expr) , env) :
             (length(expr) == 3 ? NULL :
-             build_tail(cadddr(expr) , env));
+             build_tail(clos , cadddr(expr) , env));
     }
     else if(IS_PAIR(expr)){
-        puts("return pair");
-        return new(CLOSURE ,
-                new(EXPR ,
-                    NULL , /* name */
-                    map_eval(cdr(expr) , env) , /* args */
-                    eval(car(expr) , env)) , /* body */
-                NULL);
+        clos->clos->exp->expr->args =
+            map_eval(cdr(expr) , env);
+        clos->clos->exp->expr->body =
+            eval(car(expr) , env);
+        return clos;
+        //return new(CLOSURE ,
+        //        new(EXPR ,
+        //            NULL , /* name */
+        //            map_eval(cdr(expr) , env) , /* args */
+        //            eval(car(expr) , env)) , /* body */
+        //        NULL);
     }
     printf("cannot do tail eval : ");
     print_obj(expr); puts("");
     return NULL;
 }
 
-Obj find_tail(Obj body , Obj env){
+Obj find_tail(Obj clos , Obj body , Obj env){
     Obj iter = body , last_expr = NULL;
     while(!IS_NIL(iter)){
         if(last_expr) eval(last_expr , env);
         last_expr = car(iter);
         iter = cdr(iter);
     }
-    return build_tail(last_expr , env);
+    return build_tail(clos , last_expr , env);
 }
