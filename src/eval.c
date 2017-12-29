@@ -8,7 +8,7 @@
 Obj map_eval(Obj ls , Obj env){
     cons_t head;
     Cons last = &head;
-    for( ; !IS_NIL(ls) ; ls = ls->pair->cdr){
+    for( ; !IS_NIL(ls) ; ls = cdr(ls)){
         Obj obj = eval(ls->pair->car , env);
         if(!obj) return NULL; // let gc do free
         last->cdr = new(PAIR , new_cons(obj , NULL));

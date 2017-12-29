@@ -24,12 +24,11 @@
       (cons (car l) (filter f (cdr l)))
       (filter f (cdr l)))))
 
+(define (cddr l) (cdr (cdr l)))
 (define (caar l) (car (car l)))
 (define (cadr l) (car (cdr l)))
 (define (caddr l) (car (cdr (cdr l))))
 (define (cadddr l) (car (cdr (cdr (cdr l)))))
-(define (tab) (senv global))
-(define (newline) (display "\n"))
 
 (define (assoc elt ls)
   (if (null? ls) #f
@@ -40,6 +39,18 @@
     (if (cmp (car ls) elt) cur
       (index-of-iter cmp elt (cdr ls) (+ cur 1)))
     ))
+
+(define (tab) (senv global))
+(define (newline) (display "\n"))
+(define (even? x) (or (= 0 x) (= 1 (% 2 x))))
+(define (odd? x) (not (even? x)))
+
+(define (range-it e acc)
+  (if (< e 0) acc (range-it (- e 1) (cons e acc))))
+
+(define (range x)
+  (range-it x '()))
+
 
 (define (index-of cmp elt ls)
   (index-of-iter cmp elt ls 0))
@@ -100,5 +111,13 @@
     ((_ want (pred expr ...) rest ...)
      (if (>= (index-of equal? want 'pred) 0)
        (begin expr ...) (case want rest ...)))
+    )
+  )
+
+(define \
+  (syntax-rules
+    (->)
+    ((_ -> expr ...) (lambda () (expr ...)))
+    ((_ arg -> expr ...) (lambda (arg) (expr ...)))
     )
   )

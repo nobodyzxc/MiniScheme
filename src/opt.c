@@ -75,6 +75,7 @@ Obj build_tail(Obj expr , Obj env){
              build_tail(cadddr(expr) , env));
     }
     else if(IS_PAIR(expr)){
+        puts("return pair");
         return new(CLOSURE ,
                 new(EXPR ,
                     NULL , /* name */

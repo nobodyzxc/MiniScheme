@@ -11,8 +11,6 @@ long long get_obj_num(){
     return obj_count;
 }
 
-FILE *memchk = NULL;
-
 void *MALLOC(size_t size){
     return malloc(size);
 }

@@ -37,11 +37,11 @@ void repl(bool feedback){
         if(*p) p = tokenize(p , &tok);
         if(!tok) continue;
         Obj val = parse(tok);
-        Obj v = eval(val , glenv);
+        val = eval(val , glenv);
         if(feedback && stream == stdin)
-            print_obj(v) , printf("\n");
+            print_obj(val) , printf("\n");
         free_token(tok);
-        tok = NULL , val = NULL , v = NULL;
+        tok = NULL , val = NULL;
         auto_try_gc();
     }
     clear_buf();
@@ -58,6 +58,5 @@ int main(int args , char *argv[]){
             printf("cannot open %s\n" , argv[1]) , exit(1);
     stdin_printf("Welcome to Zekin v1.0 Beta\n");
     repl(true); stdin_printf("\n");
-    fclose(memchk);
     return 0;
 }

@@ -36,6 +36,5 @@ void free_token(Token tok);
 long long get_obj_num();
 
 void add_symbol(Obj sym , Obj val , Obj env_obj);
-extern FILE *memchk;
 
 #endif
