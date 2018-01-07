@@ -26,7 +26,8 @@ void mark(Obj obj){
     if(obj->mark) return;
     obj->mark = true;
     if(obj->type == PAIR){
-        printf("%p\n" , obj);
+        print_obj(obj->pair->car);
+        puts("");
         mark(obj->pair->car);
         mark(obj->pair->cdr);
     }
