@@ -206,3 +206,11 @@ void free_token(Token tok){
         FREE(pre);
     }
 }
+
+char *ya_strndup(const char *s, size_t size){
+    char *n = malloc(sizeof(char) * size + 1);
+    for(size_t i = 0 ; i < size ; i++)
+        n[i] = s[i];
+    n[size] = 0;
+    return n;
+}

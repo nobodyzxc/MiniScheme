@@ -37,4 +37,5 @@ long long get_obj_num();
 
 void add_symbol(Obj sym , Obj val , Obj env_obj);
 
+char *ya_strndup(const char *s, size_t size);
 #endif

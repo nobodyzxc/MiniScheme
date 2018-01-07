@@ -101,7 +101,7 @@ char *add_quote(char *p , Token *plast){
     }
     else{
         char *s = p;
-        add_token(strndup(s , (p = tokstr(p)) - s) , plast);
+        add_token(ya_strndup(s , (p = tokstr(p)) - s) , plast);
     }
     add_token(strdup(")") , plast);
     return p;
@@ -112,7 +112,7 @@ char *tok_string(char *p , Token *phead , Token *ptail){
         error("parse string start with %c\n" , *p);
     char *q = p , buf[300];
     while((q = strchr(q + 1 , '"')) && *(q - 1) == '\\');
-    if(q) add_token(strndup(p , q - p + 1) , ptail) , p = q + 1;
+    if(q) add_token(ya_strndup(p , q - p + 1) , ptail) , p = q + 1;
     else{
         if(strlen(p) > sizeof(buf))
             error("exceed string limit\n");
@@ -125,7 +125,7 @@ char *tok_string(char *p , Token *phead , Token *ptail){
             else
                 buf[l] = read_char();
             if(buf[l] == '"' && buf[l - 1] != '\\'){
-                add_token(strndup(buf , l + 1) , ptail);
+                add_token(ya_strndup(buf , l + 1) , ptail);
                 p = input("" , true);
                 break;
             }
@@ -150,7 +150,7 @@ char *tok_atom(char *p , Token *phead , Token *ptail){
         p = tok_string(p , &head.next , &last);
     else{
         char *d = tokstr(p);
-        add_token(strndup(p , d - p) , &last);
+        add_token(ya_strndup(p , d - p) , &last);
         p = d;
     }
     (*phead) = head.next;
@@ -181,7 +181,7 @@ char *tok_list(char *p , Token *phead , Token *ptail){
             case '}':
                 if(*p != rev_paren(hp))
                     error("unmatched paren %c , %c\n" , hp , *p);
-                add_token(strndup(p , 1) , &tail);
+                add_token(ya_strndup(p , 1) , &tail);
                 (*phead) = head;
                 if(ptail) (*ptail) = tail;
                 return p + 1;
