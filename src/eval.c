@@ -64,7 +64,10 @@ Obj eval(Obj val , Obj env){
                     else if(tl->type == CLOSURE){
                         Obj body = tl->clos->exp->expr->body;
                         Obj pars = tl->clos->exp->expr->args;
-                        env  = zipped_env(pars , args , env);
+                        /* env  = zipped_env(pars , args , env);
+                         * fatal bug make it so slow~ :)
+                         * */
+                        env  = zip_env(pars , args , env);
                         app = find_tail(app , body , env);
                     }
                     else{

@@ -25,8 +25,11 @@ void mark(Obj obj){
     if(!obj) return;
     if(obj->mark) return;
     obj->mark = true;
-    if(obj->type == PAIR)
-        mark(obj->pair->car) , mark(obj->pair->cdr);
+    if(obj->type == PAIR){
+        printf("%p\n" , obj);
+        mark(obj->pair->car);
+        mark(obj->pair->cdr);
+    }
     else if(obj->type == CLOSURE)
         mark(obj->clos->exp) , mark(obj->clos->env);
     else if(obj->type == MACRO)
@@ -63,6 +66,16 @@ void unmark(){
 void smark(){
     for(ObjList it = head ; it ; it = it->next)
         print_obj(it->v) , printf(" : %p\n" , it->v);
+}
+
+void rec(){
+    for(ObjList it = head , pre = NULL ;
+            it ; pre = it , it = it->next){
+        fprintf(stderr , "%p " , it->v);
+        falert(stderr , "obj : " , it->v);
+        fputs("\n" , stderr);
+    }
+    fputs(">>>\n" , stderr);
 }
 
 void gc(){

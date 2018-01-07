@@ -212,66 +212,97 @@ Obj cons(kObj head , kObj body){
     return new(PAIR , new_cons(head , body));
 }
 
-void print_pair(kObj pr){
-    printf("(");
-    print_obj(pr->pair->car);
+void fprint_pair(FILE *s , kObj pr){
+    fprintf(s , "(");
+    fprint_obj(s , pr->pair->car);
     pr = pr->pair->cdr;
     while(pr && pr->type == PAIR)
-        printf(" ") , print_obj(pr->pair->car) , pr = pr->pair->cdr;
+        fprintf(s , " ") , fprint_obj(s , pr->pair->car) , pr = pr->pair->cdr;
     if(pr && !IS_NIL(pr))
-        printf(" . ") , print_obj(pr);
-    printf(")");
+        fprintf(s , " . ") , fprint_obj(s , pr);
+    fprintf(s , ")");
 }
 
-void print_obj(kObj obj){
-    if(!obj) printf("<void>");
+void print_pair(kObj pr){
+    return fprint_pair(stdout , pr);
+}
+
+void fprint_obj(FILE *s , kObj obj){
+    if(!obj) fprintf(s , "<void>");
     else{
         switch(obj->type){
             case BOOLEAN :
-                printf("%s" , obj->boolean ? "#t" : "#f");
+                fprintf(s , "%s" , obj->boolean ? "#t" : "#f");
                 break;
             case INTEGER :
-                printf("%lld" , obj->integer);
+                fprintf(s , "%lld" , obj->integer);
                 break;
             case DECIMAL :
-                printf("%llf" , obj->decimal);
+                fprintf(s , "%llf" , obj->decimal);
                 break;
             case CHAR    :
-                printf("#\\%c" , obj->chr);
+                fprintf(s , "#\\%c" , obj->chr);
                 break;
             case STRING  :
-                printf("\"%s\"" , obj->str);
+                fprintf(s , "\"%s\"" , obj->str);
                 break;
             case SYMBOL  :
-                printf("'%s" , obj->str);
+                fprintf(s , "'%s" , obj->str);
                 break;
             case PAIR    :
-                print_pair(obj);
+                fprint_pair(s , obj);
                 break;
             case NIL     :
-                printf("nil");
+                fprintf(s , "nil");
                 break;
             case SYNTAX  :
-                printf("<syntax:%s>" , obj->proc->name);
+                fprintf(s , "<syntax:%s>" , obj->proc->name);
                 break;
             case MACRO   :
-                printf("<macro>");
+                fprintf(s , "<macro>");
                 break;
             case FUNCTION:
-                printf("<procedure:%s>" , obj->proc->name);
+                fprintf(s , "<procedure:%s>" , obj->proc->name);
                 break;
             case CLOSURE :
-                printf("<closure>");
+                fprintf(s , "<closure>");
                 //print_obj(obj->clos->exp);
                 break;
             case EXPR    :
-                printf("<expression> : ");
-                print_obj(obj->expr->args);
-                alert(" . " , obj->expr->body);
+                fprintf(s , "<expression> : ");
+                fprint_obj(s , obj->expr->args);
+                falert(s , " . " , obj->expr->body);
                 break;
             case ENV     :
-                printf("<environment>");
+                fprintf(s , "<environment>");
                 break;
         }
     }
+}
+
+void print_obj(kObj obj){
+    return fprint_obj(stdout , obj);
+}
+
+Obj zip_env(Obj syms , Obj args , Obj env){
+    //assert args is list
+    //len(sym) > len(args)
+    bool isls = is_list(syms);
+    int argslen = length(args);
+    if(isls && length(syms) != argslen ||
+            !isls && pat_num(syms) > max(argslen , 1)){
+        printf("unmatch args: ") , print_obj(syms);
+        printf(" <- ") , print_obj(args) , error("");
+    }
+    while(syms->type == PAIR){
+        add_symbol(
+                syms->pair->car ,
+                args->pair->car ,
+                env);
+        syms = syms->pair->cdr;
+        args = args->pair->cdr;
+    }
+    if(!IS_NIL(syms))
+        add_symbol(syms , args , env);
+    return env;
 }

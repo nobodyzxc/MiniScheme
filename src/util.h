@@ -16,12 +16,15 @@ bool eqv(Obj a , Obj b);
 bool equal(Obj a , Obj b);
 int pat_num(Obj pr);
 int  length(Obj pr);
+void fprint_pair(FILE *s , kObj pr);
 void print_pair(kObj pr);
 void print_cons(Cons kons);
 void print_obj(kObj obj);
+void fprint_obj(FILE *s , kObj obj);
 void print_symtree(Symtree tree);
 Obj cons(kObj head , kObj body);
 Obj zipped_env(Obj syms , Obj args , Obj env);
+Obj zip_env(Obj syms , Obj args , Obj env);
 Obj zip_pat(Obj pat , Obj args , Obj env);
 void print_esc(char *str);
 Obj lssym(Obj ls , Obj sym);
@@ -35,8 +38,11 @@ void detail(Obj obj);
 #define stdin_printf(fmt , ...) \
     printf(stream == stdin ? fmt : "" , ##__VA_ARGS__)
 
+#define falert(s , str , obj) \
+    fprintf(s , str) , fprint_obj(s , obj) , fputs("" , s)
+
 #define alert(str , obj) \
-    printf(str) , print_obj(obj) , puts("")
+    falert(stdout , str , obj)
 
 #define ASSERT(expr , msg) \
     if(!(expr)) error("%s : %s %d" , msg , __FILE__ , __LINE__)

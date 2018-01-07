@@ -51,7 +51,7 @@ int main(int args , char *argv[]){
 
     init_buildins();
     stream = fopen(EXTENSION , "r");
-    repl(false); fclose(stream);
+    if(stream) repl(false) , fclose(stream);
     stream = stdin;
     if(args > 1)
         if(!(stream = fopen(argv[1] , "r")))

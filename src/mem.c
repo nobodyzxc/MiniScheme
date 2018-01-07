@@ -148,7 +148,7 @@ void add_symbol(Obj sym , Obj val , Obj env_obj){
     if(sym->type != SYMBOL){
         print_obj(sym);
         print_obj(val);
-        puts("ff");
+        puts("define only accept symbol");
         exit(0);
     }
     assert(sym->type == SYMBOL);

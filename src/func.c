@@ -75,9 +75,8 @@ Obj apply_pairq(Obj pr , Obj env){
 
 
 Obj apply_display(Obj pr , Obj env){
-    if(car(pr)->type == STRING){
+    if(car(pr)->type == STRING)
         print_esc(car(pr)->str);
-    }
     else
         print_obj(car(pr));
     return NULL;
