@@ -6,13 +6,12 @@ zekin is a naive scheme interpreter wrote in C.
 
 feature :
 
-   1. slow TCO
-   2. stupid gc
-   3. weird macro expansion
-   4. lack of char type.
-   5. 4 bytes integer
-   6. autoload some functions defed in lib.ss
-   7. weak error handling
+   1. slow TCO (fixed after replace zipped\_env as zip\_env)
+   2. weird macro expansion (may solve it after I finishing SICP)
+   3. lack of char type.
+   4. 8 bytes integer.
+   5. autoload some functions defed in lib.ss
+   6. weak error handling (maybe the last thing I'll do)
 
 buildins :
 
