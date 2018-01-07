@@ -56,6 +56,8 @@ Obj eval(Obj val , Obj env){
                 //return args ? apply_clos(app , args , env) : NULL;
                 /* closure of tail form */
                 app = new(CLOSURE , new(EXPR , NULL , args , app) , env);
+                env = new_ENV(env);
+                /* ^ keep env clean */
                 while(app->clos->exp->expr->body){
                     args = app->clos->exp->expr->args;
                     Obj tl = app->clos->exp->expr->body;

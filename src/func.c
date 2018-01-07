@@ -33,7 +33,7 @@ Obj apply_source(Obj pr , Obj env){
         stream = prev_stream;
         return NULL;
     }
-    repl();
+    repl(false , false);
     fclose(stream);
     stream = prev_stream;
     return NULL;
