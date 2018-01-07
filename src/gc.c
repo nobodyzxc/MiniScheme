@@ -26,8 +26,6 @@ void mark(Obj obj){
     if(obj->mark) return;
     obj->mark = true;
     if(obj->type == PAIR){
-        print_obj(obj->pair->car);
-        puts("");
         mark(obj->pair->car);
         mark(obj->pair->cdr);
     }
@@ -88,10 +86,12 @@ void gc(){
 
 void auto_try_gc(){
     static long long pre_obj_num = 0;
-    int pre_num = get_obj_num();
-    if(pre_num > pre_obj_num * 2){
-        gc() , pre_obj_num = get_obj_num();
+    long long before = get_obj_num();
+    if(before > pre_obj_num * 2){
+        gc();
+        long long after = get_obj_num();
         printf("auto gc end , %d obj cleared , %d obj left\n" ,
-                pre_num - pre_obj_num , pre_obj_num);
+                before - after , after);
+        pre_obj_num = after;
     }
 }

@@ -1,5 +1,5 @@
 CXX = gcc
-FLAG = -g
+FLAG = -g -O3
 MAIN     = main
 _MAIN    = ${MAIN:%=%.c}
 SRCS     = type token parse eval mem util proc func syntax gc opt

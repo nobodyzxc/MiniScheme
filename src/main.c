@@ -42,7 +42,7 @@ void repl(bool feedback){
             print_obj(val) , printf("\n");
         free_token(tok);
         tok = NULL , val = NULL;
-        //auto_try_gc();
+        auto_try_gc();
     }
     clear_buf();
 }
