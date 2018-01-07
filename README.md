@@ -6,7 +6,7 @@ zekin is a naive scheme interpreter wrote in C.
 
 feature :
 
-   1. slow TCO (fixed after replace zipped\_env as zip\_env)
+   1. slow TCO (fixed after replacing zipped\_env as zip\_env)
    2. weird macro expansion (may solve it after I finishing SICP)
    3. lack of char type.
    4. 8 bytes integer.
