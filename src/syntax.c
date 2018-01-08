@@ -6,9 +6,9 @@ bool match(Obj keyws , Obj patn , Obj args);
 int least_elts(Obj pats){
     int cnt = 0;
     for(Obj t = pats ; t && t != nil &&
-            t->pair->cdr != nil ; t = t->pair->cdr){
+            cdr(t) != nil ; t = cdr(t)){
         cnt += 1;
-        if(EQS(t->pair->car->str , "..."))
+        if(EQS(car(t)->str , "..."))
             cnt -= 1;
     }
     return cnt;
@@ -132,7 +132,7 @@ Obj expand(Obj rule , Obj args){
 Obj apply_macro(Obj macro , Obj args , Obj env){
     //for syntax rules
     for(Obj rules = macro->mac->rules ;
-            rules && rules != nil ; rules = rules->pair->cdr){
+            rules && rules != nil ; rules = cdr(rules)){
         Obj rule = car(rules);
         Obj patn = car(rule);
         /* cdr(patn) to discard _ */
@@ -155,19 +155,19 @@ Obj apply_macro(Obj macro , Obj args , Obj env){
 Obj apply_if(Obj args , Obj env){
     //consider arity == 1
     //assert arity <= 3
-    Obj cdr = args->pair->cdr;
-    Obj predict = eval(args->pair->car , env);
+    Obj rest = cdr(args);
+    Obj predict = eval(car(args) , env);
     if(!predict) return NULL;
     if(!IS_FALSE(predict))
-        return eval(cdr->pair->car , env);
+        return eval(car(rest) , env);
     else if (length(args) > 2)
-        return eval(cdr->pair->cdr->pair->car , env);
+        return eval(cadr(rest) , env);
     return NULL;
 }
 
 Obj apply_quote(Obj args , Obj env){
     //assert arity == 1
-    return args->pair->car;
+    return car(args);
 }
 
 Obj apply_define(Obj args , Obj env){
@@ -192,8 +192,7 @@ Obj apply_lambda(Obj args , Obj env){
     // assert car(args) all symbol
     return new(CLOSURE ,
             new(EXPR , NULL ,
-                args->pair->car ,
-                args->pair->cdr) , env);
+                car(args) , cdr(args)) , env);
 }
 
 Obj apply_define_syntax(Obj args , Obj env){
@@ -202,9 +201,7 @@ Obj apply_define_syntax(Obj args , Obj env){
 
 Obj apply_syntax_rules(Obj args , Obj env){
     // assert arity = 2
-    return new(MACRO ,
-            args->pair->car ,
-            args->pair->cdr);
+    return new(MACRO , car(args) , cdr(args));
 }
 
 Obj apply_set(Obj args , Obj env){

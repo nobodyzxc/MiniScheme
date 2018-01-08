@@ -56,7 +56,7 @@ int main(int args , char *argv[]){
     if(args > 1)
         if(!(stream = fopen(argv[1] , "r")))
             printf("cannot open %s\n" , argv[1]) , exit(1);
-    stdin_printf("Welcome to Zekin v1.0 Beta\n");
+    stdin_printf("Welcome to Zekin v1.0\n");
     repl(true , true); stdin_printf("\n");
     return 0;
 }

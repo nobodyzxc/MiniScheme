@@ -7,9 +7,9 @@
 Obj lssym_rec(Obj ls , Obj sym){
     if(sym->type != SYMBOL) return NULL;
     for(Obj it = ls ; it &&
-            it != nil ; it = it->pair->cdr)
+            it != nil ; it = cdr(it))
         if(car(it)->type == SYMBOL){
-            if(EQS(it->pair->car->str , sym->str))
+            if(EQS(car(it)->str , sym->str))
                 return it;
         }
         else if(car(it)->type == PAIR){
@@ -22,17 +22,17 @@ Obj lssym_rec(Obj ls , Obj sym){
 Obj lssym(Obj ls , Obj sym){
     if(sym->type != SYMBOL) return NULL;
     for(Obj it = ls ; it &&
-            it != nil ; it = it->pair->cdr)
-        if(it->pair->car->type == SYMBOL)
-            if(EQS(it->pair->car->str , sym->str))
+            it != nil ; it = cdr(it))
+        if(car(it)->type == SYMBOL)
+            if(EQS(car(it)->str , sym->str))
                 return it;
     return NULL;
 }
 
 Obj lsobj(Obj ls , Obj obj){
     for(Obj it = ls ; it &&
-            it != nil ; it = it->pair->cdr)
-        if(it->pair->car == obj) return it;
+            it != nil ; it = cdr(it))
+        if(car(it) == obj) return it;
     return NULL;
 }
 
@@ -123,7 +123,7 @@ Obj zip_pat(Obj pat , Obj args , Obj env){
     return env;
 }
 
-Obj zipped_env(Obj syms , Obj args , Obj env){
+Obj zip_env(Obj syms , Obj args , Obj env){
     //assert args is list
     //len(sym) > len(args)
     bool isls = is_list(syms);
@@ -133,14 +133,9 @@ Obj zipped_env(Obj syms , Obj args , Obj env){
         printf("unmatch args: ") , print_obj(syms);
         printf(" <- ") , print_obj(args) , error("");
     }
-    env = new(ENV , env);
     while(syms->type == PAIR){
-        add_symbol(
-                syms->pair->car ,
-                args->pair->car ,
-                env);
-        syms = syms->pair->cdr;
-        args = args->pair->cdr;
+        add_symbol(car(syms), car(args), env);
+        syms = cdr(syms) , args = cdr(args);
     }
     if(!IS_NIL(syms))
         add_symbol(syms , args , env);
@@ -149,7 +144,7 @@ Obj zipped_env(Obj syms , Obj args , Obj env){
 
 bool is_list(Obj pr){
     while(pr && pr->type == PAIR)
-        pr = pr->pair->cdr;
+        pr = cdr(pr);
     return pr && pr->type == NIL;
 }
 
@@ -195,7 +190,7 @@ bool equal(Obj a , Obj b){
 int pat_num(Obj pr){
     int rtn = 0;
     while(pr && !IS_NIL(pr))
-        rtn ++ , pr = pr->pair->cdr;
+        rtn ++ , pr = cdr(pr);
     return rtn;
 }
 
@@ -204,7 +199,7 @@ int length(Obj pr){
     if(!is_list(pr))
         error("apply length on pair\n");
     while(!IS_NIL(pr))
-        rtn++ , pr = pr->pair->cdr;
+        rtn++ , pr = cdr(pr);
     return rtn;
 }
 
@@ -214,10 +209,10 @@ Obj cons(kObj head , kObj body){
 
 void fprint_pair(FILE *s , kObj pr){
     fprintf(s , "(");
-    fprint_obj(s , pr->pair->car);
-    pr = pr->pair->cdr;
+    fprint_obj(s , car(pr));
+    pr = cdr(pr);
     while(pr && pr->type == PAIR)
-        fprintf(s , " ") , fprint_obj(s , pr->pair->car) , pr = pr->pair->cdr;
+        fprintf(s , " ") , fprint_obj(s , car(pr)) , pr = cdr(pr);
     if(pr && !IS_NIL(pr))
         fprintf(s , " . ") , fprint_obj(s , pr);
     fprintf(s , ")");
@@ -282,27 +277,4 @@ void fprint_obj(FILE *s , kObj obj){
 
 void print_obj(kObj obj){
     return fprint_obj(stdout , obj);
-}
-
-Obj zip_env(Obj syms , Obj args , Obj env){
-    //assert args is list
-    //len(sym) > len(args)
-    bool isls = is_list(syms);
-    int argslen = length(args);
-    if(isls && length(syms) != argslen ||
-            !isls && pat_num(syms) > max(argslen , 1)){
-        printf("unmatch args: ") , print_obj(syms);
-        printf(" <- ") , print_obj(args) , error("");
-    }
-    while(syms->type == PAIR){
-        add_symbol(
-                syms->pair->car ,
-                args->pair->car ,
-                env);
-        syms = syms->pair->cdr;
-        args = args->pair->cdr;
-    }
-    if(!IS_NIL(syms))
-        add_symbol(syms , args , env);
-    return env;
 }

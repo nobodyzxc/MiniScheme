@@ -1,8 +1,8 @@
 #ifndef UTIL_H
 #define UTIL_H
 #include "type.h"
-#define cdr(p) ((p)->pair->cdr)
 #define car(p) ((p)->pair->car)
+#define cdr(p) ((p)->pair->cdr)
 #define cadr(p) (car(cdr(p)))
 #define caddr(p) (car(cdr(cdr(p))))
 #define cadddr(p) (car(cdr(cdr(cdr(p)))))
@@ -23,8 +23,12 @@ void print_obj(kObj obj);
 void fprint_obj(FILE *s , kObj obj);
 void print_symtree(Symtree tree);
 Obj cons(kObj head , kObj body);
-Obj zipped_env(Obj syms , Obj args , Obj env);
+
 Obj zip_env(Obj syms , Obj args , Obj env);
+
+#define zipped_env(syms , args , env) \
+    zip_env(syms , args , new(ENV , env))
+
 Obj zip_pat(Obj pat , Obj args , Obj env);
 void print_esc(char *str);
 Obj lssym(Obj ls , Obj sym);

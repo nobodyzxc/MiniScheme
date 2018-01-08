@@ -26,8 +26,8 @@ void mark(Obj obj){
     if(obj->mark) return;
     obj->mark = true;
     if(obj->type == PAIR){
-        mark(obj->pair->car);
-        mark(obj->pair->cdr);
+        mark(car(obj));
+        mark(cdr(obj));
     }
     else if(obj->type == CLOSURE)
         mark(obj->clos->exp) , mark(obj->clos->env);

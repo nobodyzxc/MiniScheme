@@ -9,7 +9,7 @@ Obj map_eval(Obj ls , Obj env){
     cons_t head;
     Cons last = &head;
     for( ; !IS_NIL(ls) ; ls = cdr(ls)){
-        Obj obj = eval(ls->pair->car , env);
+        Obj obj = eval(car(ls) , env);
         if(!obj) return NULL; // let gc do free
         last->cdr = new(PAIR , new_cons(obj , NULL));
         last = last->cdr->pair;
@@ -30,8 +30,8 @@ Obj eval(Obj val , Obj env){
         return elt;
     }
     else if(val->type == PAIR){ //bug here
-        Obj app = val->pair->car;
-        Obj args = val->pair->cdr;
+        Obj app = car(val);
+        Obj args = cdr(val);
         if(app->type == SYMBOL || app->type == PAIR){
 
             if(!is_list(args))
@@ -56,26 +56,25 @@ Obj eval(Obj val , Obj env){
                 //return args ? apply_clos(app , args , env) : NULL;
                 /* closure of tail form */
                 app = new(CLOSURE , new(EXPR , NULL , args , app) , env);
+                Obj tail = app->clos->exp->expr->body;
                 env = new_ENV(env);
                 /* ^ keep env clean */
-                while(app->clos->exp->expr->body){
+                while(tail){
                     args = app->clos->exp->expr->args;
-                    Obj tl = app->clos->exp->expr->body;
-                    if(tl->type == FUNCTION)
-                        return tl->proc->apply(args , env);
-                    else if(tl->type == CLOSURE){
-                        Obj body = tl->clos->exp->expr->body;
-                        Obj pars = tl->clos->exp->expr->args;
-                        /* env  = zipped_env(pars , args , env);
-                         * fatal bug make it so slow~ :)
-                         * */
-                        env  = zip_env(pars , args , env);
+                    if(tail->type == FUNCTION)
+                        return tail->proc->apply(args , env);
+                    else if(tail->type == CLOSURE){
+                        Obj body = tail->clos->exp->expr->body;
+                        Obj pars = tail->clos->exp->expr->args;
+                        /* fix fatal bug : use zip instead of zipped */
+                        env = zip_env(pars , args , env);
                         app = find_tail(app , body , env);
                     }
                     else{
-                        printf("cannot apply TCO");
+                        printf("TCO cannot apply tail");
                         return NULL;
                     }
+                    tail = app->clos->exp->expr->body;
                 }
                 return app->clos->exp->expr->args;
             }
