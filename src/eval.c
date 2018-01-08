@@ -29,7 +29,7 @@ Obj eval(Obj val , Obj env){
         }
         return elt;
     }
-    else if(val->type == PAIR){ //bug here
+    else if(val->type == PAIR){
         Obj app = car(val);
         Obj args = cdr(val);
         if(app->type == SYMBOL || app->type == PAIR){
@@ -47,36 +47,36 @@ Obj eval(Obj val , Obj env){
             else if(app->type == MACRO)
                 return apply_macro(app , args , env);
 
-            args = map_eval(args , env); //consider cost of space
-            if(!args) return NULL;
+            if(!(args = map_eval(args , env))) return NULL;
+            //consider cost of space
 
             if(app->type == FUNCTION)
                 return args ? app->proc->apply(args , env) : NULL;
             else if(app->type == CLOSURE){
-                //return args ? apply_clos(app , args , env) : NULL;
-                /* closure of tail form */
+                /* normal eval v
+                 * return args ? apply_clos(app , args , env) : NULL; */
+                Obj tail = app;
+                /* tco opt */
                 app = new(CLOSURE , new(EXPR , NULL , args , app) , env);
-                Obj tail = app->clos->exp->expr->body;
+                /* closure of tail form ^
+                 * i.e. ((1 , 2 , 3)[iter args] ,
+                 *       (f a b c) . (+ a b c) , env)[tail] , env)
+                 * */
                 env = new_ENV(env);
                 /* ^ keep env clean */
                 while(tail){
-                    args = app->clos->exp->expr->args;
+                    args = clos_args(app);
                     if(tail->type == FUNCTION)
                         return tail->proc->apply(args , env);
-                    else if(tail->type == CLOSURE){
-                        Obj body = tail->clos->exp->expr->body;
-                        Obj pars = tail->clos->exp->expr->args;
+                    else if(tail->type == CLOSURE)
+                        app = find_tail(app , clos_body(tail) ,
+                                zip_env(clos_args(tail) , args , env));
                         /* fix fatal bug : use zip instead of zipped */
-                        env = zip_env(pars , args , env);
-                        app = find_tail(app , body , env);
-                    }
-                    else{
-                        printf("TCO cannot apply tail");
-                        return NULL;
-                    }
-                    tail = app->clos->exp->expr->body;
+                    else break;
+                    tail = clos_body(app);
                 }
-                return app->clos->exp->expr->args;
+                if(tail) alert("TCO cannot apply " , tail);
+                return tail ? NULL : clos_args(app);
             }
         }
         printf("cannot apply : ") , print_obj(app) , puts("");

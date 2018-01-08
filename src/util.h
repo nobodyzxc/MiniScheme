@@ -10,6 +10,10 @@
 #define caaar(p) (car(car(car(p))))
 #define cdar(p) (cdr(car(p)))
 #define cdaar(p) (cdr(car(car(p))))
+
+#define clos_body(t) ((t)->clos->exp->expr->body)
+#define clos_args(t) ((t)->clos->exp->expr->args)
+
 bool is_list(Obj pr);
 bool cmp_num(Obj a , Obj b);
 bool eqv(Obj a , Obj b);
