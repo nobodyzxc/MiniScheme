@@ -90,8 +90,8 @@ void auto_try_gc(){
     if(before > pre_obj_num * 2){
         gc();
         long long after = get_obj_num();
-        printf("auto gc end , %d obj cleared , %d obj left\n" ,
-                before - after , after);
+        //printf("auto gc end , %d obj cleared , %d obj left\n" ,
+        //        before - after , after);
         pre_obj_num = after;
     }
 }
