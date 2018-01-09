@@ -17,4 +17,4 @@ cc:
 	g++ $(FLAG) -c $(_SRCS)
 	g++ $(FLAG) -o $(TARGET) $(_MAIN) $(_OBJS)
 clean:
-	rm -rf *.o *.exe
+	rm -rf $(_OBJS) $(TARGET)
