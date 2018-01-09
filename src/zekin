@@ -2,7 +2,7 @@ DST=src
 if [ -f main.c ];then
     DST=.
 fi
-if [ ! -f $DST/main.exe ]; then
+if [ ! -f $DST/main ]; then
     cd $DST ; make ; cd -
 fi
 cd $DST 2>/dev/null
