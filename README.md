@@ -4,6 +4,9 @@ To learn how to make an interpreter , I started the project.
 
 zekin is a naive scheme interpreter wrote in C.
 
+Usage :
+   ./zekin # will compile automatically
+
 feature :
 
    1. slow TCO (fixed after replacing zipped\_env as zip\_env)
