@@ -6,4 +6,4 @@ if [ ! -f $DST/main ]; then
     cd $DST ; make ; cd -
 fi
 cd $DST 2>/dev/null
-if [ rlwrap -v 2>/dev/null ];then rlwrap ./main $*;else ./main;fi
+if command -v rlwrap 1>/dev/null;then rlwrap ./main $*;else ./main;fi
