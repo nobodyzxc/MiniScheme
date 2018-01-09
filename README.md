@@ -5,8 +5,10 @@ To learn how to make an interpreter , I started the project.
 zekin is a naive scheme interpreter wrote in C.
 
 Usage :
+```shell
    chmod a+x zekin
    ./zekin # will compile automatically
+```
 
 feature :
 
