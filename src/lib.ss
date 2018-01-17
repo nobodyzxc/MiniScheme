@@ -92,15 +92,15 @@
      ((lambda () expr ...))))
   )
 
-;(define cond
-;  (syntax-rules
-;    (else)
-;    ((_) (void))
-;    ((_ (else expr ...) rest ...)
-;     (if #t (begin expr ...)))
-;    ((_ (pred expr ...) rest ...)
-;     (if pred (begin expr ...) (cond rest ...))))
-;  )
+(define cond
+  (syntax-rules
+    (else)
+    ((_) (void))
+    ((_ (else expr ...) rest ...)
+     (if #t (begin expr ...)))
+    ((_ (pred expr ...) rest ...)
+     (if pred (begin expr ...) (cond rest ...))))
+  )
 
 (define case
   (syntax-rules

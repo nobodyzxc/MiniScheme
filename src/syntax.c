@@ -164,21 +164,6 @@ Obj apply_if(Obj args , Obj env){
     return NULL;
 }
 
-Obj apply_cond(Obj args , Obj env){
-    //consider arity == 1
-    //assert arity <= 3
-    for( ; args && !IS_NIL(args) ; args = cdr(args)){
-        Obj clause = car(args);
-        Obj pred = car(clause);
-        if(pred == els)
-            return find_last_expr(cdr(clause) , env);
-        if(IS_TRUE(eval(pred , env))){
-            return find_last_expr(cdr(clause) , env);
-        }
-    }
-    return NULL;
-}
-
 Obj apply_quote(Obj args , Obj env){
     //assert arity == 1
     return car(args);

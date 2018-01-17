@@ -78,7 +78,6 @@ void init_buildins(){
     BIND(FUNCTION , "read"       , &apply_read      , glenv);
 
     BIND(SYNTAX ,  "if"         , &apply_if        , glenv);
-    BIND(SYNTAX ,  "cond"       , &apply_cond      , glenv);
     BIND(SYNTAX ,  "quote"      , &apply_quote     , glenv);
     BIND(SYNTAX ,  "lambda"     , &apply_lambda    , glenv);
     BIND(SYNTAX ,  "define"     , &apply_define    , glenv);
