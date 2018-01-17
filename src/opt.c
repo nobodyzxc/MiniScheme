@@ -52,9 +52,9 @@ Obj find_tail(Obj , Obj , Obj);
 /* tail call opt */
 Obj build_tail(Obj clos , Obj expr , Obj env){
     if(IS_SELFEVAL(expr)
-            || IS_EXPR_OF(expr , "define")
-            || IS_EXPR_OF(expr , "quote")
-            || IS_EXPR_OF(expr , "set!")
+            || IS_EXPR_OF(expr , define)
+            || IS_EXPR_OF(expr , quote)
+            || IS_EXPR_OF(expr , set)
             ){
         return new(CLOSURE ,
                 new(EXPR ,

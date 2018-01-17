@@ -21,7 +21,7 @@
 #define IS_EXPR_OF(expr , call) \
     ((expr) && (expr)->type == PAIR \
      && car(expr)->type == SYMBOL \
-     && EQS(car(expr)->str , call))
+     && car(expr)->proc->apply ==  apply_ ## call)
 
 #define IS_SELFEVAL(expr) ((expr) && (expr)->type != PAIR)
 
