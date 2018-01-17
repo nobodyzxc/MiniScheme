@@ -102,7 +102,7 @@
 
 (define (repl)
   ;(begin
-    ;(print "MiniEval> ")
+    (print "MiniEval> ")
     (let ((expr (read)))
       (cond
         ((if-apply? 'exit expr) 'exit)
@@ -197,4 +197,4 @@
   (lambda (args body env)
     (list 'mini-lambda args body env)))
 
-;(repl)
+(repl)

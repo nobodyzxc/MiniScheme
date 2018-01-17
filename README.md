@@ -10,9 +10,19 @@ Usage :
    ./zekin # will compile automatically
 ```
 
+final goal :
+
+#### Run repl.ss by using zekin
+
 todo :
 
-   1. consider syntax expansion speed (cond vs if)
+   1. consider syntax expansion speed (cond vs if) [ done ]
+   2. consider the expressions below
+   ```scheme
+      (define f (lambda (x) (if (= x 0) 0 (+ x (f (- x 1))))))
+      (f 100000)
+   ```
+      can I opt it to tail call?
 
 feature :
 
