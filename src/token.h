@@ -12,10 +12,11 @@ struct token_tag{
     Token next;
 };
 
-char *tokenize(char * , Token *);
-char *input(const char *prompt , bool lock);
+char *tokenize(char* , char * , Token *);
+char *input(char* , const char *prompt , bool lock);
 
 extern FILE *stream;
+extern char glo_buffer[300];
 bool is_blank(char p);
 void print_token(Token tok);
 void clear_buf(void);

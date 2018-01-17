@@ -10,10 +10,14 @@ Usage :
    ./zekin # will compile automatically
 ```
 
+todo :
+
+   1. consider syntax expansion speed (cond vs if)
+
 feature :
 
-   1. slow TCO (fixed after replacing zipped\_env as zip\_env)
-   2. weird macro expansion (may solve it after I finishing SICP)
+   1. TCO
+   2. naive macro expansion (may improve it after I finishing SICP)
    3. lack of char type.
    4. 8 bytes integer.
    5. autoload some functions defed in lib.ss

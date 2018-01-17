@@ -32,7 +32,7 @@
 
 (define (assoc elt ls)
   (if (null? ls) #f
-    (if (= elt (caar ls)) (car ls) (assoc elt (cdr ls)))))
+    (if (equal? elt (caar ls)) (car ls) (assoc elt (cdr ls)))))
 
 (define (index-of-iter cmp elt ls cur)
   (if (null? ls) -1
@@ -92,15 +92,15 @@
      ((lambda () expr ...))))
   )
 
-(define cond
-  (syntax-rules
-    (else)
-    ((_) (void))
-    ((_ (else expr ...) rest ...)
-     (if #t (begin expr ...)))
-    ((_ (pred expr ...) rest ...)
-     (if pred (begin expr ...) (cond rest ...))))
-  )
+;(define cond
+;  (syntax-rules
+;    (else)
+;    ((_) (void))
+;    ((_ (else expr ...) rest ...)
+;     (if #t (begin expr ...)))
+;    ((_ (pred expr ...) rest ...)
+;     (if pred (begin expr ...) (cond rest ...))))
+;  )
 
 (define case
   (syntax-rules

@@ -5,6 +5,11 @@
 #include "main.h"
 #include "parse.h"
 
+Obj apply_exit(Obj args , Obj env){
+    exit(0);
+    return NULL;
+}
+
 Obj apply_clos(Obj pcr , Obj args , Obj env){
 
     Clos pcr_clos = pcr->clos; // if ref cur env ?
@@ -73,10 +78,18 @@ Obj apply_pairq(Obj pr , Obj env){
     return new(BOOLEAN , car(pr)->type == PAIR);
 }
 
+Obj apply_flush_output(Obj pr , Obj env){
+    fflush(stdout);
+    return NULL;
+}
 
 Obj apply_display(Obj pr , Obj env){
-    if(car(pr)->type == STRING)
+    if(!car(pr))
+        print_obj(pr);
+    else if(car(pr)->type == STRING)
         print_esc(car(pr)->str);
+    else if(car(pr)->type == CLOSURE)
+        detail(car(pr));
     else
         print_obj(car(pr));
     return NULL;
@@ -178,10 +191,14 @@ Obj apply_procedureq(Obj pr , Obj env){
 }
 
 Obj apply_read(Obj pr , Obj env){
-    char *p = input("" , false);
+    char buffer[300];
+    FILE *prev_stream = stream;
+    stream = stdin;
+    char *p = input(buffer , "" , false);
+    stream = prev_stream;
     Token tok = NULL;
-    tokenize(p , &tok);
-    Obj val = eval(parse(tok) , env);
+    tokenize(buffer , p , &tok);
+    Obj val = parse(tok);
     free_token(tok);
     return val;
 }

@@ -62,6 +62,8 @@ void init_buildins(){
     BIND(FUNCTION , "car"        , &apply_car       , glenv);
     BIND(FUNCTION , "cdr"        , &apply_cdr       , glenv);
     BIND(FUNCTION , "length"     , &apply_length    , glenv);
+
+    BIND(FUNCTION , "flush-output" , &apply_flush_output , glenv);
     BIND(FUNCTION , "display"    , &apply_display   , glenv);
     BIND(FUNCTION , "list?"      , &apply_listq     , glenv);
     BIND(FUNCTION , "pair?"      , &apply_pairq     , glenv);
@@ -76,6 +78,7 @@ void init_buildins(){
     BIND(FUNCTION , "read"       , &apply_read      , glenv);
 
     BIND(SYNTAX ,  "if"         , &apply_if        , glenv);
+    BIND(SYNTAX ,  "cond"       , &apply_cond      , glenv);
     BIND(SYNTAX ,  "quote"      , &apply_quote     , glenv);
     BIND(SYNTAX ,  "lambda"     , &apply_lambda    , glenv);
     BIND(SYNTAX ,  "define"     , &apply_define    , glenv);
@@ -85,4 +88,5 @@ void init_buildins(){
     BIND(SYNTAX   , "syntax-rules"  , &apply_syntax_rules , glenv);
     BIND(FUNCTION   , "gc"       , &apply_gc        , glenv);
     BIND(FUNCTION , "senv"       , &apply_senv      , glenv);
+    BIND(FUNCTION , "exit"       , &apply_exit      , glenv);
 }

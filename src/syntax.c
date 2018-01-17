@@ -1,6 +1,8 @@
 #include "mem.h"
 #include "eval.h"
 #include "util.h"
+#include "opt.h"
+
 bool match(Obj keyws , Obj patn , Obj args);
 
 int least_elts(Obj pats){
@@ -130,25 +132,22 @@ Obj expand(Obj rule , Obj args){
 }
 
 Obj apply_macro(Obj macro , Obj args , Obj env){
-    //for syntax rules
+
     for(Obj rules = macro->mac->rules ;
             rules && rules != nil ; rules = cdr(rules)){
         Obj rule = car(rules);
         Obj patn = car(rule);
         /* cdr(patn) to discard _ */
-        int v = match(macro->mac->keyws , cdr(patn) , args);
-        //print_obj(cdr(patn));
-        //printf(" : ") , print_obj(args);
-        //printf(" -> %d\n" , v);
-
         if(match(macro->mac->keyws , cdr(patn) , args)){
-
-            Obj expansion = expand(rule , args);
-            //alert("expand : " , expansion);
-            return eval(expansion , env);
+            return expand(rule , args);
         }
     }
     printf("cannot match any rule");
+    printf("\n > ");
+    detail(macro);
+    printf("\n > ");
+    print_obj(args);
+    puts("");
     return NULL;
 }
 
@@ -159,9 +158,24 @@ Obj apply_if(Obj args , Obj env){
     Obj predict = eval(car(args) , env);
     if(!predict) return NULL;
     if(!IS_FALSE(predict))
-        return eval(car(rest) , env);
+        return car(rest);
     else if (length(args) > 2)
-        return eval(cadr(rest) , env);
+        return cadr(rest);
+    return NULL;
+}
+
+Obj apply_cond(Obj args , Obj env){
+    //consider arity == 1
+    //assert arity <= 3
+    for( ; args && !IS_NIL(args) ; args = cdr(args)){
+        Obj clause = car(args);
+        Obj pred = car(clause);
+        if(pred == els)
+            return find_last_expr(cdr(clause) , env);
+        if(IS_TRUE(eval(pred , env))){
+            return find_last_expr(cdr(clause) , env);
+        }
+    }
     return NULL;
 }
 

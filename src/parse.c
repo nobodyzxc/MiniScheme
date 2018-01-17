@@ -32,6 +32,8 @@ Obj new_lit(char *v){
         obj = (Obj)nil;
     else if(EQS(v , "..."))
         obj = (Obj)eli;
+    else if(EQS(v , "else"))
+        obj = (Obj)els;
     else
         obj = new(SYMBOL , strdup(v));
     return obj;

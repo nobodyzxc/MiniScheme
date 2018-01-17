@@ -44,6 +44,13 @@ void detail(Obj obj){
         print_obj(obj->clos->exp->expr->body);
         printf(">");
     }
+    if(obj->type == MACRO){
+        printf("<macro ");
+        print_obj(obj->mac->keyws);
+        printf(" . ");
+        print_obj(obj->mac->rules);
+        printf(">");
+    }
 }
 
 void print_esc(char *str){

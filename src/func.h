@@ -4,6 +4,7 @@
 #include "mem.h"
 
 Obj apply_gc(Obj pr , Obj env);
+Obj apply_exit(Obj pr , Obj env);
 Obj apply_source(Obj pr , Obj env);
 Obj apply_senv(Obj pr , Obj env);
 Obj apply_apply(Obj pr , Obj env);
@@ -19,6 +20,7 @@ Obj apply_mul(Obj pr , Obj env);
 Obj apply_div(Obj pr , Obj env);
 Obj apply_mod(Obj pr , Obj env);
 Obj apply_cons(Obj pr , Obj env);
+Obj apply_flush_output(Obj pr , Obj env);
 Obj apply_display(Obj pr , Obj env);
 Obj apply_listq(Obj pr , Obj env);
 Obj apply_pairq(Obj pr , Obj env);

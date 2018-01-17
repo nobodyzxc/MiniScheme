@@ -5,22 +5,23 @@
 #include <string.h>
 #include <stdbool.h>
 
-char ss[300];
+char glo_buffer[300];
 
-char *tok_list(char *p , Token *phead , Token *ptail);
+char *tok_list(char *buffer , char *p , Token *phead , Token *ptail);
 
 void clear_buf(void){
-    memset(ss , 0 , sizeof(ss));
+    memset(glo_buffer , 0 , sizeof(glo_buffer));
 }
 
-char *input(const char *prompt , bool lock){
+char *input(char *buffer , const char *prompt , bool lock){
+#define SIZE 300
     stdin_printf(prompt);
     if(lock)
-        while(!fgets(ss , sizeof(ss) , stream));
+        while(!fgets(buffer , SIZE , stream));
     else
-        if(!fgets(ss , sizeof(ss) , stream)) return NULL;
-    ss[strlen(ss) - 1] = 0;
-    return ss;
+        if(!fgets(buffer , SIZE , stream)) return NULL;
+    buffer[strlen(buffer) - 1] = 0;
+    return buffer;
 }
 
 char read_char(){
@@ -74,30 +75,30 @@ void add_token(char *p , Token *plast){
         (*plast) = new_tok;
 }
 
-char *get_non_blank(char *p){
+char *get_non_blank(char* buffer , char *p){
     while(*p && is_blank(*p)) p++;
     while(!*p){
-        p = input("... " , true);
+        p = input(buffer , "... " , true);
         while(*p && is_blank(*p)) p++;
     }
     return p;
 }
 
-char *add_quote(char *p , Token *plast){
+char *add_quote(char* buffer , char *p , Token *plast){
     if(*p != '\'')
         error("unmatched quote %s\n" , p);
     else
         p += 1;
 
-    p = get_non_blank(p);
+    p = get_non_blank(buffer , p);
 
     add_token(strdup("(") , plast);
     add_token(strdup("quote") , plast);
     if(*p == '(' || *p == '\''){
         if(*p == '(')
-            p = tok_list(p , &(*plast)->next , plast);
+            p = tok_list(buffer , p , &(*plast)->next , plast);
         else
-            p = add_quote(p , plast);
+            p = add_quote(buffer , p , plast);
     }
     else{
         char *s = p;
@@ -107,7 +108,7 @@ char *add_quote(char *p , Token *plast){
     return p;
 }
 
-char *tok_string(char *p , Token *phead , Token *ptail){
+char *tok_string(char* buffer , char *p , Token *phead , Token *ptail){
     if(*p != '"')
         error("parse string start with %c\n" , *p);
     char *q = p , buf[300];
@@ -126,7 +127,7 @@ char *tok_string(char *p , Token *phead , Token *ptail){
                 buf[l] = read_char();
             if(buf[l] == '"' && buf[l - 1] != '\\'){
                 add_token(ya_strndup(buf , l + 1) , ptail);
-                p = input("" , true);
+                p = input(buffer , "" , true);
                 break;
             }
             if(buf[l] == '\n') stdin_printf("... ") , l -= 1;
@@ -136,18 +137,18 @@ char *tok_string(char *p , Token *phead , Token *ptail){
     return p;
 }
 
-char *tok_atom(char *p , Token *phead , Token *ptail){
+char *tok_atom(char* buffer , char *p , Token *phead , Token *ptail){
     token_t head = {.p = NULL , .next = NULL};
     Token last = &head; // here
     while(*p && is_blank(*p)) p++;
     if(is_paren_r(*p))
         error("unmatched paren while parsing atom\n");
     if(*p == '\'')
-        p = add_quote(p , &last);
+        p = add_quote(buffer , p , &last);
     else if(*p == ';')
         while(*p) p++;
     else if(*p == '"')
-        p = tok_string(p , &head.next , &last);
+        p = tok_string(buffer , p , &head.next , &last);
     else{
         char *d = tokstr(p);
         add_token(ya_strndup(p , d - p) , &last);
@@ -158,7 +159,7 @@ char *tok_atom(char *p , Token *phead , Token *ptail){
     return p;
 }
 
-char *tok_list(char *p , Token *phead , Token *ptail){
+char *tok_list(char* buffer , char *p , Token *phead , Token *ptail){
     char hp = *p;
     if(!is_paren_l(*p))
         error("unmatched list %s\n" , p);
@@ -166,7 +167,7 @@ char *tok_list(char *p , Token *phead , Token *ptail){
     Token head , tail;
     head = tail = new_token(strdup("(") , NULL); //must use strdup
     while(1){
-        p = get_non_blank(p);
+        p = get_non_blank(buffer , p);
         switch(*p){
             case ';':
                 p = strchr(p , '\0') - 1;
@@ -174,7 +175,7 @@ char *tok_list(char *p , Token *phead , Token *ptail){
             case '(':
             case '[':
             case '{':
-                p = tok_list(p , &tail->next , &tail) - 1;
+                p = tok_list(buffer , p , &tail->next , &tail) - 1;
                 break;
             case ')':
             case ']':
@@ -186,11 +187,11 @@ char *tok_list(char *p , Token *phead , Token *ptail){
                 if(ptail) (*ptail) = tail;
                 return p + 1;
             case '"':
-                p = tok_string(p , &tail->next , &tail) - 1;
+                p = tok_string(buffer , p , &tail->next , &tail) - 1;
                 break;
             case '\'':
             default:
-                p = tok_atom(p , &tail->next , &tail) - 1;
+                p = tok_atom(buffer , p , &tail->next , &tail) - 1;
                 break;
         }
         p += 1;
@@ -205,12 +206,12 @@ void print_token(Token tok){
         printf(" %s %s" , tok->p , tok->next ? "," : " \n");
 }
 
-char *tokenize(char *p , Token *tok){
-    if(!*p) p = input("> " , false);
+char *tokenize(char *buffer , char *p , Token *tok){
+    if(!*p) p = input(buffer , "> " , false);
     Token head = NULL , t;
     while(*p && is_blank(*p)) p += 1;
-    if(*p == '(') p = tok_list(p , &head , NULL);
-    else if(*p) p = tok_atom(p , &head , NULL);
+    if(*p == '(') p = tok_list(buffer , p , &head , NULL);
+    else if(*p) p = tok_atom(buffer , p , &head , NULL);
     (*tok) = head;
     return p;
 }

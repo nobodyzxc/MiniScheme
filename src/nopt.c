@@ -1,7 +1,6 @@
 #include "opt.h"
 #include "util.h"
 #include "eval.h"
-#include "syntax.h"
 #include "mem.h"
 #define TAB_SIZE 1000
 
@@ -58,8 +57,7 @@ Obj build_tail(Obj clos , Obj expr , Obj env){
             || IS_EXPR_OF(expr , "and")
             || IS_EXPR_OF(expr , "or")
             || IS_EXPR_OF(expr , "let")
-            || IS_EXPR_OF(expr , "lambda")
-            ){
+            || IS_EXPR_OF(expr , "lambda")){
         return new(CLOSURE ,
                 new(EXPR ,
                     NULL , /* name */
@@ -71,19 +69,40 @@ Obj build_tail(Obj clos , Obj expr , Obj env){
         return find_tail(clos , cdr(expr) , env);
     }
     else if(IS_EXPR_OF(expr , "if")){
-        return build_tail(clos , apply_if(cdr(expr) , env) , env);
+        return IS_TRUE(eval(cadr(expr) , env)) ?
+            build_tail(clos , caddr(expr) , env) :
+            (length(expr) == 3 ? NULL :
+             build_tail(clos , cadddr(expr) , env));
     }
-    /* comment below is interesting */
-    else if(IS_EXPR_OF(expr , "cond"))
-        return build_tail(clos , apply_cond(cdr(expr) , env) , env);
     else if(IS_PAIR(expr)){
-        Obj app = car(expr);
-        app = app->type == SYMBOL ?
-                lookup_symbol(app->str , env) : eval(app , env);
-        clos_args(clos) =
-            app->type == FUNCTION || app->type == CLOSURE ?
-                map_eval(cdr(expr) , env) : cdr(expr);
-        clos_body(clos) = app;
+        Obj nbody = car(expr)->type == SYMBOL ?
+                lookup_symbol(car(expr)->str , env) : eval(car(expr) , env);
+        Obj nargs;
+        if(nbody->type == MACRO || nbody->type == SYNTAX)
+            //clos_args(clos) = cdr(expr);
+            nargs = cdr(expr);
+        else
+            //clos_args(clos) = map_eval(cdr(expr) , env);
+            nargs = map_eval(cdr(expr) , env);
+        alert("build call : " , nbody);puts("");
+        alert("build call : " , nargs);puts("");
+
+        clos->clos->exp->expr->args =
+            map_eval(cdr(expr) , env);
+        clos->clos->exp->expr->body =
+            eval(car(expr) , env);
+        return clos;
+
+        return new(CLOSURE ,
+                new(EXPR ,
+                    NULL , /* name */
+                    nargs , /* args */
+                    nbody) , /* body */
+                NULL);
+
+        //Obj tail_args =
+        //if(clos_body(clos)->type == CLOSURE)
+        //else puts("fuck") , exit(0);
         return clos;
     }
     printf("cannot do tail eval : ");
@@ -91,16 +110,12 @@ Obj build_tail(Obj clos , Obj expr , Obj env){
     return NULL;
 }
 
-Obj find_last_expr(Obj exprs , Obj env){
-    Obj last_expr = NULL;
-    while(!IS_NIL(exprs)){
-        if(last_expr) eval(last_expr , env);
-        last_expr = car(exprs);
-        exprs = cdr(exprs);
-    }
-    return last_expr;
-}
-
 Obj find_tail(Obj clos , Obj body , Obj env){
-    return build_tail(clos , find_last_expr(body , env) , env);
+    Obj iter = body , last_expr = NULL;
+    while(!IS_NIL(iter)){
+        if(last_expr) eval(last_expr , env);
+        last_expr = car(iter);
+        iter = cdr(iter);
+    }
+    return build_tail(clos , last_expr , env);
 }
