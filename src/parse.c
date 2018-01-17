@@ -13,7 +13,7 @@ double parse_decimal(char *v){
 }
 
 long long parse_integer(char *v){
-    return atoi(v);
+    return atoll(v);
 }
 
 Obj new_lit(char *v){
