@@ -48,6 +48,8 @@ Obj eval(Obj val , Obj env){
 
                 if(app->type == SYNTAX){
                     val = app->proc->apply(args , env);
+                    if(app->proc->apply == apply_quote)
+                        return val;
                     continue;
                 }
                 else if(app->type == MACRO){
@@ -78,6 +80,8 @@ Obj eval(Obj val , Obj env){
                         }
                         else if(tail->type == SYNTAX){
                             val = tail->proc->apply(args , env);
+                            if(app->proc->apply == apply_quote)
+                                return val;
                             re_eval = true;
                             break;
                         }

@@ -22,6 +22,7 @@ todo :
       (define f (lambda (x) (if (= x 0) 0 (+ x (f (- x 1))))))
       (f 100000)
    ```
+
       can I opt it to tail call?
 
 feature :

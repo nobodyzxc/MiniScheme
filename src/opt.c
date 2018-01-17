@@ -55,10 +55,6 @@ Obj build_tail(Obj clos , Obj expr , Obj env){
             || IS_EXPR_OF(expr , "define")
             || IS_EXPR_OF(expr , "quote")
             || IS_EXPR_OF(expr , "set!")
-            || IS_EXPR_OF(expr , "and")
-            || IS_EXPR_OF(expr , "or")
-            || IS_EXPR_OF(expr , "let")
-            || IS_EXPR_OF(expr , "lambda")
             ){
         return new(CLOSURE ,
                 new(EXPR ,
@@ -67,22 +63,12 @@ Obj build_tail(Obj clos , Obj expr , Obj env){
                     NULL) , /* body */
                 NULL);
     }
-    //else if(IS_EXPR_OF(expr , "begin")){
-    //    return find_tail(clos , cdr(expr) , env);
-    //}
-    //else if(IS_EXPR_OF(expr , "if")){
-    //    return build_tail(clos , apply_if(cdr(expr) , env) , env);
-    //}
-    /* comment below is interesting */
-    //else if(IS_EXPR_OF(expr , "cond")){
-    //    return build_tail(clos , apply_cond(cdr(expr) , env) , env);
-    //}
     else if(IS_PAIR(expr)){
         Obj app = car(expr);
         app = app->type == SYMBOL ?
                 lookup_symbol(app->str , env) : eval(app , env);
         /* speed up beg , why? */
-        if(app->type == SYNTAX)
+        if(app->type == SYNTAX) /* consider quote? */
             return build_tail(clos , app->proc->apply(cdr(expr) , env) , env);
         if(app->type == MACRO)
             return build_tail(clos , apply_macro(app , cdr(expr) , env) , env);
