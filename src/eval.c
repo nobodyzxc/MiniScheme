@@ -77,7 +77,6 @@ Obj eval(Obj val , Obj env){
                             return tail->proc->apply(args , env);
                         }
                         else if(tail->type == SYNTAX){
-                            puts("syntax in clos");
                             val = tail->proc->apply(args , env);
                             re_eval = true;
                             break;
@@ -90,6 +89,7 @@ Obj eval(Obj val , Obj env){
                         else if(tail->type == CLOSURE){
                             app = find_tail(app , clos_body(tail) ,
                                     zip_env(clos_args(tail) , args , env));
+                            //printf("app is ") , detail(app) , puts("");
                         }
                         /* fix fatal bug : use zip instead of zipped */
                         else{
