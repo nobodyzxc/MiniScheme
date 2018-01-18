@@ -28,19 +28,20 @@ Obj apply_gc(Obj pr , Obj env){
 
 Obj apply_source(Obj pr , Obj env){
     //assert car(pr) is STRING
-    if(car(pr)->type != STRING)
-        error("source file name must be string");
-    FILE *prev_stream = stream;
-    char *filename = car(pr)->str;
-    stream = fopen(filename , "r");
-    if(!stream){
-        printf("cannot open file %s\n" , filename);
+    if(length(pr) != 1)
+        puts("give me one filename");
+    else if(car(pr)->type != STRING)
+        puts("source file name must be string");
+    else{
+        FILE *prev_stream = stream;
+        char *filename = car(pr)->str;
+        stream = fopen(filename , "r");
+        if(!stream)
+            printf("cannot open file %s\n" , filename);
+        else
+            repl(false , false) , fclose(stream);
         stream = prev_stream;
-        return NULL;
     }
-    repl(false , false);
-    fclose(stream);
-    stream = prev_stream;
     return NULL;
 }
 
@@ -154,13 +155,13 @@ Obj apply_equalq(Obj pr , Obj env){
 }
 
 #define apply_cmp(name , op) \
-Obj apply_ ## name (Obj pr , Obj env){ \
-    for( ; pr && !IS_NIL(pr) && !IS_NIL(cdr(pr)) ; \
-            pr = cdr(pr)) \
+    Obj apply_ ## name (Obj pr , Obj env){ \
+        for( ; pr && !IS_NIL(pr) && !IS_NIL(cdr(pr)) ; \
+                pr = cdr(pr)) \
         if(!(num_of(car(pr)) op num_of(cadr(pr)))) \
-            return (Obj)false_obj; \
-    return (Obj)true_obj; \
-}
+        return (Obj)false_obj; \
+        return (Obj)true_obj; \
+    }
 
 apply_cmp(lt , <);
 apply_cmp(gt , >);
@@ -185,16 +186,18 @@ Obj apply_symbolq(Obj pr , Obj env){
 }
 
 Obj apply_procedureq(Obj pr , Obj env){
-    return new(BOOLEAN ,
-            car(pr)->type == CLOSURE
-            || car(pr)->type == FUNCTION);
+    return new(BOOLEAN , car(pr)
+            && (car(pr)->type == CLOSURE
+                || car(pr)->type == FUNCTION));
 }
 
 Obj apply_read(Obj pr , Obj env){
     char buffer[300];
     FILE *prev_stream = stream;
     stream = stdin;
-    char *p = input(buffer , "" , false);
+    char *p = input(buffer , "" , true);
+    while(!*p) p = input(buffer , "" , true);
+    /* fgets until not null */
     stream = prev_stream;
     Token tok = NULL;
     tokenize(buffer , p , &tok);
@@ -229,13 +232,13 @@ Obj apply_read(Obj pr , Obj env){
             error("cannot div zero"); \
         } \
         if(!is_num(car(pr))) \
-            error("cannot apply " xstr(op) " on non-number obj"); \
+        error("cannot apply " xstr(op) " on non-number obj"); \
         else if(rtn->type == DECIMAL){ \
             HANDEL_DEC1(pr , rtn , op , base) \
         } \
         else if(rtn->type == INTEGER){ \
             if(car(pr)->type == INTEGER) \
-                rtn->integer op ## = car(pr)->integer; \
+            rtn->integer op ## = car(pr)->integer; \
             HANDEL_DEC2(pr , rtn , op , base) \
         } \
     }
@@ -248,16 +251,16 @@ Obj apply_read(Obj pr , Obj env){
 
 #define HANDEL_DEC1(pr , rtn , op , base) \
     if(car(pr)->type == INTEGER) \
-        rtn->decimal op ## = (double) car(pr)->integer; \
+    rtn->decimal op ## = (double) car(pr)->integer; \
     else if(car(pr)->type == DECIMAL) \
-        rtn->decimal op ## = car(pr)->decimal; \
+    rtn->decimal op ## = car(pr)->decimal; \
 
 #define HANDEL_DEC2(pr , rtn , op , base) \
     else if(car(pr)->type == DECIMAL){ \
-                rtn->type = DECIMAL; \
-                rtn->decimal = rtn->integer; \
-                rtn->decimal op ## = car(pr)->decimal; \
-            }
+        rtn->type = DECIMAL; \
+        rtn->decimal = rtn->integer; \
+        rtn->decimal op ## = car(pr)->decimal; \
+    }
 
 apply_opr(add , + , 0);
 apply_opr(mul , * , 1);

@@ -40,7 +40,7 @@ void repl(bool _p , bool auto_gc){
         if(!tok) continue;
         Obj val = parse(tok);
         val = eval(val , glenv);
-        if(_p && stream == stdin)
+        if(_p && stream == stdin && val)
             print_obj(val) , printf("\n");
         free_token(tok);
         tok = NULL , val = NULL;

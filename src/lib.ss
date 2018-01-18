@@ -28,6 +28,7 @@
 (define (caar l) (car (car l)))
 (define (cadr l) (car (cdr l)))
 (define (caddr l) (car (cdr (cdr l))))
+(define (cadar l) (car (cdr (car l))))
 (define (cadddr l) (car (cdr (cdr (cdr l)))))
 
 (define (assoc elt ls)
@@ -94,10 +95,12 @@
 
 (define cond
   (syntax-rules
-    (else)
+    (else =>)
     ((_) (void))
     ((_ (else expr ...) rest ...)
      (if #t (begin expr ...)))
+    ((_ (pred => expr) rest ...)
+     (if pred (expr pred) (cond rest ...)))
     ((_ (pred expr ...) rest ...)
      (if pred (begin expr ...) (cond rest ...))))
   )

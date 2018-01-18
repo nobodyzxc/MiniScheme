@@ -1,9 +1,13 @@
-DST=src
-if [ -f main.c ];then
-    DST=.
+DST=`dirname $0`
+if [ -f ${DST}/src/main.c ]; then
+    DST=${DST}/src
+elif [ ! -f ${DST}/main.c ]; then
+    echo "cannot find main.c under ${DST}"
+    exit
 fi
-if [ ! -f $DST/main ]; then
-    cd $DST ; make ; cd -
+
+if [ ! -f ${DST}/main ]; then
+    cd $DST ; make
 fi
 cd $DST 2>/dev/null
 if command -v rlwrap 1>/dev/null;then rlwrap ./main $*;else ./main;fi

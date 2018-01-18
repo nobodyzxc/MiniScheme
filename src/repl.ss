@@ -1,9 +1,9 @@
-#lang r5rs
+;#lang r5rs
 ; not ready yet
 (define (flush-output) (display ""))
 
-(define (void? e)
-  (eq? e (void)))
+;(define (void? e)
+;  (eq? e (void)))
 
 (define print
   (lambda args
@@ -63,6 +63,7 @@
     (cons 'exit     exit)
     (cons 'cons     cons)
     (cons 'car      car)
+    (cons 'cdr      cdr)
     (cons '+        +)
     (cons '-        -)
     (cons '*        *)
@@ -102,29 +103,35 @@
 
 (define (repl)
   ;(begin
-    (print "MiniEval> ")
-    (let ((expr (read)))
-      (cond
-        ((if-apply? 'exit expr) 'exit)
-        ((eq? 'env expr)
-         (begin (elt-println glenv) (repl)))
-        ((if-apply? 'define expr)
-         (begin
-           (let
-             ((pre-def (assoc (def-sym expr) glenv))
-              (new-def (mini-def (cdr expr))))
-             (if pre-def
-               (set-cdr! pre-def (cdr new-def))
-               (set! glenv (cons new-def glenv))))
-           (repl)))
-        (else
-          (let ((v (mini-eval expr glenv)))
-            (if (not (void? v)) (print v))
-            (println "") (repl)))
-        )
+  (print "MiniEval> ")
+  (let ((expr (read)))
+    (cond
+      ((if-apply? 'exit expr) 'exit)
+      ((eq? 'env expr)
+       (begin (elt-println glenv) (repl)))
+      ((if-apply? 'define expr)
+       (begin
+         (let
+           ((pre-def (assoc (def-sym expr) glenv))
+            (new-def (mini-def (cdr expr))))
+           (set! glenv (cons new-def glenv))
+           ;(if pre-def
+           ;  (set-cdr! pre-def (cdr new-def))
+           ;  (set! glenv (cons new-def glenv)))
+           )
+         (repl)
+         ))
+      (else
+        (let ((v (mini-eval expr glenv)))
+          ;(if (not (void? v)) (print v))
+          (print v)
+          (println "")
+          (repl)
+          ))
       )
     )
-  ;)
+  )
+;)
 
 (define lookup-symbol
   (lambda (s env)
@@ -162,7 +169,6 @@
                       (extend-env
                         (cadr func) args ;new bindings
                         (cadddr func)))) ;original env
-          ((void? func) "")
           (else (error "cannot apply: " func)))))
 
 (define (mini-eval expr env)
@@ -189,7 +195,8 @@
                   (map (lambda (e)
                          (mini-eval e env)) expr)))
             (mini-apply (car evaled-expr)
-                        (cdr evaled-expr)))
+                        (cdr evaled-expr))
+            )
           )
         ))
 

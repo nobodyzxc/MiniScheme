@@ -48,37 +48,42 @@ void push_sym_pool(Obj sym){
     hash_cnt++;
 }
 
+Obj set_clos(Obj clos , Obj args , Obj body){
+    clos_args(clos) = args , clos_body(clos) = body;
+    return clos;
+}
+
 Obj find_tail(Obj , Obj , Obj);
 /* tail call opt */
 Obj build_tail(Obj clos , Obj expr , Obj env){
-    if(IS_SELFEVAL(expr)
+    if(expr == NULL)
+        return set_clos(clos , NULL , NULL);
+    else if(IS_SELFEVAL(expr)
             || IS_EXPR_OF(expr , define)
             || IS_EXPR_OF(expr , quote)
             || IS_EXPR_OF(expr , set)
-            ){
-        return new(CLOSURE ,
-                new(EXPR ,
-                    NULL , /* name */
-                    eval(expr , env) , /* args */
-                    NULL) , /* body */
-                NULL);
+           ){
+        return set_clos(clos , eval(expr , env) , NULL);
     }
     else if(IS_PAIR(expr)){
         Obj app = car(expr);
         app = app->type == SYMBOL ?
-                lookup_symbol(app->str , env) : eval(app , env);
+            lookup_symbol(app->str , env) : eval(app , env);
         /* speed up beg , why? */
-        if(app->type == SYNTAX) /* consider quote? */
-            return build_tail(clos , app->proc->apply(cdr(expr) , env) , env);
+        if(app->type == SYNTAX){/* consider quote? */
+            if(app->proc->apply == apply_quote)
+                return set_clos(clos , cadr(expr) , NULL);
+            else
+                return build_tail(clos , app->proc->apply(cdr(expr) , env) , env);
+        }
         if(app->type == MACRO)
             return build_tail(clos , apply_macro(app , cdr(expr) , env) , env);
         /* speed up end */
-        clos_args(clos) = map_eval(cdr(expr) , env);
-        clos_body(clos) = app;
-        return clos;
+        return set_clos(clos , map_eval(cdr(expr) , env) , app);
     }
     printf("cannot do tail eval : ");
     print_obj(expr); puts("");
+    exit(1);
     return NULL;
 }
 

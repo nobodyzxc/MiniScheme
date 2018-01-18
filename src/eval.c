@@ -75,6 +75,7 @@ Obj eval(Obj val , Obj env){
                     bool re_eval = false;
                     while(tail){
                         args = clos_args(app);
+
                         if(tail->type == FUNCTION){
                             return tail->proc->apply(args , env);
                         }

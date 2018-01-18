@@ -85,6 +85,18 @@ Obj map_car(Obj ls){
     return head.cdr;
 }
 
+Obj map_cdr(Obj ls){
+    cons_t head;
+    Cons last = &head;
+    for( ; ls && !IS_NIL(ls) ; ls = cdr(ls)){
+        last->cdr = new(PAIR , new_cons(cdar(ls) , NULL));
+        last = last->cdr->pair;
+    }
+    last->cdr = (Obj)nil;
+    return head.cdr;
+}
+
+/* cannot use it. macro args will be mutable */
 void set_map_cdr(Obj ls){
     for( ; ls && !IS_NIL(ls) ; ls = cdr(ls))
         car(ls) = cdr(car(ls));
@@ -98,7 +110,7 @@ Obj zip_elipat(Obj pat , Obj args , Obj env){
     else if(pat->type == PAIR){
         for( ; pat && !IS_NIL(pat) ; pat = cdr(pat)){
             zip_elipat(car(pat) , map_car(args) , env);
-            set_map_cdr(args);
+            args = map_cdr(args); /* bug : set_map_cdr(args) */
         }
     }
     else{
@@ -108,14 +120,16 @@ Obj zip_elipat(Obj pat , Obj args , Obj env){
 }
 
 Obj zip_pat(Obj pat , Obj args , Obj env){
+    Obj p = args;
     bool isls = is_list(pat);
     int argslen = length(args);
     while(pat->type == PAIR){
         Obj mch = car(pat);
         Obj nxt = cdr(pat);
         nxt = nxt ? (nxt->type == PAIR ? car(nxt) : nxt) : NULL;
-        if(nxt == eli)
+        if(nxt == eli){
             return zip_elipat(mch , args , env);
+        }
 
         if(mch->type == PAIR){ /* rec zip */
             zip_pat(mch , car(args) , env);

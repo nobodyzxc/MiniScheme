@@ -132,7 +132,6 @@ Obj expand(Obj rule , Obj args){
 }
 
 Obj apply_macro(Obj macro , Obj args , Obj env){
-
     for(Obj rules = macro->mac->rules ;
             rules && rules != nil ; rules = cdr(rules)){
         Obj rule = car(rules);
@@ -148,6 +147,7 @@ Obj apply_macro(Obj macro , Obj args , Obj env){
     printf("\n > ");
     print_obj(args);
     puts("");
+    exit(0);
     return NULL;
 }
 
