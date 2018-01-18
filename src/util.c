@@ -51,6 +51,9 @@ void detail(Obj obj){
         print_obj(obj->mac->rules);
         printf(">");
     }
+    else{
+        print_obj(obj);
+    }
 }
 
 void print_esc(char *str){

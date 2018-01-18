@@ -4,6 +4,7 @@
 #include "eval.h"
 #include "main.h"
 #include "parse.h"
+#include "token.h"
 
 Obj apply_exit(Obj args , Obj env){
     exit(0);
@@ -195,14 +196,18 @@ Obj apply_read(Obj pr , Obj env){
     char buffer[300];
     FILE *prev_stream = stream;
     stream = stdin;
-    char *p = input(buffer , "" , true);
-    while(!*p) p = input(buffer , "" , true);
+    char *p = NULL;
+    while(1){
+        p = input(buffer , "" , true);
+        while(p && *p && is_blank(*p)) p++;
+        if(p && *p) break;
+    }
     /* fgets until not null */
-    stream = prev_stream;
     Token tok = NULL;
     tokenize(buffer , p , &tok);
     Obj val = parse(tok);
     free_token(tok);
+    stream = prev_stream;
     return val;
 }
 

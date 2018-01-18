@@ -2,9 +2,6 @@
 ; not ready yet
 (define (flush-output) (display ""))
 
-;(define (void? e)
-;  (eq? e (void)))
-
 (define print
   (lambda args
     (begin
@@ -55,12 +52,10 @@
                 )
     ))
 
-(define (exit) 'exit)
 (define glenv
   (list
     (cons 'display  display)
     (cons 'list     list)
-    (cons 'exit     exit)
     (cons 'cons     cons)
     (cons 'car      car)
     (cons 'cdr      cdr)
