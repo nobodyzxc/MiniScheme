@@ -7,7 +7,7 @@
 #include <assert.h>
 
 char glo_buffer[SIZE];
-char *glo_p = NULL;
+char *glo_p;
 
 char *tok_list(char *buffer , char *p , Token *phead , Token *ptail);
 

@@ -1,5 +1,8 @@
 ;#lang r5rs
 ; not ready yet
+(define (void) (display ""))
+(define (void? x) (eq? x (void)))
+
 (define (flush-output) (display ""))
 
 (define print
@@ -117,8 +120,7 @@
          ))
       (else
         (let ((v (mini-eval expr glenv)))
-          ;(if (not (void? v)) (print v))
-          (print v)
+          (if (not (void? v)) (print v))
           (println "")
           (repl)
           ))

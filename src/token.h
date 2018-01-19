@@ -20,6 +20,8 @@ char *input(char* , const char *prompt , bool lock);
 
 extern FILE *stream;
 extern char glo_buffer[SIZE];
+extern char *glo_p;
+
 bool is_blank(char p);
 void print_token(Token tok);
 void clear_buf(void);

@@ -23,16 +23,15 @@ bool is_shebang(char *p){
 void repl(bool repl_p , bool auto_gc){
     Token tok = NULL;
     bool first_line = true;
-    char *p = "";
-    while((p && *p) || (p = input(glo_buffer , "> " , false))){
+    while((glo_p && *glo_p) || (glo_p = input(glo_buffer , "> " , false))){
         if(first_line){
             first_line = false;
-            if(is_shebang(p)){
-                p = NULL;
+            if(is_shebang(glo_p)){
+                glo_p = NULL;
                 continue;
             }
         }
-        if(*p) p = tokenize(glo_buffer , p , &tok);
+        if(*glo_p) glo_p = tokenize(glo_buffer , glo_p , &tok);
         if(!tok) continue;
         //print_token(tok);
         Obj val = parse(tok);
@@ -57,7 +56,6 @@ bool load_script(char *name){
 }
 
 int handle_flags(int argc , char *argv[]){
-    char *p;
     Token tok;
     for(int i = 1 ; i < argc ; i++){
         if(EQS(argv[i] , "-i"))
@@ -70,9 +68,9 @@ int handle_flags(int argc , char *argv[]){
                 puts("");
             }
 
-            p = argv[i + 1];
-            while(*p){
-                p = tokenize(glo_buffer , p , &tok);
+            glo_p = argv[i + 1];
+            while(*glo_p){
+                glo_p = tokenize(glo_buffer , glo_p , &tok);
                 print_obj(eval(parse(tok) , glenv));
             }
             exit(0);

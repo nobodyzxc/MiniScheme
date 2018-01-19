@@ -263,29 +263,25 @@ Obj apply_procedureq(Obj args , Obj env){
 }
 
 Obj apply_read(Obj args , Obj env){
-    char *p = NULL;
-    static char buffer[300];
+    /* todo : input-port ? */
     FILE *prev_stream = stream;
     stream = stdin;
-    /* fgets until not null */
     Token tok = NULL;
-    p = tokenize(glo_buffer ,
-            get_non_blank(glo_buffer , p) ,
+#ifdef SHARE_BUFFER
+    while(is_blank(*glo_p)) glo_p++;
+    if(!*glo_p) glo_p = NULL;
+    glo_p = tokenize(glo_buffer ,
+            get_non_blank(glo_buffer , glo_p) ,
             &tok);
+#else
+    char buffer[300] , *p = NULL;
+    p = tokenize(buffer ,
+            get_non_blank(buffer , p) ,
+            &tok);
+#endif
     Obj val = parse(tok);
     free_token(tok);
     stream = prev_stream;
-    puts("read return");
-    //while(is_blank(*p)) p++;
-    //while(*p){
-    //    p = tokenize(glo_buffer ,
-    //            get_non_blank(glo_buffer , p) ,
-    //            &tok);
-    //    if(stream == stdin && val && val != err)
-    //        print_obj(parse(tok));
-    //    free_token(tok);
-    //    while(is_blank(*p)) p++;
-    //}
     return val;
 }
 
