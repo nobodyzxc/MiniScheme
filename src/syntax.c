@@ -156,7 +156,6 @@ Obj apply_if(Obj args , Obj env){
     //assert arity <= 3
     Obj rest = cdr(args);
     Obj predict = eval(car(args) , env);
-    if(!predict) return NULL;
     if(!IS_FALSE(predict))
         return car(rest);
     else if (length(args) > 2)
@@ -175,7 +174,6 @@ Obj apply_define(Obj args , Obj env){
     Obj expr = cdr(args);
     if(id->type == SYMBOL){
         Obj val = eval(car(expr) , env);
-        if(!val) return NULL;
         add_symbol(id , val , env);
     }
     else if(id->type == PAIR) // func short form

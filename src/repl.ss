@@ -132,7 +132,7 @@
   (lambda (s env)
     (cond ((assoc s env) => cdr)
           ((assoc s glenv) => cdr)
-          (else (error "unbound symbol: " s)))))
+          (else (error "unbound symbol: " s "\n")))))
 
 (define (self-eval? expr)
   (not (list? expr)))

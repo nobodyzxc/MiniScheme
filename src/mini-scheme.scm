@@ -1,7 +1,7 @@
 ;;; Scheme in Scheme, Mini-Scheme Version 2
 ;;; enter (exit) to quit
 (define (scheme) ;;; the read-eval-print loop.
-  (display "myScheme>")
+  (display "myScheme> ")
   (let ((expr (read)))
     (cond ((equal? expr '(exit))      ; (exit) only allowed at top level
            'done)

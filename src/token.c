@@ -4,8 +4,9 @@
 
 #include <string.h>
 #include <stdbool.h>
+#include <assert.h>
 
-char glo_buffer[300];
+char glo_buffer[SIZE];
 
 char *tok_list(char *buffer , char *p , Token *phead , Token *ptail);
 
@@ -14,7 +15,6 @@ void clear_buf(void){
 }
 
 char *input(char *buffer , const char *prompt , bool lock){
-#define SIZE 300
     stdin_printf(prompt);
     if(lock)
         while(!fgets(buffer , SIZE , stream));
@@ -57,12 +57,39 @@ bool is_comnt(char p){
     return false;
 }
 
+bool is_tokch(char ch){
+    return (ch == '\0'
+            || is_blank(ch)
+            || is_paren(ch)
+            || is_comnt(ch)
+            || ch == '"');
+}
+
+#define mulcmt_beg "#|"
+#define mulcmt_end "|#"
+
+bool is_multi_comnt(char *p){
+    for(int i = 0 ; i < strlen(mulcmt_beg) ; i++)
+       if(p[i] != mulcmt_beg[i]) return false;
+    return is_tokch(*(p + strlen(mulcmt_beg)));
+}
+
+/* Multi-line Comments #| |# */
+char *ignore_comnt(char *buffer , char *p){
+    assert(p);
+    if(!is_multi_comnt(p))
+        error("unexpected token #*");
+    p += 2;
+    while(1){
+        while(!(p = strstr(p , mulcmt_end)))
+            p = get_non_blank(buffer , p);
+        if(is_tokch(*(p + strlen(mulcmt_end)))) break;
+    }
+    return p + strlen(mulcmt_end);
+}
+
 char *tokstr(char *p){
-    while(*p
-            && !(is_blank(*p))
-            && !(is_paren(*p))
-            && !(is_comnt(*p))
-            && !(*p == '"'))
+    while(p && !is_tokch(*p))
         p++;
     return p;
 }
@@ -76,8 +103,8 @@ void add_token(char *p , Token *plast){
 }
 
 char *get_non_blank(char* buffer , char *p){
-    while(*p && is_blank(*p)) p++;
-    while(!*p){
+    while(p && *p && is_blank(*p)) p++;
+    while(!p || !*p){
         p = input(buffer , "... " , true);
         while(*p && is_blank(*p)) p++;
     }
@@ -111,7 +138,7 @@ char *add_quote(char* buffer , char *p , Token *plast){
 char *tok_string(char* buffer , char *p , Token *phead , Token *ptail){
     if(*p != '"')
         error("parse string start with %c\n" , *p);
-    char *q = p , buf[300];
+    char *q = p , buf[SIZE];
     while((q = strchr(q + 1 , '"')) && *(q - 1) == '\\');
     if(q) add_token(ya_strndup(p , q - p + 1) , ptail) , p = q + 1;
     else{
@@ -121,8 +148,8 @@ char *tok_string(char* buffer , char *p , Token *phead , Token *ptail){
         int l = strlen(buf);
         stdin_printf("... ");
         while(1){
-            if(l > 300)
-                error("exceed string limit\n");
+            if(l > SIZE)
+                error("exceed string limit : " xstr(SIZE) "\n");
             else
                 buf[l] = read_char();
             if(buf[l] == '"' && buf[l - 1] != '\\'){
@@ -138,9 +165,11 @@ char *tok_string(char* buffer , char *p , Token *phead , Token *ptail){
 }
 
 char *tok_atom(char* buffer , char *p , Token *phead , Token *ptail){
-    token_t head = {.p = NULL , .next = NULL};
-    Token last = &head; // here
+    if(!p) return p;
     while(*p && is_blank(*p)) p++;
+    token_t head
+        = {.p = NULL , .next = NULL};
+    Token last = &head;
     if(is_paren_r(*p))
         error("unmatched paren while parsing atom\n");
     if(*p == '\'')
@@ -149,6 +178,8 @@ char *tok_atom(char* buffer , char *p , Token *phead , Token *ptail){
         while(*p) p++;
     else if(*p == '"')
         p = tok_string(buffer , p , &head.next , &last);
+    else if(is_multi_comnt(p))
+        p = ignore_comnt(buffer , p);
     else{
         char *d = tokstr(p);
         add_token(ya_strndup(p , d - p) , &last);
@@ -169,9 +200,6 @@ char *tok_list(char* buffer , char *p , Token *phead , Token *ptail){
     while(1){
         p = get_non_blank(buffer , p);
         switch(*p){
-            case ';':
-                p = strchr(p , '\0') - 1;
-                break;
             case '(':
             case '[':
             case '{':
@@ -186,10 +214,6 @@ char *tok_list(char* buffer , char *p , Token *phead , Token *ptail){
                 (*phead) = head;
                 if(ptail) (*ptail) = tail;
                 return p + 1;
-            case '"':
-                p = tok_string(buffer , p , &tail->next , &tail) - 1;
-                break;
-            case '\'':
             default:
                 p = tok_atom(buffer , p , &tail->next , &tail) - 1;
                 break;

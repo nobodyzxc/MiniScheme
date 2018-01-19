@@ -3,7 +3,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+
+#define xstr(s) str(s)
+#define str(s)  #s
 #define EQS(a , b) (!strcmp(a , b))
+
 #define is_num(obj) \
     ((obj) && ((obj)->type == INTEGER || (obj)->type == DECIMAL))
 #define num_of(obj) \
@@ -27,9 +31,6 @@
 
 #define IS_PAIR(expr) ((expr) && (expr)->type == PAIR)
 #define IS_SYMBOL(expr) ((expr) && (expr)->type == PAIR)
-
-#define xstr(s) str(s)
-#define str(s)  #s
 
 enum types{
     BOOLEAN ,

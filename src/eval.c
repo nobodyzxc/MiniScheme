@@ -98,9 +98,8 @@ Obj eval(Obj val , Obj env){
                         }
                         /* fix fatal bug : use zip instead of zipped */
                         else{
-                            printf("type is %d\n" , tail->type);
-                            alert("--> " , tail);
-                            puts("break;\n");
+                            alert("cannot not apply" , tail);
+                            puts(" on TCO");
                             break;
                         }
                         tail = clos_body(app);

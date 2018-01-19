@@ -16,23 +16,19 @@ FILE *stream;
 bool interpret = false;
 
 
-bool check_shell(char *p){
-    while(*p && is_blank(*p)) p++;
-    return *p == '#'
-        && (strncmp(p , "#t" , 2))
-        && (strncmp(p , "#f" , 2))
-        && (strncmp(p , "#\\" , 2));
+bool is_shebang(char *p){
+    return p && *p && !strncmp(p , "#!" , 2);
 }
 
-void repl(bool _p , bool auto_gc){
+void repl(bool repl_p , bool auto_gc){
     Token tok = NULL;
-    bool fist_line = true;
+    bool first_line = true;
     char *p = "";
     while((p && *p) || (p = input(glo_buffer , "> " , false))){
-        if(fist_line){
-            fist_line = false;
-            if(check_shell(p)){
-                *p = 0;
+        if(first_line){
+            first_line = false;
+            if(is_shebang(p)){
+                p = NULL;
                 continue;
             }
         }
@@ -40,7 +36,7 @@ void repl(bool _p , bool auto_gc){
         if(!tok) continue;
         Obj val = parse(tok);
         val = eval(val , glenv);
-        if(_p && stream == stdin && val)
+        if(repl_p && stream == stdin && val)
             print_obj(val) , printf("\n");
         free_token(tok);
         tok = NULL , val = NULL;
@@ -49,14 +45,13 @@ void repl(bool _p , bool auto_gc){
     clear_buf();
 }
 
-void load_script(char *name){
+bool load_script(char *name){
     FILE *prev_stream = stream;
-    stream = fopen(name , "r");
+    bool succ = stream = fopen(name , "r");
     if(stream)
         repl(false , false) , fclose(stream);
-    else
-        printf("cannot open file %s\n" , name);
     stream = prev_stream;
+    return succ;
 }
 
 int handle_flags(int argc , char *argv[]){
@@ -87,13 +82,15 @@ int handle_flags(int argc , char *argv[]){
 int main(int argc , char *argv[]){
     stream = stdin;
     init_buildins();
-    load_script(EXTENSION);
+    bool succ = load_script(EXTENSION);
     if(argc == 1)
         interpret = true;
     else
         handle_flags(argc , argv);
     if(interpret){
-        stdin_printf("Welcome to Zekin v1.0\n");
+        stdin_printf("Welcome to Zekin v1.0");
+        if(succ) stdin_printf(" (\"" EXTENSION "\" loaded)");
+        stdin_printf("\n");
         repl(true , true); stdin_printf("\n");
     }
     return 0;

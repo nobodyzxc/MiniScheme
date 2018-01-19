@@ -7,6 +7,9 @@
 #include "token.h"
 
 Obj apply_exit(Obj args , Obj env){
+    if(length(args) > 0 &&
+            car(args)->type == INTEGER)
+        exit((int)(car(args)->integer));
     exit(0);
     return NULL;
 }
@@ -22,146 +25,192 @@ Obj apply_clos(Obj pcr , Obj args , Obj env){
     return val;
 }
 
-Obj apply_gc(Obj pr , Obj env){
+Obj apply_gc(Obj args , Obj env){
     gc();
     return NULL;
 }
 
-Obj apply_source(Obj pr , Obj env){
-    //assert car(pr) is STRING
-    if(length(pr) != 1)
-        puts("give me one filename");
-    else if(car(pr)->type != STRING)
+Obj apply_source(Obj args , Obj env){
+    if(length(args) != 1)
+        alert("source only accept 1 arg : " , args);
+    else if(car(args)->type != STRING)
         puts("source file name must be string");
     else{
-        FILE *prev_stream = stream;
-        char *filename = car(pr)->str;
-        stream = fopen(filename , "r");
-        if(!stream)
-            printf("cannot open file %s\n" , filename);
+        if(load_script(car(args)->str))
+            stdin_printf("ok , \"%s\" loaded\n" , car(args)->str);
         else
-            repl(false , false) , fclose(stream);
-        stream = prev_stream;
+            printf("cannot load \"%s\"\n" , car(args)->str);
     }
     return NULL;
 }
 
-Obj apply_senv(Obj pr , Obj env){
-    //assert len(pr) == 1
-    pr = car(pr);
-    if(pr->type == ENV)
-        print_symtree(pr->env->symtab);
+Obj apply_senv(Obj args , Obj env){
+    if(length(args) != 1)
+        alert("senv only accept 1 arg : " , args);
+    args = car(args);
+    if(args->type == ENV)
+        print_symtree(args->env->symtab);
     return NULL;
 }
 
-Obj apply_apply(Obj pr , Obj env){
-    // assert arity == 2
-    // avoid apply special form
-    if(car(pr)->type == CLOSURE)
-        return apply_clos(car(pr) ,
-                cadr(pr) , env);
-    else if(car(pr)->type == FUNCTION)
-        return car(pr)->proc->apply(
-                cadr(pr) , env);
-    alert("cannot apply " , car(pr));
+Obj apply_apply(Obj args , Obj env){
+    if(length(args) != 2)
+        alert("apply only accept 2 arg : " , args);
+    else if(car(args)->type == CLOSURE)
+        return apply_clos(car(args) ,
+                cadr(args) , env);
+    else if(car(args)->type == FUNCTION)
+        return car(args)->proc->apply(
+                cadr(args) , env);
+    else{
+        printf("cannot apply ");
+        print_obj(car(args));
+        alert(" on " , cadr(args));
+    }
     return NULL;
 }
 
-Obj apply_nullq(Obj pr , Obj env){
-    // assert arith == 1
-    return new(BOOLEAN , IS_NIL(car(pr)));
+Obj apply_nullq(Obj args , Obj env){
+    if(length(args) != 1)
+        alert("null? only accept 1 arg : " , args);
+    else
+        return new(BOOLEAN , IS_NIL(car(args)));
+    return NULL;
 }
 
-Obj apply_listq(Obj pr , Obj env){
-    return new(BOOLEAN , is_list(car(pr)));
+Obj apply_listq(Obj args , Obj env){
+    if(length(args) != 1)
+        alert("list? only accept 1 arg : " , args);
+    else
+        return new(BOOLEAN , is_list(car(args)));
+    return NULL;
 }
 
-Obj apply_pairq(Obj pr , Obj env){
-    return new(BOOLEAN , car(pr)->type == PAIR);
+Obj apply_pairq(Obj args , Obj env){
+    if(length(args) != 1)
+        alert("pair? only accept 1 arg : " , args);
+    else
+        return new(BOOLEAN , car(args)->type == PAIR);
+    return NULL;
 }
 
-Obj apply_flush_output(Obj pr , Obj env){
+Obj apply_flush_output(Obj args , Obj env){
     fflush(stdout);
     return NULL;
 }
 
-Obj apply_display(Obj pr , Obj env){
-    if(!car(pr))
-        print_obj(pr);
-    else if(car(pr)->type == STRING)
-        print_esc(car(pr)->str);
-    else if(car(pr)->type == CLOSURE)
-        detail(car(pr));
+Obj apply_display(Obj args , Obj env){
+    /* todo : extend arity up to 2
+     * to support output-port? */
+    if(length(args) != 1)
+        alert("display? only accept 1 arg : " , args);
+    else if(!car(args)) /* handle void */
+        print_obj(args);
+    else if(car(args)->type == STRING)
+        print_esc(car(args)->str);
+    else if(car(args)->type == CLOSURE)
+        detail(car(args));
     else
-        print_obj(car(pr));
+        print_obj(car(args));
     return NULL;
 }
 
-Obj apply_length(Obj pr , Obj env){
-    if(car(pr)->type != PAIR){
-        alert("cannot apply length on " , car(pr));
-        return NULL;
-    }
-    return new(INTEGER , length(car(pr)));
-}
-
-Obj apply_car(Obj pr , Obj env){
-    if(car(pr)->type == PAIR)
-        return caar(pr);
+Obj apply_length(Obj args , Obj env){
+    if(length(args) != 1)
+        alert("length only accept 1 arg : " , args);
+    else if(car(args)->type == PAIR)
+        return new(INTEGER , length(car(args)));
     else
-        alert("cannot apply car on " , car(pr));
+        alert("cannot apply length on " , car(args));
     return NULL;
 }
 
-Obj apply_cdr(Obj pr , Obj env){
-    if(car(pr)->type == PAIR)
-        return cdar(pr);
+Obj apply_car(Obj args , Obj env){
+    if(length(args) != 1)
+        alert("car only accept 1 arg : " , args);
+    else if(car(args) && car(args)->type == PAIR)
+        return caar(args);
     else
-        alert("cannot apply cdr on " , car(pr));
+        alert("cannot apply car on " , car(args));
     return NULL;
 }
 
-Obj apply_cons(Obj pr , Obj env){
+Obj apply_cdr(Obj args , Obj env){
+    if(length(args) != 1)
+        alert("cdr only accept 1 arg : " , args);
+    else if(car(args)->type == PAIR)
+        return cdar(args);
+    else
+        alert("cannot apply cdr on " , car(args));
+    return NULL;
+}
+
+Obj apply_cons(Obj args , Obj env){
     // assert arity == 2
-    kObj head = car(pr) , body = cadr(pr);
-    return new(PAIR , new_cons(head , body));
+    if(length(args) != 2)
+        alert("cons only accept 2 arg : " , args);
+    else
+        return new(PAIR , new_cons(car(args) , cadr(args)));
+    return NULL;
 }
 
-Obj apply_eqnum(Obj pr , Obj env){
+Obj apply_eqnum(Obj args , Obj env){
     // assert arity > 1
-    if(length(pr) < 2)
-        error("apply = on list whose length < 2\n");
-    bool rtn = true;
-    Obj head = car(pr);
-    while(pr->type == PAIR)
-        if(!is_num(car(pr)))
-            print_obj(car(pr)) , error("apply = on non-number obj");
-        else
-            rtn &= cmp_num(head , car(pr)) , pr = cdr(pr);
-    return new(BOOLEAN , rtn);
+    if(length(args) < 2)
+        alert("= accept at least 2 arg : " , args);
+    else{
+        bool rtn = true;
+        Obj head = car(args);
+        while(args->type == PAIR)
+            if(is_num(car(args)))
+                rtn &= cmp_num(head , car(args)) , args = cdr(args);
+            else{
+                alert("apply = on non-number obj" , car(args));
+                return NULL;
+            }
+        return new(BOOLEAN , rtn);
+    }
+    return NULL;
 }
 
-Obj apply_eqq(Obj pr , Obj env){
+Obj apply_eqq(Obj args , Obj env){
     //assert arity == 2
-    return new(BOOLEAN , car(pr) == cadr(pr));
+    if(length(args) == 2)
+        alert("eq? only accept 2 arg : " , args);
+    else
+        return new(BOOLEAN , car(args) == cadr(args));
+    return NULL;
 }
 
-Obj apply_eqvq(Obj pr , Obj env){
+Obj apply_eqvq(Obj args , Obj env){
     //assert arity == 2
-    return new(BOOLEAN , eqv(car(pr) , cadr(pr)));
+    if(length(args) == 2)
+        alert("eqv? only accept 2 arg : " , args);
+    else
+        return new(BOOLEAN , eqv(car(args) , cadr(args)));
+    return NULL;
 }
 
-Obj apply_equalq(Obj pr , Obj env){
-    return new(BOOLEAN , equal(car(pr) , cadr(pr)));
+Obj apply_equalq(Obj args , Obj env){
+    if(length(args) == 2)
+        alert("equal? only accept 2 arg : " , args);
+    else
+        return new(BOOLEAN , equal(car(args) , cadr(args)));
+    return NULL;
 }
 
 #define apply_cmp(name , op) \
-    Obj apply_ ## name (Obj pr , Obj env){ \
-        for( ; pr && !IS_NIL(pr) && !IS_NIL(cdr(pr)) ; \
-                pr = cdr(pr)) \
-        if(!(num_of(car(pr)) op num_of(cadr(pr)))) \
-        return (Obj)false_obj; \
-        return (Obj)true_obj; \
+    Obj apply_ ## name (Obj args , Obj env){ \
+        if(length(args) < 2) \
+        alert(str(op) " accept at least 2 arg : " , args); \
+        else{ \
+            for( ; args && !IS_NIL(args) && !IS_NIL(cdr(args)) ; \
+                    args = cdr(args)) \
+            if(!(num_of(car(args)) op num_of(cadr(args)))) \
+            return (Obj)false_obj; \
+            return (Obj)true_obj; \
+        } \
+        return NULL; \
     }
 
 apply_cmp(lt , <);
@@ -169,102 +218,114 @@ apply_cmp(gt , >);
 apply_cmp(let , <=);
 apply_cmp(get , >=);
 
-Obj apply_not(Obj pr , Obj env){
+Obj apply_not(Obj args , Obj env){
     //assert airth == 1
-    return new(BOOLEAN , IS_FALSE(car(pr)));
-}
-
-Obj apply_void(Obj pr , Obj env){
+    if(length(args) == 1)
+        alert("not only accept 1 arg : " , args);
+    else
+        return new(BOOLEAN , IS_FALSE(car(args)));
     return NULL;
 }
 
-Obj apply_voidq(Obj pr , Obj env){
-    return new(BOOLEAN , car(pr) == NULL);
+Obj apply_void(Obj args , Obj env){
+    return NULL;
 }
 
-Obj apply_symbolq(Obj pr , Obj env){
-    return new(BOOLEAN , car(pr)->type == SYMBOL);
+Obj apply_voidq(Obj args , Obj env){
+    if(length(args) == 1)
+        alert("void? only accept 1 arg : " , args);
+    else
+        return new(BOOLEAN , car(args) == NULL);
+    return NULL;
 }
 
-Obj apply_procedureq(Obj pr , Obj env){
-    return new(BOOLEAN , car(pr)
-            && (car(pr)->type == CLOSURE
-                || car(pr)->type == FUNCTION));
+Obj apply_symbolq(Obj args , Obj env){
+    if(length(args) == 1)
+        alert("symbol? only accept 1 arg : " , args);
+    else
+        return new(BOOLEAN , car(args)->type == SYMBOL);
+    return NULL;
 }
 
-Obj apply_read(Obj pr , Obj env){
+Obj apply_procedureq(Obj args , Obj env){
+    if(length(args) == 1)
+        alert("procedure? only accept 1 arg : " , args);
+    else
+        return new(BOOLEAN , car(args)
+                && (car(args)->type == CLOSURE
+                    || car(args)->type == FUNCTION));
+    return NULL;
+}
+
+Obj apply_read(Obj args , Obj env){
     char buffer[300];
     FILE *prev_stream = stream;
     stream = stdin;
-    char *p = NULL;
-    while(1){
-        p = input(buffer , "" , true);
-        while(p && *p && is_blank(*p)) p++;
-        if(p && *p) break;
-    }
     /* fgets until not null */
     Token tok = NULL;
-    tokenize(buffer , p , &tok);
+    tokenize(buffer ,
+            get_non_blank(buffer , NULL) ,
+            &tok);
     Obj val = parse(tok);
     free_token(tok);
     stream = prev_stream;
     return val;
 }
 
-#define arith(pr , rtn , op , base) \
+#define arith(args , rtn , op , base) \
     Obj rtn = new(INTEGER , base); \
-    int pr_len = length(pr); /* here*/ \
+    int pr_len = length(args); /* here*/ \
     int chk = 6 op 2; \
     if((6 op 2 > 5 && pr_len) || pr_len > 1){ \
-        if(car(pr)->type == INTEGER){ \
-            rtn->integer = car(pr)->integer; \
+        if(car(args)->type == INTEGER){ \
+            rtn->integer = car(args)->integer; \
         } \
-        else if(car(pr)->type == DECIMAL){ \
+        else if(car(args)->type == DECIMAL){ \
             rtn->type = DECIMAL; \
-            rtn->decimal = car(pr)->decimal; \
+            rtn->decimal = car(args)->decimal; \
         } \
         else{ \
             printf("cannot apply " xstr(op) " on non-number obj"); \
-            print_obj(car(pr)); error("");\
+            print_obj(car(args)); error("");\
         } \
-        pr = cdr(pr); \
+        args = cdr(args); \
     } \
-    for( ; pr ; pr = cdr(pr)){ \
-        if(pr->type == NIL) \
+    for( ; args ; args = cdr(args)){ \
+        if(args->type == NIL) \
         break; \
         if(6 op 3 == 2){ \
-            if(num_of(car(pr)) == 0) \
+            if(num_of(car(args)) == 0) \
             error("cannot div zero"); \
         } \
-        if(!is_num(car(pr))) \
+        if(!is_num(car(args))) \
         error("cannot apply " xstr(op) " on non-number obj"); \
         else if(rtn->type == DECIMAL){ \
-            HANDEL_DEC1(pr , rtn , op , base) \
+            HANDEL_DEC1(args , rtn , op , base) \
         } \
         else if(rtn->type == INTEGER){ \
-            if(car(pr)->type == INTEGER) \
-            rtn->integer op ## = car(pr)->integer; \
-            HANDEL_DEC2(pr , rtn , op , base) \
+            if(car(args)->type == INTEGER) \
+            rtn->integer op ## = car(args)->integer; \
+            HANDEL_DEC2(args , rtn , op , base) \
         } \
     }
 
 #define apply_opr(op_name , op , base) \
-    Obj apply_ ## op_name(Obj pr , Obj env){ \
-        arith(pr , rtn , op , base); \
+    Obj apply_ ## op_name(Obj args , Obj env){ \
+        arith(args , rtn , op , base); \
         return rtn; \
     }
 
-#define HANDEL_DEC1(pr , rtn , op , base) \
-    if(car(pr)->type == INTEGER) \
-    rtn->decimal op ## = (double) car(pr)->integer; \
-    else if(car(pr)->type == DECIMAL) \
-    rtn->decimal op ## = car(pr)->decimal; \
+#define HANDEL_DEC1(args , rtn , op , base) \
+    if(car(args)->type == INTEGER) \
+    rtn->decimal op ## = (double) car(args)->integer; \
+    else if(car(args)->type == DECIMAL) \
+    rtn->decimal op ## = car(args)->decimal; \
 
-#define HANDEL_DEC2(pr , rtn , op , base) \
-    else if(car(pr)->type == DECIMAL){ \
+#define HANDEL_DEC2(args , rtn , op , base) \
+    else if(car(args)->type == DECIMAL){ \
         rtn->type = DECIMAL; \
         rtn->decimal = rtn->integer; \
-        rtn->decimal op ## = car(pr)->decimal; \
+        rtn->decimal op ## = car(args)->decimal; \
     }
 
 apply_opr(add , + , 0);
@@ -274,10 +335,10 @@ apply_opr(div , / , 1);
 
 #undef HANDEL_DEC1
 #undef HANDEL_DEC2
-#define HANDEL_DEC1(pr , rtn , op , base) \
+#define HANDEL_DEC1(args , rtn , op , base) \
     error("cannot apply %% on decimal");
-#define HANDEL_DEC2(pr , rtn , op , base) \
-    else if(car(pr)->type == DECIMAL){ \
+#define HANDEL_DEC2(args , rtn , op , base) \
+    else if(car(args)->type == DECIMAL){ \
         error("cannot apply %% on decimal"); \
     }
 

@@ -1,6 +1,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 #include "type.h"
+
 #define car(p) ((p)->pair->car)
 #define cdr(p) ((p)->pair->cdr)
 #define cadr(p) (car(cdr(p)))
@@ -44,7 +45,7 @@ void detail(Obj obj);
     printf(fmt , ##__VA_ARGS__) , exit(1)
 
 #define stdin_printf(fmt , ...) \
-    printf(stream == stdin ? fmt : "" , ##__VA_ARGS__)
+    printf(stream == stdin ? (fmt) : "" , ##__VA_ARGS__)
 
 #define falert(s , str , obj) \
     fprintf(s , str) , fprint_obj(s , obj) , fputs("" , s)

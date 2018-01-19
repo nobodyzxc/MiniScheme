@@ -3,4 +3,7 @@
 (display (g 0 10000))(newline)
 (define f (lambda (x) (if (= x 0) 0 (+ x (f (- x 1))))))
 (display "normal call : ")(flush-output)
+#|
 (display (f 10000))
+(define g (lambda (acc x) (+ 1 1 acc x)))
+|#
