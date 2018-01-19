@@ -33,6 +33,8 @@ feature :
    4. 8 bytes integer.
    5. autoload some functions defed in lib.ss
    6. weak error handling (maybe the last thing I'll do)
+   7. share buffer (`-DSHARE_BUFFER` in Makefile) or not share buffer
+   8. multi-line comment (`#| blala |#`)
 
 buildins :
 
