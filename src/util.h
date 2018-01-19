@@ -39,6 +39,7 @@ void print_esc(char *str);
 Obj lssym(Obj ls , Obj sym);
 Obj lssym_rec(Obj ls , Obj sym);
 Obj lsobj(Obj ls , Obj obj);
+bool is_symls(Obj ls);
 void detail(Obj obj);
 
 #define error(fmt , ...) \
@@ -51,7 +52,7 @@ void detail(Obj obj);
     fprintf(s , str) , fprint_obj(s , obj) , fputs("" , s)
 
 #define alert(str , obj) \
-    falert(stdout , str , obj)
+    falert(stdout , str , obj) , puts("")
 
 #define ASSERT(expr , msg) \
     if(!(expr)) error("%s : %s %d" , msg , __FILE__ , __LINE__)

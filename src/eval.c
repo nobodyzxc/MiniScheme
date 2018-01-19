@@ -5,12 +5,14 @@
 #include "syntax.h"
 #include "opt.h"
 
+#include <assert.h>
+
 Obj map_eval(Obj ls , Obj env){
     cons_t head;
     Cons last = &head;
     for( ; !IS_NIL(ls) ; ls = cdr(ls)){
         Obj obj = eval(car(ls) , env);
-        //if(!obj) return NULL; // let gc do free
+        if(obj == err) return (Obj)err;
         last->cdr = new(PAIR , new_cons(obj , NULL));
         last = last->cdr->pair;
     }
@@ -31,7 +33,7 @@ Obj eval_symbol(Obj val , Obj env){
 
 Obj eval(Obj val , Obj env){
     while(1){
-        if(!val) return NULL;
+        if(!val || val == err) return val;
         if(val->type == SYMBOL)
             return eval_symbol(val , env);
         else if(val->type == PAIR){
@@ -44,7 +46,7 @@ Obj eval(Obj val , Obj env){
                 app = app->type == SYMBOL ?
                     lookup_symbol(app->str , env) : eval(app , env);
 
-                if(!app) return NULL;
+                if(!app || app == err) return (Obj)err;
 
                 if(app->type == SYNTAX){
                     val = app->proc->apply(args , env);
@@ -57,11 +59,12 @@ Obj eval(Obj val , Obj env){
                     continue;
                 }
 
-                if(!(args = map_eval(args , env))) return NULL;
+                if((args = map_eval(args , env)) == err) return (Obj)err;
+                assert(args != NULL);
                 //consider cost of space
 
                 if(app->type == FUNCTION)
-                    return args ? app->proc->apply(args , env) : NULL;
+                    return app->proc->apply(args , env);
                 else if(app->type == CLOSURE){
                     Obj tail = app;
                     /* tco opt */
@@ -94,7 +97,6 @@ Obj eval(Obj val , Obj env){
                         else if(tail->type == CLOSURE){
                             app = find_tail(app , clos_body(tail) ,
                                     zip_env(clos_args(tail) , args , env));
-                            //printf("app is ") , detail(app) , puts("");
                         }
                         /* fix fatal bug : use zip instead of zipped */
                         else{
@@ -106,11 +108,11 @@ Obj eval(Obj val , Obj env){
                     }
                     if(re_eval) continue;
                     if(tail) alert("TCO cannot apply " , tail);
-                    return tail ? NULL : clos_args(app);
+                    return tail ? (Obj)err : clos_args(app);
                 }
             }
             printf("cannot apply : ") , print_obj(app) , puts("");
-            return NULL;
+            return (Obj)err;
         }
         else return val;
     }

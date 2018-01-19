@@ -7,6 +7,7 @@
 #include <assert.h>
 
 char glo_buffer[SIZE];
+char *glo_p = NULL;
 
 char *tok_list(char *buffer , char *p , Token *phead , Token *ptail);
 
@@ -28,25 +29,25 @@ char read_char(){
     return getc(stream);
 }
 bool is_blank(char p){
-    return strchr(" \n\r\t" , p) != NULL;
+    return p && strchr(" \n\r\t" , p) != NULL;
 }
 
 bool is_paren(char p){
-    return strchr("()[]{}" , p) != NULL;
+    return p && strchr("()[]{}" , p) != NULL;
 }
 
 bool is_paren_l(char p){
-    return strchr("([{" , p) != NULL;
+    return p && strchr("([{" , p) != NULL;
 }
 
 bool is_paren_r(char p){
-    return strchr(")]}" , p) != NULL;
+    return p && strchr(")]}" , p) != NULL;
 }
 
 char rev_paren(char p){
     char *paren = (char*)"([{)]}";
     char *v = strchr(paren , p);
-    if(v) return *(v + ((v > paren + 2) ? -3 : 3));
+    if(v && *v) return *(v + ((v > paren + 2) ? -3 : 3));
     else return 0;
 }
 
@@ -70,7 +71,7 @@ bool is_tokch(char ch){
 
 bool is_multi_comnt(char *p){
     for(int i = 0 ; i < strlen(mulcmt_beg) ; i++)
-       if(p[i] != mulcmt_beg[i]) return false;
+        if(p[i] != mulcmt_beg[i]) return false;
     return is_tokch(*(p + strlen(mulcmt_beg)));
 }
 
@@ -105,7 +106,7 @@ void add_token(char *p , Token *plast){
 char *get_non_blank(char* buffer , char *p){
     while(p && *p && is_blank(*p)) p++;
     while(!p || !*p){
-        p = input(buffer , "... " , true);
+        p = input(buffer , p ? "... " : "" , true);
         while(*p && is_blank(*p)) p++;
     }
     return p;
@@ -175,7 +176,7 @@ char *tok_atom(char* buffer , char *p , Token *phead , Token *ptail){
     if(*p == '\'')
         p = add_quote(buffer , p , &last);
     else if(*p == ';')
-        while(*p) p++;
+        return strchr(p , '\0');
     else if(*p == '"')
         p = tok_string(buffer , p , &head.next , &last);
     else if(is_multi_comnt(p))

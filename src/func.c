@@ -32,30 +32,32 @@ Obj apply_gc(Obj args , Obj env){
 
 Obj apply_source(Obj args , Obj env){
     if(length(args) != 1)
-        alert("source only accept 1 arg : " , args);
+        alert("source : only accepts 1 arg , got " , args);
     else if(car(args)->type != STRING)
         puts("source file name must be string");
-    else{
-        if(load_script(car(args)->str))
-            stdin_printf("ok , \"%s\" loaded\n" , car(args)->str);
-        else
-            printf("cannot load \"%s\"\n" , car(args)->str);
+    else if(load_script(car(args)->str)){
+        stdin_printf("ok , \"%s\" loaded\n" , car(args)->str);
+        return NULL;
     }
-    return NULL;
+    else
+        printf("cannot load \"%s\"\n" , car(args)->str);
+    return (Obj)err;
 }
 
 Obj apply_senv(Obj args , Obj env){
     if(length(args) != 1)
-        alert("senv only accept 1 arg : " , args);
-    args = car(args);
-    if(args->type == ENV)
-        print_symtree(args->env->symtab);
-    return NULL;
+        alert("senv : only accepts 1 arg , got " , args);
+    else if(args->type == ENV){
+        print_symtree(car(args)->env->symtab);
+        return NULL;
+    }
+    else alert("senv : accepts env , got " , args);
+    return (Obj)err;
 }
 
 Obj apply_apply(Obj args , Obj env){
     if(length(args) != 2)
-        alert("apply only accept 2 arg : " , args);
+        alert("apply : only accepts 2 args , got " , args);
     else if(car(args)->type == CLOSURE)
         return apply_clos(car(args) ,
                 cadr(args) , env);
@@ -67,31 +69,31 @@ Obj apply_apply(Obj args , Obj env){
         print_obj(car(args));
         alert(" on " , cadr(args));
     }
-    return NULL;
+    return (Obj)err;
 }
 
 Obj apply_nullq(Obj args , Obj env){
     if(length(args) != 1)
-        alert("null? only accept 1 arg : " , args);
+        alert("null? : only accepts 1 arg , got " , args);
     else
         return new(BOOLEAN , IS_NIL(car(args)));
-    return NULL;
+    return (Obj)err;
 }
 
 Obj apply_listq(Obj args , Obj env){
     if(length(args) != 1)
-        alert("list? only accept 1 arg : " , args);
+        alert("list? : only accepts 1 arg , got " , args);
     else
         return new(BOOLEAN , is_list(car(args)));
-    return NULL;
+    return (Obj)err;
 }
 
 Obj apply_pairq(Obj args , Obj env){
     if(length(args) != 1)
-        alert("pair? only accept 1 arg : " , args);
+        alert("pair? : only accepts 1 arg , got " , args);
     else
         return new(BOOLEAN , car(args)->type == PAIR);
-    return NULL;
+    return (Obj)err;
 }
 
 Obj apply_flush_output(Obj args , Obj env){
@@ -103,61 +105,64 @@ Obj apply_display(Obj args , Obj env){
     /* todo : extend arity up to 2
      * to support output-port? */
     if(length(args) != 1)
-        alert("display? only accept 1 arg : " , args);
-    else if(!car(args)) /* handle void */
-        print_obj(args);
-    else if(car(args)->type == STRING)
-        print_esc(car(args)->str);
-    else if(car(args)->type == CLOSURE)
-        detail(car(args));
-    else
-        print_obj(car(args));
-    return NULL;
+        alert("display : only accepts 1 arg , got " , args);
+    else{
+        if(!car(args)) /* handle void */
+            print_obj(args);
+        else if(car(args)->type == STRING)
+            print_esc(car(args)->str);
+        else if(car(args)->type == CLOSURE)
+            detail(car(args));
+        else
+            print_obj(car(args));
+        return NULL;
+    }
+    return (Obj)err;
 }
 
 Obj apply_length(Obj args , Obj env){
     if(length(args) != 1)
-        alert("length only accept 1 arg : " , args);
+        alert("length : only accepts 1 arg , got " , args);
     else if(car(args)->type == PAIR)
         return new(INTEGER , length(car(args)));
     else
         alert("cannot apply length on " , car(args));
-    return NULL;
+    return (Obj)err;
 }
 
 Obj apply_car(Obj args , Obj env){
     if(length(args) != 1)
-        alert("car only accept 1 arg : " , args);
+        alert("car : only accepts 1 arg , got " , args);
     else if(car(args) && car(args)->type == PAIR)
         return caar(args);
     else
         alert("cannot apply car on " , car(args));
-    return NULL;
+    return (Obj)err;
 }
 
 Obj apply_cdr(Obj args , Obj env){
     if(length(args) != 1)
-        alert("cdr only accept 1 arg : " , args);
+        alert("cdr : only accepts 1 arg , got " , args);
     else if(car(args)->type == PAIR)
         return cdar(args);
     else
         alert("cannot apply cdr on " , car(args));
-    return NULL;
+    return (Obj)err;
 }
 
 Obj apply_cons(Obj args , Obj env){
     // assert arity == 2
     if(length(args) != 2)
-        alert("cons only accept 2 arg : " , args);
+        alert("cons : only accepts 2 args , got " , args);
     else
         return new(PAIR , new_cons(car(args) , cadr(args)));
-    return NULL;
+    return (Obj)err;
 }
 
 Obj apply_eqnum(Obj args , Obj env){
     // assert arity > 1
     if(length(args) < 2)
-        alert("= accept at least 2 arg : " , args);
+        alert("= : accepts at least 2 args , got " , args);
     else{
         bool rtn = true;
         Obj head = car(args);
@@ -166,43 +171,43 @@ Obj apply_eqnum(Obj args , Obj env){
                 rtn &= cmp_num(head , car(args)) , args = cdr(args);
             else{
                 alert("apply = on non-number obj" , car(args));
-                return NULL;
+                return (Obj)err;
             }
         return new(BOOLEAN , rtn);
     }
-    return NULL;
+    return (Obj)err;
 }
 
 Obj apply_eqq(Obj args , Obj env){
     //assert arity == 2
-    if(length(args) == 2)
-        alert("eq? only accept 2 arg : " , args);
+    if(length(args) != 2)
+        alert("eq? : only accepts 2 args , got " , args);
     else
         return new(BOOLEAN , car(args) == cadr(args));
-    return NULL;
+    return (Obj)err;
 }
 
 Obj apply_eqvq(Obj args , Obj env){
     //assert arity == 2
-    if(length(args) == 2)
-        alert("eqv? only accept 2 arg : " , args);
+    if(length(args) != 2)
+        alert("eqv? : only accepts 2 args , got " , args);
     else
         return new(BOOLEAN , eqv(car(args) , cadr(args)));
-    return NULL;
+    return (Obj)err;
 }
 
 Obj apply_equalq(Obj args , Obj env){
-    if(length(args) == 2)
-        alert("equal? only accept 2 arg : " , args);
+    if(length(args) != 2)
+        alert("equal? : only accepts 2 args , got " , args);
     else
         return new(BOOLEAN , equal(car(args) , cadr(args)));
-    return NULL;
+    return (Obj)err;
 }
 
 #define apply_cmp(name , op) \
     Obj apply_ ## name (Obj args , Obj env){ \
         if(length(args) < 2) \
-        alert(str(op) " accept at least 2 arg : " , args); \
+        alert(str(op) " : accepts at least 2 args , got " , args); \
         else{ \
             for( ; args && !IS_NIL(args) && !IS_NIL(cdr(args)) ; \
                     args = cdr(args)) \
@@ -210,7 +215,7 @@ Obj apply_equalq(Obj args , Obj env){
             return (Obj)false_obj; \
             return (Obj)true_obj; \
         } \
-        return NULL; \
+        return (Obj)err; \
     }
 
 apply_cmp(lt , <);
@@ -220,11 +225,11 @@ apply_cmp(get , >=);
 
 Obj apply_not(Obj args , Obj env){
     //assert airth == 1
-    if(length(args) == 1)
-        alert("not only accept 1 arg : " , args);
+    if(length(args) != 1)
+        alert("not : only accepts 1 arg , got " , args);
     else
         return new(BOOLEAN , IS_FALSE(car(args)));
-    return NULL;
+    return (Obj)err;
 }
 
 Obj apply_void(Obj args , Obj env){
@@ -232,43 +237,55 @@ Obj apply_void(Obj args , Obj env){
 }
 
 Obj apply_voidq(Obj args , Obj env){
-    if(length(args) == 1)
-        alert("void? only accept 1 arg : " , args);
+    if(length(args) != 1)
+        alert("void? : only accepts 1 arg , got " , args);
     else
         return new(BOOLEAN , car(args) == NULL);
-    return NULL;
+    return (Obj)err;
 }
 
 Obj apply_symbolq(Obj args , Obj env){
-    if(length(args) == 1)
-        alert("symbol? only accept 1 arg : " , args);
+    if(length(args) != 1)
+        alert("symbol? : only accepts 1 arg , got " , args);
     else
         return new(BOOLEAN , car(args)->type == SYMBOL);
-    return NULL;
+    return (Obj)err;
 }
 
 Obj apply_procedureq(Obj args , Obj env){
-    if(length(args) == 1)
-        alert("procedure? only accept 1 arg : " , args);
+    if(length(args) != 1)
+        alert("procedure? : only accepts 1 arg , got " , args);
     else
         return new(BOOLEAN , car(args)
                 && (car(args)->type == CLOSURE
                     || car(args)->type == FUNCTION));
-    return NULL;
+    return (Obj)err;
 }
 
 Obj apply_read(Obj args , Obj env){
-    char buffer[300];
+    char *p = NULL;
+    static char buffer[300];
     FILE *prev_stream = stream;
     stream = stdin;
     /* fgets until not null */
     Token tok = NULL;
-    tokenize(buffer ,
-            get_non_blank(buffer , NULL) ,
+    p = tokenize(glo_buffer ,
+            get_non_blank(glo_buffer , p) ,
             &tok);
     Obj val = parse(tok);
     free_token(tok);
     stream = prev_stream;
+    puts("read return");
+    //while(is_blank(*p)) p++;
+    //while(*p){
+    //    p = tokenize(glo_buffer ,
+    //            get_non_blank(glo_buffer , p) ,
+    //            &tok);
+    //    if(stream == stdin && val && val != err)
+    //        print_obj(parse(tok));
+    //    free_token(tok);
+    //    while(is_blank(*p)) p++;
+    //}
     return val;
 }
 

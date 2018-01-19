@@ -34,10 +34,12 @@ void repl(bool repl_p , bool auto_gc){
         }
         if(*p) p = tokenize(glo_buffer , p , &tok);
         if(!tok) continue;
+        //print_token(tok);
         Obj val = parse(tok);
         val = eval(val , glenv);
-        if(repl_p && stream == stdin && val)
+        if(repl_p && stream == stdin && val && val != err)
             print_obj(val) , printf("\n");
+        //if(val == err) puts("  _(:з」∠)_  ");
         free_token(tok);
         tok = NULL , val = NULL;
         if(auto_gc) auto_try_gc();

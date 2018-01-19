@@ -97,7 +97,6 @@
        (eq? (car expr) sym)))
 
 (define (repl)
-  ;(begin
   (print "MiniEval> ")
   (let ((expr (read)))
     (cond
@@ -126,7 +125,6 @@
       )
     )
   )
-;)
 
 (define lookup-symbol
   (lambda (s env)

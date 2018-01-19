@@ -18,7 +18,7 @@ Obj lookup_symbol(char *v , Obj env_obj){
         env_obj = env_obj->env->parent;
     }
     printf("lookup_symbol : cannot find symbol \"%s\"\n" , v);
-    return NULL;
+    return (Obj)err;
 }
 
 Obj lookup_symenv(char *v , Obj env_obj){
@@ -33,7 +33,7 @@ Obj lookup_symenv(char *v , Obj env_obj){
         env_obj = env_obj->env->parent;
     }
     printf("lookup_symenv : cannot find symbol \"%s\"\n" , v);
-    return NULL;
+    return (Obj)err;
 }
 
 #define BIND(TYPE , SYM , PROC , ENV) \

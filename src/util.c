@@ -36,6 +36,13 @@ Obj lsobj(Obj ls , Obj obj){
     return NULL;
 }
 
+bool is_symls(Obj ls){
+    if(!ls || (ls->type != NIL && ls->type != PAIR)) return false;
+    for( ; ls && ls != nil ; ls = cdr(ls))
+        if(!car(ls) || car(ls)->type != SYMBOL) return false;
+    return IS_NIL(ls);
+}
+
 void detail(Obj obj){
     if(obj->type == CLOSURE){
         printf("<closure ");
@@ -44,7 +51,7 @@ void detail(Obj obj){
         print_obj(obj->clos->exp->expr->body);
         printf(">");
     }
-    if(obj->type == MACRO){
+    else if(obj->type == MACRO){
         printf("<macro ");
         print_obj(obj->mac->keyws);
         printf(" . ");

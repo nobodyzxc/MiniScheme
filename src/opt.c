@@ -84,7 +84,7 @@ Obj build_tail(Obj clos , Obj expr , Obj env){
     printf("cannot do tail eval : ");
     print_obj(expr); puts("");
     exit(1);
-    return NULL;
+    return (Obj)err;
 }
 
 Obj find_last_expr(Obj exprs , Obj env){

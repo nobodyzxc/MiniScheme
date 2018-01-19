@@ -30,7 +30,7 @@
 #define IS_SELFEVAL(expr) ((expr) && (expr)->type != PAIR)
 
 #define IS_PAIR(expr) ((expr) && (expr)->type == PAIR)
-#define IS_SYMBOL(expr) ((expr) && (expr)->type == PAIR)
+#define IS_SYMBOL(expr) ((expr) && (expr)->type == SYMBOL)
 
 enum types{
     BOOLEAN ,
@@ -128,6 +128,7 @@ struct env_tag{
 extern kObj nil;
 extern kObj eli; /* ellipsis */
 extern kObj els; /* else sym */
+extern kObj err;
 extern kObj true_obj;
 extern kObj false_obj;
 extern Obj glenv;

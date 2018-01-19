@@ -1,3 +1,4 @@
+; normal define
 (define (list . args)
   (if (null? args) '()
     (cons (car args) (apply list (cdr args)))))
@@ -35,33 +36,9 @@
   (if (null? ls) #f
     (if (equal? elt (caar ls)) (car ls) (assoc elt (cdr ls)))))
 
-(define (index-of-iter cmp elt ls cur)
-  (if (null? ls) -1
-    (if (cmp (car ls) elt) cur
-      (index-of-iter cmp elt (cdr ls) (+ cur 1)))
-    ))
-
-(define (tab) (senv global))
 (define (newline) (display "\n"))
 (define (even? x) (or (= 0 x) (= 1 (% 2 x))))
 (define (odd? x) (not (even? x)))
-
-(define (range-it e acc)
-  (if (< e 0) acc (range-it (- e 1) (cons e acc))))
-
-(define (range x)
-  (range-it x '()))
-
-
-(define (index-of cmp elt ls)
-  (index-of-iter cmp elt ls 0))
-
-(define indexof
-  (syntax-rules
-    (in with)
-    ((_ elt ls) (index-of equal? elt ls))
-    ((_ elt in ls with cmp) (index-of cmp elt ls)))
-  )
 
 (define or
   (syntax-rules
@@ -117,10 +94,39 @@
     )
   )
 
+; my define
+(define (print . args)
+  (map display args) (newline))
+
 (define \
   (syntax-rules
     (->)
     ((_ -> expr ...) (lambda () (expr ...)))
     ((_ arg -> expr ...) (lambda (arg) (expr ...)))
     )
+  )
+
+(define (index-of-iter cmp elt ls cur)
+  (if (null? ls) -1
+    (if (cmp (car ls) elt) cur
+      (index-of-iter cmp elt (cdr ls) (+ cur 1)))
+    ))
+
+(define (tab) (senv global))
+
+(define (range-it e acc)
+  (if (< e 0) acc (range-it (- e 1) (cons e acc))))
+
+(define (range x)
+  (range-it x '()))
+
+
+(define (index-of cmp elt ls)
+  (index-of-iter cmp elt ls 0))
+
+(define indexof
+  (syntax-rules
+    (in with)
+    ((_ elt ls) (index-of equal? elt ls))
+    ((_ elt in ls with cmp) (index-of cmp elt ls)))
   )

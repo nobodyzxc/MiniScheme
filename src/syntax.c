@@ -73,10 +73,6 @@ bool match(Obj keyws , Obj patn , Obj args){
     else{
         v &= patn == args;
     }
-    //if(!v){
-    //    printf("mismatch ") , print_obj(patn) , printf(" , ");
-    //    print_obj(args) , puts("");
-    //}
     return v;
 }
 
@@ -124,10 +120,6 @@ Obj expand(Obj rule , Obj args){
     Obj pat = car(rule) , tml = cadr(rule);
     pat = cdr(pat); /* discard _ */
     Obj tab = zip_pat(pat , args , new(ENV , NULL));
-    //print_symtree(tab->env->symtab);
-    //print_obj(pat) , puts("");
-    //print_obj(args) , puts("");
-    //print_obj(tml) , puts("");
     return substitute(tml , pat , tab);
 }
 
@@ -142,73 +134,99 @@ Obj apply_macro(Obj macro , Obj args , Obj env){
         }
     }
     printf("cannot match any rule");
-    printf("\n > ");
-    detail(macro);
-    printf("\n > ");
-    print_obj(args);
-    puts("");
-    exit(0);
-    return NULL;
+    printf("\n > ") , detail(macro);
+    alert("\n > " , args);
+    return (Obj)err;
 }
 
 Obj apply_if(Obj args , Obj env){
-    //consider arity == 1
-    //assert arity <= 3
-    Obj rest = cdr(args);
-    Obj predict = eval(car(args) , env);
-    if(!IS_FALSE(predict))
-        return car(rest);
-    else if (length(args) > 2)
-        return cadr(rest);
-    return NULL;
+    int len = length(args);
+    if(len > 3 || len < 2)
+        alert("if : accepts 2 to 3 args , got " , args);
+    else{
+        Obj rest = cdr(args);
+        Obj predict = eval(car(args) , env);
+        if(!IS_FALSE(predict))
+            return car(rest);
+        else if (len > 2)
+            return cadr(rest);
+        else
+            return NULL;
+    }
+    return (Obj)err;
 }
 
 Obj apply_quote(Obj args , Obj env){
-    //assert arity == 1
-    return car(args);
+    if(length(args) != 1)
+        alert("quote : only accepts at 1 args , got " , args);
+    else
+        return car(args);
+    return (Obj)err;
 }
 
 Obj apply_define(Obj args , Obj env){
-    //assert args == 2
-    Obj id = car(args);
-    Obj expr = cdr(args);
-    if(id->type == SYMBOL){
-        Obj val = eval(car(expr) , env);
-        add_symbol(id , val , env);
+    if(length(args) < 2)
+        alert("define : accepts at least 2 args , got " , args);
+    else{
+        Obj id = car(args) , expr = cdr(args);
+        if(id->type == SYMBOL){
+            if(length(expr) == 1){
+                add_symbol(id , eval(car(expr) , env) , env);
+                return NULL;
+            }
+            else alert("define : id should only be"
+                    " followd by 1 expr"" , got" , expr);
+        }
+        else if(id->type == PAIR){ /* func short form */
+            add_symbol(car(id) , new(CLOSURE , new(EXPR , NULL ,
+                            cdr(id) , expr) , env) , env);
+            return NULL;
+        }
+        else alert("def with a non-sym/non-pair obj : " , id);
     }
-    else if(id->type == PAIR) // func short form
-        add_symbol(car(id) , new(CLOSURE , new(EXPR , NULL ,
-                        cdr(id) , expr) , env) , env);
-    else
-        alert("def with a non-sym/non-pair obj : " , id);
-    return NULL;
+    return (Obj)err;
 }
 
 Obj apply_lambda(Obj args , Obj env){
-    // assert arity = 2
-    // assert car(args) all symbol
-    return new(CLOSURE ,
-            new(EXPR , NULL ,
-                car(args) , cdr(args)) , env);
+    if(length(args) < 2)
+        alert("lambda : accepts at least 2 args , got " , args);
+    else if(IS_SYMBOL(car(args)) || is_symls(car(args)))
+        return new(CLOSURE ,
+                new(EXPR , NULL ,
+                    car(args) , cdr(args)) , env);
+    else
+        alert("lambda args contains non-symbol atom : " , car(args));
+    return (Obj)err;
 }
 
 Obj apply_define_syntax(Obj args , Obj env){
-    return NULL;
+    puts("not ready yet");
+    return (Obj)err;
 }
 
 Obj apply_syntax_rules(Obj args , Obj env){
-    // assert arity = 2
-    return new(MACRO , car(args) , cdr(args));
+    if(length(args) < 1)
+        alert("syntax-rules : accepts at least 1 arg , got " , args);
+    else
+        return new(MACRO , car(args) , cdr(args));
+    return (Obj)err;
 }
 
 Obj apply_set(Obj args , Obj env){
-    // assert id == SYM
-    Obj id = car(args);
-    Obj expr = eval(cadr(args) , env);
-    if(!eval) return NULL;
-    if(env = lookup_symenv(id->str , env)){
-        add_symbol(id , expr , env);
+    if(length(args) < 2)
+        alert("set! : accepts at least 2 args , got " , args);
+    else{
+        Obj id = car(args);
+        if(!id || id->type != SYMBOL)
+            alert("set! : only accepts symbol as id , got " , id);
+        else{
+            Obj expr = eval(cadr(args) , env);
+            env = lookup_symenv(id->str , env);
+            if(expr != err && env != err){
+                add_symbol(id , expr , env);
+                return NULL;
+            }
+        }
     }
-    else printf("cannot find symbol");
-    return NULL;
+    return (Obj)err;
 }
