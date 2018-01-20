@@ -67,7 +67,31 @@ zekin is a naive scheme interpreter wrote in C.
     arg = arg-id
 ```
 ```scheme
+   (syntax-rules
+      (keywords ...)
+      (pattern template) ...)
+
+   pattern = (_ match ...)
+     match = keywords
+           | keywords ellipsis
+           | parameter
+           | parameter ellipsis
+           | (match ...)
+           | (match ...) ellipsis
+
+   ellipsis = ...
+
+   ; use define to binding syntax-rules
+   ; can ref lib.ss
+```
+```scheme
    (set! id expr)
+```
+```scheme
+   (set-cdr! expr expr)
+```
+```scheme
+   (set-car! expr expr)
 ```
 
 #### Macro Forms
