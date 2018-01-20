@@ -132,3 +132,8 @@
     ((_ elt ls) (index-of equal? elt ls))
     ((_ elt in ls with cmp) (index-of cmp elt ls)))
   )
+
+(define test
+  (syntax-rules
+    ()
+    ((_ h0 . h1) (list h0))))

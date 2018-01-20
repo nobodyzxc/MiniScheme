@@ -23,6 +23,7 @@ zekin is a naive scheme interpreter wrote in C.
       (f 100000) ; Can I opt it to tail call? (Do I need CPS?)
    ```
    3. add let family , `let*` , `letrec` ...
+   4. figureout `syntax-rules` and improve(rewrite) macro
 
 ### Feature :
 
@@ -48,10 +49,10 @@ zekin is a naive scheme interpreter wrote in C.
    (quote datum)
 ```
 ```scheme
-   (lambda kw-formals body ...)
-   kw-formals = (id ...)
-              | (id ... . rest-id)
-              | rest-id
+   (lambda params body ...)
+   params = (id ...)
+          | (id ... . rest-id)
+          | rest-id
 
 ```
 ```scheme

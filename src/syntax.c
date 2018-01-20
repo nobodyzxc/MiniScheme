@@ -7,11 +7,10 @@ bool match(Obj keyws , Obj patn , Obj args);
 
 int least_elts(Obj pats){
     int cnt = 0;
-    for(Obj t = pats ; t && t != nil &&
+    for(Obj t = pats ; t && not_nil(t) &&
             cdr(t) != nil ; t = cdr(t)){
         cnt += 1;
-        if(EQS(car(t)->str , "..."))
-            cnt -= 1;
+        if(EQS(car(t)->str , "...")) cnt -= 1;
     }
     return cnt;
 }
@@ -33,14 +32,16 @@ bool match(Obj keyws , Obj patn , Obj args){
     int v = true;
     if(patn->type == SYMBOL){
         if(lssym(keyws , patn)) /* literal identifier */
-            v &= args->type == SYMBOL && EQS(patn->str , args->str);
+            v &= args->type == SYMBOL
+                && EQS(patn->str , args->str);
         else /* pattern varible */
             v &= args != nil;
     }
     else if(patn->type == PAIR){
         if(has_eli(patn)){
             int psym_len = length(patn) - 2; /* 'rest '... */
-            ASSERT(psym_len >= 0 , "misplaced ellipsis in pattern");
+            ASSERT(psym_len >= 0 ,
+                    "misplaced ellipsis in pattern");
             if(psym_len > length(args)){
                 return false;
             }
