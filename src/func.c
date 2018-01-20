@@ -20,7 +20,7 @@ Obj apply_clos(Obj pcr , Obj args , Obj env){
     Expr pcr_expr = pcr_clos->exp->expr;
     env = zipped_env(pcr_expr->args , args , pcr_clos->env);
     Obj iter = pcr->clos->exp->expr->body , val;
-    while(!IS_NIL(iter))
+    while(not_nil(iter))
         val = eval(car(iter) , env) , iter = cdr(iter);
     return val;
 }
@@ -76,7 +76,7 @@ Obj apply_nullq(Obj args , Obj env){
     if(length(args) != 1)
         alert("null? : only accepts 1 arg , got " , args);
     else
-        return new(BOOLEAN , IS_NIL(car(args)));
+        return new(BOOLEAN , is_nil(car(args)));
     return (Obj)err;
 }
 
@@ -209,7 +209,7 @@ Obj apply_equalq(Obj args , Obj env){
         if(length(args) < 2) \
         alert(str(op) " : accepts at least 2 args , got " , args); \
         else{ \
-            for( ; args && !IS_NIL(args) && !IS_NIL(cdr(args)) ; \
+            for( ; iterable(args) && not_nil(cdr(args)) ; \
                     args = cdr(args)) \
             if(!(num_of(car(args)) op num_of(cadr(args)))) \
             return (Obj)false_obj; \
@@ -228,7 +228,7 @@ Obj apply_not(Obj args , Obj env){
     if(length(args) != 1)
         alert("not : only accepts 1 arg , got " , args);
     else
-        return new(BOOLEAN , IS_FALSE(car(args)));
+        return new(BOOLEAN , is_false(car(args)));
     return (Obj)err;
 }
 
@@ -268,10 +268,10 @@ Obj apply_read(Obj args , Obj env){
     stream = stdin;
     Token tok = NULL;
 #ifdef SHARE_BUFFER
-    while(is_blank(*glo_p)) glo_p++;
-    if(!*glo_p) glo_p = NULL;
-    glo_p = tokenize(glo_buffer ,
-            get_non_blank(glo_buffer , glo_p) ,
+    while(is_blank(*glo_bufptr)) glo_bufptr++;
+    if(!*glo_bufptr) glo_bufptr = NULL;
+    glo_bufptr = tokenize(glo_buffer ,
+            get_non_blank(glo_buffer , glo_bufptr) ,
             &tok);
 #else
     char buffer[300] , *p = NULL;

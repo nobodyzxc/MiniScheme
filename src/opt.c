@@ -58,14 +58,14 @@ Obj find_tail(Obj , Obj , Obj);
 Obj build_tail(Obj clos , Obj expr , Obj env){
     if(expr == NULL)
         return set_clos(clos , NULL , NULL);
-    else if(IS_SELFEVAL(expr)
+    else if(is_selfeval(expr)
             || IS_EXPR_OF(expr , define)
             || IS_EXPR_OF(expr , quote)
             || IS_EXPR_OF(expr , set)
            ){
         return set_clos(clos , eval(expr , env) , NULL);
     }
-    else if(IS_PAIR(expr)){
+    else if(is_pair(expr)){
         Obj app = car(expr);
         app = app->type == SYMBOL ?
             lookup_symbol(app->str , env) : eval(app , env);
@@ -89,7 +89,7 @@ Obj build_tail(Obj clos , Obj expr , Obj env){
 
 Obj find_last_expr(Obj exprs , Obj env){
     Obj last_expr = NULL;
-    while(!IS_NIL(exprs)){
+    while(not_nil(exprs)){
         if(last_expr) eval(last_expr , env);
         last_expr = car(exprs);
         exprs = cdr(exprs);

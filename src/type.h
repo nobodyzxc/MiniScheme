@@ -12,14 +12,19 @@
     ((obj) && ((obj)->type == INTEGER || (obj)->type == DECIMAL))
 #define num_of(obj) \
     ((obj)->type == INTEGER ? (obj)->integer : (obj)->decimal)
-#define IS_FALSE(obj) \
+#define is_false(obj) \
     ((obj) && (obj)->type == BOOLEAN && (obj)->boolean == false)
-#define IS_TRUE(obj) \
-    (!(obj) || !IS_FALSE(obj))
+#define is_true(obj) \
+    (!(obj) || !is_false(obj))
 
-#define IS_NIL(obj) (obj == nil) //((obj)->type == NIL)
+#define is_pair(expr) ((expr) && (expr)->type == PAIR)
+#define is_symbol(expr) ((expr) && (expr)->type == SYMBOL)
 
-#define IS_SELFEVAL(expr) \
+#define is_nil(obj) ((obj) == (nil))
+#define not_nil(obj) (!is_nil(obj))
+#define iterable(obj) is_pair(obj)
+
+#define is_selfeval(expr) \
     ((expr) && (expr)->type != PAIR)
 
 #define IS_EXPR_OF(expr , call) \
@@ -27,10 +32,7 @@
      && car(expr)->type == SYMBOL \
      && car(expr)->proc->apply ==  apply_ ## call)
 
-#define IS_SELFEVAL(expr) ((expr) && (expr)->type != PAIR)
-
-#define IS_PAIR(expr) ((expr) && (expr)->type == PAIR)
-#define IS_SYMBOL(expr) ((expr) && (expr)->type == SYMBOL)
+#define is_selfeval(expr) ((expr) && (expr)->type != PAIR)
 
 enum types{
     BOOLEAN ,

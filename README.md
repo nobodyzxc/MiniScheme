@@ -20,10 +20,8 @@ todo :
    2. consider the expressions below
    ```scheme
       (define f (lambda (x) (if (= x 0) 0 (+ x (f (- x 1))))))
-      (f 100000)
+      (f 100000) ; Can I opt it to tail call? (Do I need CPS?)
    ```
-
-      can I opt it to tail call?
 
 feature :
 
@@ -34,10 +32,11 @@ feature :
    5. autoload some functions defed in lib.ss
    6. weak error handling (maybe the last thing I'll do)
    7. share buffer (`-DSHARE_BUFFER` in Makefile) or not share buffer
-   8. multi-line comment (`#| blala |#`)
+   8. multi-line comment (`#| bala bala |#`)
 
-buildins :
+### buildins
 
+```
    - \+
    - \-
    - \*
@@ -54,7 +53,7 @@ buildins :
    - cdr
    - length
    - display
-   - source (source a scheme script)
+   - source (source a script)
    - void
    - void?
    - null?
@@ -67,17 +66,22 @@ buildins :
    - pair?
    - read
    - apply
+```
 
-syntax :
+### syntax
+
+```
 
    - if
    - quote
    - lambda
    - define
    - set!
+```
 
-library :
+### library
 
+```
    - list
    - append
    - map
@@ -97,3 +101,4 @@ library :
    - begin
    - cond
    - case
+```

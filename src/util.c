@@ -40,7 +40,7 @@ bool is_symls(Obj ls){
     if(!ls || (ls->type != NIL && ls->type != PAIR)) return false;
     for( ; ls && ls != nil ; ls = cdr(ls))
         if(!car(ls) || car(ls)->type != SYMBOL) return false;
-    return IS_NIL(ls);
+    return is_nil(ls);
 }
 
 void detail(Obj obj){
@@ -87,7 +87,7 @@ void print_symtree(Symtree tree){
 Obj map_car(Obj ls){
     cons_t head;
     Cons last = &head;
-    for( ; ls && !IS_NIL(ls) ; ls = cdr(ls)){
+    for( ; iterable(ls) ; ls = cdr(ls)){
         last->cdr = new(PAIR , new_cons(caar(ls) , NULL));
         last = last->cdr->pair;
     }
@@ -98,7 +98,7 @@ Obj map_car(Obj ls){
 Obj map_cdr(Obj ls){
     cons_t head;
     Cons last = &head;
-    for( ; ls && !IS_NIL(ls) ; ls = cdr(ls)){
+    for( ; iterable(ls) ; ls = cdr(ls)){
         last->cdr = new(PAIR , new_cons(cdar(ls) , NULL));
         last = last->cdr->pair;
     }
@@ -108,7 +108,7 @@ Obj map_cdr(Obj ls){
 
 /* cannot use it. macro args will be mutable */
 void set_map_cdr(Obj ls){
-    for( ; ls && !IS_NIL(ls) ; ls = cdr(ls))
+    for( ; iterable(ls) ; ls = cdr(ls))
         car(ls) = cdr(car(ls));
 }
 
@@ -118,7 +118,7 @@ Obj zip_elipat(Obj pat , Obj args , Obj env){
     if(pat->type == SYMBOL)
         add_symbol(pat , args , env);
     else if(pat->type == PAIR){
-        for( ; pat && !IS_NIL(pat) ; pat = cdr(pat)){
+        for( ; iterable(pat) ; pat = cdr(pat)){
             zip_elipat(car(pat) , map_car(args) , env);
             args = map_cdr(args); /* bug : set_map_cdr(args) */
         }
@@ -145,7 +145,7 @@ Obj zip_pat(Obj pat , Obj args , Obj env){
             zip_pat(mch , car(args) , env);
         }
         else if(mch->type == SYMBOL){
-            if(IS_NIL(args)) error("is nil? in util.c");
+            if(is_nil(args)) error("is nil? in util.c");
             add_symbol(mch , car(args) , env);
         }
         pat = cdr(pat);
@@ -168,7 +168,7 @@ Obj zip_env(Obj syms , Obj args , Obj env){
         add_symbol(car(syms), car(args), env);
         syms = cdr(syms) , args = cdr(args);
     }
-    if(!IS_NIL(syms))
+    if(not_nil(syms))
         add_symbol(syms , args , env);
     return env;
 }
@@ -211,7 +211,7 @@ bool equal(Obj a , Obj b){
     if(a->type == PAIR){
         if(is_list(a) != is_list(b)) return false;
         if(pat_num(a) != pat_num(b)) return false;
-        for( ; a && !IS_NIL(a) ; a = cdr(a) , b = cdr(b))
+        for( ; iterable(a) ; a = cdr(a) , b = cdr(b))
             if(!equal(car(a) , car(b))) return false;
         return true;
     }
@@ -220,7 +220,7 @@ bool equal(Obj a , Obj b){
 
 int pat_num(Obj pr){
     int rtn = 0;
-    while(pr && !IS_NIL(pr))
+    while(iterable(pr))
         rtn ++ , pr = cdr(pr);
     return rtn;
 }
@@ -229,7 +229,7 @@ int length(Obj pr){
     int rtn = 0;
     if(!is_list(pr))
         error("apply length on pair\n");
-    while(!IS_NIL(pr))
+    while(not_nil(pr))
         rtn++ , pr = cdr(pr);
     return rtn;
 }
@@ -244,7 +244,7 @@ void fprint_pair(FILE *s , kObj pr){
     pr = cdr(pr);
     while(pr && pr->type == PAIR)
         fprintf(s , " ") , fprint_obj(s , car(pr)) , pr = cdr(pr);
-    if(pr && !IS_NIL(pr))
+    if(iterable(pr))
         fprintf(s , " . ") , fprint_obj(s , pr);
     fprintf(s , ")");
 }

@@ -1,0 +1,22 @@
+(display "> test 1 HOF :\n")
+(define (range-it e acc)
+  (if (< e 0) acc (range-it (- e 1) (cons e acc))))
+
+(define (range x)
+  (range-it x '()))
+
+(define (fold f b l)
+  (if (null? l) b (fold f (f (car l) b) (cdr l))))
+
+(display (fold + 0 (range 1000)))(newline)
+
+(display "> test 2 : macro speed\n")
+(define (f acc it) (cond ((= it 0) acc) (else (f (+ acc it) (- it 1)))))
+(define (g acc it) (if (= it 0) acc (g (+ acc it) (- it 1))))
+(display "apply if-rec : ")
+(display (g 0 5000))(newline)
+(display "apply cond-rec : ")(flush-output)
+(display (f 0 5000))(newline)
+
+(display "> test 3 : macro in macro\n")
+(display (begin (cond (#f 1) (else 2))))

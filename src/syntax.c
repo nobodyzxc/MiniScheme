@@ -17,14 +17,14 @@ int least_elts(Obj pats){
 }
 
 bool has_eli(Obj ls){
-    for( ; ls && !IS_NIL(ls) ; ls = cdr(ls))
+    for( ; iterable(ls) ; ls = cdr(ls))
         if(car(ls) == eli) return true;
     return false;
 }
 
 bool eli_match(Obj keyws , Obj patn , Obj largs){
     bool v = true;
-    for( ; largs && !IS_NIL(largs) ; largs = cdr(largs))
+    for( ; iterable(largs) ; largs = cdr(largs))
         v &= match(keyws , patn , car(largs));
     return v;
 }
@@ -83,9 +83,9 @@ Obj substitute(Obj tml , Obj pat , Obj tab){
         return tml->type == SYMBOL && lssym_rec(pat , tml) ?
             lookup_symbol(tml->str , tab) : tml;
     }
-    for( ; tml && !IS_NIL(tml) ; tml = cdr(tml)){
+    for( ; iterable(tml) ; tml = cdr(tml)){
         Obj unit = car(tml);
-        Obj next = IS_NIL(cdr(tml)) ? NULL : (cadr(tml));
+        Obj next = is_nil(cdr(tml)) ? NULL : (cadr(tml));
         if(next && next == eli && unit->type != SYMBOL)
             error("ellipsis must follow a symbol in template");
         if(unit->type == PAIR){
@@ -96,11 +96,11 @@ Obj substitute(Obj tml , Obj pat , Obj tab){
             tml = cdr(tml); /* discard ... */
             Obj sub = lookup_symbol(unit->str , tab);
             if(!sub) error("ellipsis must follow pat var");
-            if(IS_NIL(sub)) continue;
+            if(is_nil(sub)) continue;
             last->cdr = new(PAIR , new_cons(NULL , NULL));
             car(last->cdr) = car(sub);
             for(Obj it = cdr(sub) ;
-                    !IS_NIL(it) ; it = cdr(it)){
+                    iterable(it) ; it = cdr(it)){
                 last = last->cdr->pair;
                 last->cdr = new(PAIR , new_cons(NULL , NULL));
                 car(last->cdr) = car(it);
@@ -146,8 +146,8 @@ Obj apply_if(Obj args , Obj env){
     else{
         Obj rest = cdr(args);
         Obj predict = eval(car(args) , env);
-        if(!IS_FALSE(predict))
-            return car(rest);
+        if(!is_false(predict)) /* important */
+            return car(rest);  /* DON'T USE is_true */
         else if (len > 2)
             return cadr(rest);
         else
@@ -190,7 +190,7 @@ Obj apply_define(Obj args , Obj env){
 Obj apply_lambda(Obj args , Obj env){
     if(length(args) < 2)
         alert("lambda : accepts at least 2 args , got " , args);
-    else if(IS_SYMBOL(car(args)) || is_symls(car(args)))
+    else if(is_symbol(car(args)) || is_symls(car(args)))
         return new(CLOSURE ,
                 new(EXPR , NULL ,
                     car(args) , cdr(args)) , env);

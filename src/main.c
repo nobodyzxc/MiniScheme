@@ -23,15 +23,15 @@ bool is_shebang(char *p){
 void repl(bool repl_p , bool auto_gc){
     Token tok = NULL;
     bool first_line = true;
-    while((glo_p && *glo_p) || (glo_p = input(glo_buffer , "> " , false))){
+    while((glo_bufptr && *glo_bufptr) || (glo_bufptr = input(glo_buffer , "> " , false))){
         if(first_line){
             first_line = false;
-            if(is_shebang(glo_p)){
-                glo_p = NULL;
+            if(is_shebang(glo_bufptr)){
+                glo_bufptr = NULL;
                 continue;
             }
         }
-        if(*glo_p) glo_p = tokenize(glo_buffer , glo_p , &tok);
+        if(*glo_bufptr) glo_bufptr = tokenize(glo_buffer , glo_bufptr , &tok);
         if(!tok) continue;
         //print_token(tok);
         Obj val = parse(tok);
@@ -68,9 +68,9 @@ int handle_flags(int argc , char *argv[]){
                 puts("");
             }
 
-            glo_p = argv[i + 1];
-            while(*glo_p){
-                glo_p = tokenize(glo_buffer , glo_p , &tok);
+            glo_bufptr = argv[i + 1];
+            while(*glo_bufptr){
+                glo_bufptr = tokenize(glo_buffer , glo_bufptr , &tok);
                 print_obj(eval(parse(tok) , glenv));
             }
             exit(0);

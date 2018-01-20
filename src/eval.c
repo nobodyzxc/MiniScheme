@@ -10,7 +10,8 @@
 Obj map_eval(Obj ls , Obj env){
     cons_t head;
     Cons last = &head;
-    for( ; !IS_NIL(ls) ; ls = cdr(ls)){
+    /* assert ls must be list */
+    for( ; not_nil(ls) ; ls = cdr(ls)){
         Obj obj = eval(car(ls) , env);
         if(obj == err) return (Obj)err;
         last->cdr = new(PAIR , new_cons(obj , NULL));
