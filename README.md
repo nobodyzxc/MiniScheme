@@ -96,7 +96,7 @@ zekin is a naive scheme interpreter wrote in C.
 ```scheme
    (case val-expr case-clause ...)
 
-   case-clause = ( (datum ...) then-body ...) )
+   case-clause = ((datum ...) then-body ...))
                | (else then-body ...)
 ```
 
