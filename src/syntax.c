@@ -158,7 +158,7 @@ Obj apply_if(Obj args , Obj env){
 
 Obj apply_quote(Obj args , Obj env){
     if(length(args) != 1)
-        alert("quote : only accepts at 1 args , got " , args);
+        alert("quote : only accepts 1 args , got " , args);
     else
         return car(args);
     return (Obj)err;
@@ -231,9 +231,41 @@ Obj apply_set(Obj args , Obj env){
             Obj expr = eval(cadr(args) , env);
             env = lookup_symenv(id->str , env);
             if(expr != err && env != err){
-                add_symbol(id , expr , env);
-                return NULL;
+                if(add_symbol(id , expr , env) != err)
+                    return NULL;
             }
+        }
+    }
+    return (Obj)err;
+}
+
+Obj apply_set_cdr(Obj args , Obj env){
+    if(length(args) != 2)
+        alert("set-cdr! : only accepts 2 args , got " , args);
+    else{
+        Obj ls = eval(car(args) , env);
+        Obj tail = eval(cadr(args) , env);
+        if(!is_pair(ls))
+            alert("set-cdr! : first arg must be pair , got " , args);
+        else if(tail != err){
+            cdr(ls) = tail;
+            return NULL;
+        }
+    }
+    return (Obj)err;
+}
+
+Obj apply_set_car(Obj args , Obj env){
+    if(length(args) != 2)
+        alert("set-car! : only accepts 2 args , got " , args);
+    else{
+        Obj ls = eval(car(args) , env);
+        Obj head = eval(cadr(args) , env);
+        if(!is_pair(ls))
+            alert("set-car! : first arg must be pair , got " , ls);
+        else if(head != err){
+            car(ls) = head;
+            return NULL;
         }
     }
     return (Obj)err;

@@ -125,6 +125,8 @@ void init_buildins(){
 
     BIND(SYNTAX   , "define"       , &apply_define       , glenv);
     BIND(SYNTAX   , "set!"         , &apply_set          , glenv);
+    BIND(SYNTAX   , "set-cdr!"     , &apply_set_cdr      , glenv);
+    BIND(SYNTAX   , "set-car!"     , &apply_set_car      , glenv);
     BIND(SYNTAX   , "syntax-rules" , &apply_syntax_rules , glenv);
 
     BIND(FUNCTION , "gc"           , &apply_gc           , glenv);

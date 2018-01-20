@@ -258,9 +258,9 @@ void fprint_pair(FILE *s , kObj pr){
     fprintf(s , "(");
     fprint_obj(s , car(pr));
     pr = cdr(pr);
-    while(pr && pr->type == PAIR)
+    while(is_pair(pr))
         fprintf(s , " ") , fprint_obj(s , car(pr)) , pr = cdr(pr);
-    if(iterable(pr))
+    if(!is_nil(pr))
         fprintf(s , " . ") , fprint_obj(s , pr);
     fprintf(s , ")");
 }
