@@ -22,6 +22,7 @@ zekin is a naive scheme interpreter wrote in C.
       (define f (lambda (x) (if (= x 0) 0 (+ x (f (- x 1))))))
       (f 100000) ; Can I opt it to tail call? (Do I need CPS?)
    ```
+   3. add let family , `let*` , `letrec` ...
 
 ### Feature :
 

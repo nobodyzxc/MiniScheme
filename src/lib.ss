@@ -100,7 +100,7 @@
 
 ; my define
 (define (print . args)
-  (map display args) (newline))
+  (map display args)(newline))
 
 (define \
   (syntax-rules

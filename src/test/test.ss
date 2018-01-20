@@ -10,23 +10,39 @@
 
 (display (fold + 0 (range 1000)))(newline)
 
+(newline)
+
 (display "> test 2 : macro speed\n")
 (define (f acc it) (cond ((= it 0) acc) (else (f (+ acc it) (- it 1)))))
 (define (g acc it) (if (= it 0) acc (g (+ acc it) (- it 1))))
-(display "apply if-rec : ")
-(display (g 0 5000))(newline)
-(display "apply cond-rec : ")(flush-output)
-(display (f 0 5000))(newline)
+(print "apply if-rec : ")
+(print "(cond ((= it 0) acc) (else (f (+ acc it) (- it 1)))) = ")
+(print (g 0 5000))
+(print "apply cond-rec : ")
+(print "(if (= it 0) acc (g (+ acc it) (- it 1))) = ")
+(flush-output)
+(print (f 0 5000))
+
+(newline)
 
 (display "> test 3 : macro in macro\n")
-(display (begin (cond (#f 1) (else 2))))(newline)
+(print
+  "(begin (cond (#f 1) (else 2))) = "
+  (begin (cond (#f 1) (else 2))))
+
+(newline)
 
 (display "> test 4 : define with head form\n")
 (define ((f a) b) (+ a b))
+(print "(define ((f a) b) (+ a b))")
 (define fa (f 1))
-(display (fa 1))(newline)
+(print "(define fa (f 1))")
+(print "(fa 1) = " (fa 1))
 (define fb (f 4))
-(display (fb 1))(newline)
+(print "(define fb (f 4))")
+(print "(fb 1) = " (fb 1))
+
+(newline)
 
 (display "> test 5 : set-cdr! set-car!\n")
 (define y (list 1 2 3 4))
