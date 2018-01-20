@@ -39,7 +39,8 @@ zekin is a naive scheme interpreter wrote in C.
 #### Syntax Forms
 
 ```scheme
-   (if test-expr then-expr [else-expr])
+   (if test-expr then-expr else-expr)
+   (if test-expr then-expr)
 ```
 ```scheme
    'datum
@@ -77,7 +78,7 @@ zekin is a naive scheme interpreter wrote in C.
    (or expr ...)
 ```
 ```scheme
-   (let ([id val-expr] ...) body ...+)
+   (let ((id val-expr) ...) body ...+)
 ```
 ```scheme
    (begin expr ...)
@@ -94,7 +95,7 @@ zekin is a naive scheme interpreter wrote in C.
 ```scheme
    (case val-expr case-clause ...)
 
-   case-clause = ([datum ...) then-body ...)
+   case-clause = ((datum ...) then-body ...))
                | (else then-body ...)
 ```
 
