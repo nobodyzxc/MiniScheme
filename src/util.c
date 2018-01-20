@@ -1,6 +1,7 @@
 #include "mem.h"
 #include "type.h"
 #include "util.h"
+#include "proc.h"
 #include <stdlib.h>
 #define max(a , b) (a > b ? a : b)
 
@@ -36,27 +37,42 @@ Obj lsobj(Obj ls , Obj obj){
     return NULL;
 }
 
-bool is_symls(Obj ls){
-    if(!ls || (ls->type != NIL && ls->type != PAIR)) return false;
-    for( ; ls && ls != nil ; ls = cdr(ls))
-        if(!car(ls) || car(ls)->type != SYMBOL) return false;
-    return is_nil(ls);
+/* ues ca*r find the inner symbol in nested ls */
+Obj prid(Obj ls){
+    if(!is_pair(ls)) return (Obj)err;
+    while(is_pair(ls)) ls = car(ls);
+    return is_symbol(ls) ? ls : (Obj)err;
+}
+
+/* check all elt in pr is all sym ,
+ * accepts nil but not accepts sym */
+bool is_sympr(Obj ls){
+    if(!is_pair(ls) && !is_nil(ls))
+        return false;
+    for( ; ls && iterable(ls) ; ls = cdr(ls))
+        if(!is_symbol(car(ls))) return false;
+    return true;
 }
 
 void detail(Obj obj){
-    if(obj->type == CLOSURE){
+    if(obj && obj->type == CLOSURE){
         printf("<closure ");
-        print_obj(obj->clos->exp->expr->args);
+        print_obj(clos_args(obj));
         printf(" . ");
-        print_obj(obj->clos->exp->expr->body);
+        print_obj(clos_body(obj));
         printf(">");
     }
-    else if(obj->type == MACRO){
+    else if(obj && obj->type == MACRO){
         printf("<macro ");
         print_obj(obj->mac->keyws);
         printf(" . ");
         print_obj(obj->mac->rules);
         printf(">");
+    }
+    else if(obj && obj->type == ENV){
+        puts("================ENV================");
+        print_symtree(obj->env->symtab);
+        printf("=================================");
     }
     else{
         print_obj(obj);
@@ -77,7 +93,8 @@ void print_esc(char *str){
 void print_symtree(Symtree tree){
     if(tree == NULL) return;
     print_symtree(tree->rt);
-    print_obj(tree->sym);
+
+    printf("'%-15s" , tree->sym->str);
     printf(" : ");
     print_obj(tree->val);
     puts("");
@@ -132,7 +149,6 @@ Obj zip_elipat(Obj pat , Obj args , Obj env){
 Obj zip_pat(Obj pat , Obj args , Obj env){
     Obj p = args;
     bool isls = is_list(pat);
-    int argslen = length(args);
     while(pat->type == PAIR){
         Obj mch = car(pat);
         Obj nxt = cdr(pat);
@@ -228,7 +244,7 @@ int pat_num(Obj pr){
 int length(Obj pr){
     int rtn = 0;
     if(!is_list(pr))
-        error("apply length on pair\n");
+        return -1;
     while(not_nil(pr))
         rtn++ , pr = cdr(pr);
     return rtn;

@@ -8,8 +8,15 @@
 #define str(s)  #s
 #define EQS(a , b) (!strcmp(a , b))
 
+#define is_bool(obj) \
+    ((obj) && (obj)->type == BOOLEAN)
+
 #define is_num(obj) \
     ((obj) && ((obj)->type == INTEGER || (obj)->type == DECIMAL))
+
+#define is_exact(obj) \
+    ((obj) && ((obj)->type == INTEGER))
+
 #define num_of(obj) \
     ((obj)->type == INTEGER ? (obj)->integer : (obj)->decimal)
 #define is_false(obj) \
@@ -20,10 +27,14 @@
 #define is_pair(expr) ((expr) && (expr)->type == PAIR)
 #define is_symbol(expr) ((expr) && (expr)->type == SYMBOL)
 
+#define is_clos(expr) ((expr) && (expr)->type == CLOSURE)
+#define is_env(expr) ((expr) && (expr)->type == ENV)
+
 #define is_nil(obj) ((obj) == (nil))
 #define not_nil(obj) (!is_nil(obj))
-#define iterable(obj) is_pair(obj)
+#define iterable(obj) (is_pair(obj))
 
+#define is_str(obj) ((obj) && (obj)->type == STRING)
 #define is_selfeval(expr) \
     ((expr) && (expr)->type != PAIR)
 
@@ -98,6 +109,7 @@ struct expr_tag{
     char *name;
     Obj args;
     Obj body;
+    /* body : a list of expr */
 };
 
 struct clos_tag{

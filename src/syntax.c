@@ -178,8 +178,13 @@ Obj apply_define(Obj args , Obj env){
                     " followd by 1 expr"" , got" , expr);
         }
         else if(id->type == PAIR){ /* func short form */
-            add_symbol(car(id) , new(CLOSURE , new(EXPR , NULL ,
-                            cdr(id) , expr) , env) , env);
+            //add_symbol(car(id) , new(CLOSURE ,
+            //            new(EXPR , NULL , cdr(id) , expr) , env) , env);
+            //return NULL;
+            add_symbol(prid(id) ,
+                    eval(
+                        new_nested_lambda(id , expr) , env)
+                    , env);
             return NULL;
         }
         else alert("def with a non-sym/non-pair obj : " , id);
@@ -190,12 +195,13 @@ Obj apply_define(Obj args , Obj env){
 Obj apply_lambda(Obj args , Obj env){
     if(length(args) < 2)
         alert("lambda : accepts at least 2 args , got " , args);
-    else if(is_symbol(car(args)) || is_symls(car(args)))
+    else if(is_symbol(car(args)) || is_sympr(car(args)))
         return new(CLOSURE ,
                 new(EXPR , NULL ,
                     car(args) , cdr(args)) , env);
     else
-        alert("lambda args contains non-symbol atom : " , car(args));
+        alert("lambda args contains non-symbol atom : "
+                , car(args));
     return (Obj)err;
 }
 
@@ -206,7 +212,8 @@ Obj apply_define_syntax(Obj args , Obj env){
 
 Obj apply_syntax_rules(Obj args , Obj env){
     if(length(args) < 1)
-        alert("syntax-rules : accepts at least 1 arg , got " , args);
+        alert("syntax-rules : accepts at least 1 arg , got "
+                , args);
     else
         return new(MACRO , car(args) , cdr(args));
     return (Obj)err;
@@ -218,7 +225,8 @@ Obj apply_set(Obj args , Obj env){
     else{
         Obj id = car(args);
         if(!id || id->type != SYMBOL)
-            alert("set! : only accepts symbol as id , got " , id);
+            alert("set! : only accepts symbol as id , got "
+                    , id);
         else{
             Obj expr = eval(cadr(args) , env);
             env = lookup_symenv(id->str , env);

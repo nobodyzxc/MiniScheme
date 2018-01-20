@@ -10,6 +10,9 @@
 
 Cons new_cons(kObj car  , kObj cdr);
 Token new_token(char *p , Token next);
+Symtree new_symtree(Obj s , Obj v , Symtree lt , Symtree rt);
+
+Obj new_nested_lambda(Obj head , Obj body);
 
 Obj  new_BOOLEAN(bool);
 Obj  new_INTEGER(long long);
@@ -34,8 +37,6 @@ void free_cons_shallow(Cons pr);
 void free_token(Token tok);
 
 long long get_obj_num();
-
-void add_symbol(Obj sym , Obj val , Obj env_obj);
 
 char *ya_strndup(const char *s, size_t size);
 #endif

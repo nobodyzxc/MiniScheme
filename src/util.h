@@ -12,8 +12,11 @@
 #define cdar(p) (cdr(car(p)))
 #define cdaar(p) (cdr(car(car(p))))
 
+#define clos_expr(t) ((t)->clos->exp)
 #define clos_body(t) ((t)->clos->exp->expr->body)
 #define clos_args(t) ((t)->clos->exp->expr->args)
+#define clos_env(t) ((t)->clos->env)
+
 
 bool is_list(Obj pr);
 bool cmp_num(Obj a , Obj b);
@@ -39,7 +42,8 @@ void print_esc(char *str);
 Obj lssym(Obj ls , Obj sym);
 Obj lssym_rec(Obj ls , Obj sym);
 Obj lsobj(Obj ls , Obj obj);
-bool is_symls(Obj ls);
+Obj prid(Obj ls);
+bool is_sympr(Obj ls);
 void detail(Obj obj);
 
 #define error(fmt , ...) \

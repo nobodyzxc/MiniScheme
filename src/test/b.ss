@@ -1,4 +1,6 @@
-(define (f acc it) (cond ((= it 0) acc) (else (f (+ acc it) (- it 1)))))
-(display "apply cond-rec : ")(flush-output)
-(display (f 0 5000))(newline)
-
+(display "> test 4 : define head\n")
+(define ((f a) b) (+ a b))
+(define fa (f 1))
+(print (fa 1))
+;(define fb (f 4))
+;(display (fb 1))(newline)

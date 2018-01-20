@@ -1,5 +1,6 @@
 #include "mem.h"
 #include "gc.h"
+#include "proc.h"
 #include "util.h"
 #include "opt.h"
 #include <stdlib.h>
@@ -38,6 +39,38 @@ Clos new_clos(Obj expr , Obj env){
     Clos inst = (Clos)MALLOC(sizeof(clos_t));
     inst->exp = expr , inst->env = env;
     return inst;
+}
+
+/* exprs is a list of expris
+ * so it must be a list */
+Obj new_lambda(Obj args , Obj exprs){
+    if(lambda_symbol == NULL)
+        puts("cannot get lambda symbol");
+    else if(!is_sympr(args) && !is_symbol(args))
+        alert("define function with non-symbol args : " , args);
+    else if(!is_pair(exprs))
+        alert("define function with non-pair exprs : " , args);
+    else return cons(lambda_symbol , cons(args , exprs));
+    return (Obj)err;
+}
+
+Obj new_nested_lambda(Obj head , Obj body){
+    if(!head)
+        alert("define function with void head : " , head);
+    else if(is_nil(head))
+        alert("define function with nil head : " , head);
+    else if(!is_pair(head))
+        alert("define function with non-pair head : " , head);
+    else if(is_symbol(car(head)))
+        return new_lambda(cdr(head) , body);
+    else if(is_pair(car(head)))
+        return new_lambda(cdr(head) ,
+                cons(new_nested_lambda(car(head) , body) , nil));
+            /* lambda exprs expects a list of exprs ,
+             * so cons new_nested_lambda with nil */
+    else
+        alert("define function with unknown head type : " , car(head));
+    return (Obj)err;
 }
 
 Expr new_expr(char *name , Obj args , Obj body){
@@ -143,38 +176,14 @@ Obj new_MACRO(Obj keyws , Obj rules){
     return inst;
 }
 
-#define side(iter , diff) (diff < 0 ? (iter)->lt : (iter)->rt)
-void add_symbol(Obj sym , Obj val , Obj env_obj){
-    if(sym->type != SYMBOL){
-        print_obj(sym);
-        print_obj(val);
-        puts("define only accept symbol");
-        exit(0);
-    }
-    assert(sym->type == SYMBOL);
-    Symtree inst = (Symtree)MALLOC(sizeof(symtree_t));
-    inst->sym = sym , inst->val = val;
-    inst->lt = NULL , inst->rt = NULL;
-    Symtree iter = env_obj->env->symtab;
-    if(!iter) env_obj->env->symtab = inst;
-    else{
-        while(1){
-            int df = strcmp(iter->sym->str , sym->str);
-            if(!df){ // redef symbol
-                iter->val = val;
-                return;
-            }
-            if(side(iter , df))
-                iter = side(iter , df);
-            else{
-                if(df < 0)
-                    iter->lt = inst;
-                else
-                    iter->rt = inst;
-                return;
-            }
-        }
-    }
+Symtree
+new_symtree(Obj s , Obj v ,
+        Symtree lt , Symtree rt){
+    Symtree inst =
+        (Symtree)MALLOC(sizeof(symtree_t));
+    inst->sym = s , inst->val = v;
+    inst->lt = lt , inst->rt = rt;
+    return inst;
 }
 
 void free_symtree(Symtree tree){

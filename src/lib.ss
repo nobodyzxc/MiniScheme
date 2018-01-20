@@ -78,8 +78,12 @@
      (if #t (begin expr ...)))
     ((_ (pred => expr) rest ...)
      (if pred (expr pred) (cond rest ...)))
+    ((_ (pred) rest ...)
+     (if pred pred (cond rest ...)))
     ((_ (pred expr ...) rest ...)
-     (if pred (begin expr ...) (cond rest ...))))
+     (if pred (begin expr ...) (cond rest ...)))
+    ((_ expr rest ...)
+     (if expr expr (cond rest ...))))
   )
 
 (define case
@@ -111,8 +115,6 @@
     (if (cmp (car ls) elt) cur
       (index-of-iter cmp elt (cdr ls) (+ cur 1)))
     ))
-
-(define (tab) (senv global))
 
 (define (range-it e acc)
   (if (< e 0) acc (range-it (- e 1) (cons e acc))))

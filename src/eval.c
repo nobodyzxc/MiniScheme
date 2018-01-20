@@ -41,8 +41,11 @@ Obj eval(Obj val , Obj env){
             Obj app = car(val) , args = cdr(val);
             if(app->type == SYMBOL || app->type == PAIR){
 
-                if(!is_list(args))
-                    error("cannot apply procedure on pair");
+                if(!is_list(args)){
+                    alert("last elt of proc call "
+                            "expects nil , got " , args);
+                    return (Obj)err;
+                }
 
                 app = app->type == SYMBOL ?
                     lookup_symbol(app->str , env) : eval(app , env);
@@ -63,10 +66,14 @@ Obj eval(Obj val , Obj env){
                 if((args = map_eval(args , env)) == err) return (Obj)err;
                 assert(args != NULL);
                 //consider cost of space
-
                 if(app->type == FUNCTION)
                     return app->proc->apply(args , env);
                 else if(app->type == CLOSURE){
+
+                    env = clos_env(app);
+                    /* important !
+                     * use clos_env
+                     * instead of env */
                     Obj tail = app;
                     /* tco opt */
                     app = new(CLOSURE , new(EXPR , NULL , args , app) , env);
@@ -79,7 +86,7 @@ Obj eval(Obj val , Obj env){
                     bool re_eval = false;
                     while(tail){
                         args = clos_args(app);
-
+                        if(args == err) return args;
                         if(tail->type == FUNCTION){
                             return tail->proc->apply(args , env);
                         }
@@ -87,6 +94,8 @@ Obj eval(Obj val , Obj env){
                             val = tail->proc->apply(args , env);
                             if(app->proc->apply == apply_quote)
                                 return val;
+                            if(app->proc->apply == apply_lambda)
+                                return app->proc->apply(args , env);
                             re_eval = true;
                             break;
                         }
@@ -108,7 +117,8 @@ Obj eval(Obj val , Obj env){
                         tail = clos_body(app);
                     }
                     if(re_eval) continue;
-                    if(tail) alert("TCO cannot apply " , tail);
+                    else if(tail == err) return (Obj)err;
+                    else if(tail) alert("TCO cannot apply " , tail);
                     return tail ? (Obj)err : clos_args(app);
                 }
             }

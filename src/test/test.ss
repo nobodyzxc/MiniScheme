@@ -19,4 +19,11 @@
 (display (f 0 5000))(newline)
 
 (display "> test 3 : macro in macro\n")
-(display (begin (cond (#f 1) (else 2))))
+(display (begin (cond (#f 1) (else 2))))(newline)
+
+(display "> test 4 : define with head form\n")
+(define ((f a) b) (+ a b))
+(define fa (f 1))
+(display (fa 1))(newline)
+(define fb (f 4))
+(display (fb 1))(newline)
