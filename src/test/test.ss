@@ -8,7 +8,8 @@
 (define (fold f b l)
   (if (null? l) b (fold f (f (car l) b) (cdr l))))
 
-(display (fold + 0 (range 1000)))(newline)
+(print "(display (fold + 0 (range 1000)))")
+(print "= " (fold + 0 (range 1000)))
 
 (newline)
 
@@ -16,12 +17,12 @@
 (define (f acc it) (cond ((= it 0) acc) (else (f (+ acc it) (- it 1)))))
 (define (g acc it) (if (= it 0) acc (g (+ acc it) (- it 1))))
 (print "apply if-rec : ")
-(print "(cond ((= it 0) acc) (else (f (+ acc it) (- it 1)))) = ")
-(print (g 0 5000))
+(print "(cond ((= it 0) acc) (else (f (+ acc it) (- it 1))))")
+(print "= " (g 0 5000))
 (print "apply cond-rec : ")
-(print "(if (= it 0) acc (g (+ acc it) (- it 1))) = ")
+(print "(if (= it 0) acc (g (+ acc it) (- it 1)))")
 (flush-output)
-(print (f 0 5000))
+(print "= " (f 0 5000))
 
 (newline)
 

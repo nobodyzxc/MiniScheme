@@ -58,6 +58,12 @@ void detail(Obj obj);
 #define alert(str , obj) \
     falert(stdout , str , obj) , puts("")
 
+#define msgobjc(str , obj) \
+    fprintf(stdout , str) , detail(obj)
+
+#define msgobj(str , obj) \
+    fprintf(stdout , str) , detail(obj) , puts("")
+
 #define ASSERT(expr , msg) \
     if(!(expr)) error("%s : %s %d" , msg , __FILE__ , __LINE__)
 

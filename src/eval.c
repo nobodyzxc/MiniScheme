@@ -7,6 +7,7 @@
 
 #include <assert.h>
 
+
 Obj map_eval(Obj ls , Obj env){
     cons_t head;
     Cons last = &head;
@@ -69,7 +70,7 @@ Obj eval(Obj val , Obj env){
                 if(app->type == FUNCTION)
                     return app->proc->apply(args , env);
                 else if(app->type == CLOSURE){
-
+                    //return apply_clos(app , args , env);
                     env = clos_env(app);
                     /* important !
                      * use clos_env
@@ -82,14 +83,14 @@ Obj eval(Obj val , Obj env){
                      * expr's body : (f a b c) . (+ a b c) , env)[tail] , env)
                      * */
                     env = new_ENV(env);
-                    /* ^ keep env clean */
+                    /* ^ keep original clos's env clean */
                     bool re_eval = false;
+                    bool is_tail = false;
                     while(tail){
                         args = clos_args(app);
-                        if(args == err) return args;
-                        if(tail->type == FUNCTION){
+                        if(args == err || tail == err) break;
+                        if(tail->type == FUNCTION)
                             return tail->proc->apply(args , env);
-                        }
                         else if(tail->type == SYNTAX){
                             val = tail->proc->apply(args , env);
                             if(app->proc->apply == apply_quote)
@@ -105,15 +106,20 @@ Obj eval(Obj val , Obj env){
                             break;
                         }
                         else if(tail->type == CLOSURE){
+                            //env = zip_env(clos_args(tail) , args ,
+                            //            is_tail ? env : new(ENV , env));
+                            //app = find_tail(app , clos_body(tail) , env);
+                            env = clos_env(tail);
                             app = find_tail(app , clos_body(tail) ,
-                                    zip_env(clos_args(tail) , args , env));
+                                    zip_env(clos_args(tail) , args ,
+                                        is_tail ? env : new(ENV , env)));
                         }
-                        /* fix fatal bug : use zip instead of zipped */
                         else{
                             alert("cannot not apply" , tail);
                             puts(" on TCO");
                             break;
                         }
+                        is_tail = tail == clos_body(app);
                         tail = clos_body(app);
                     }
                     if(re_eval) continue;
