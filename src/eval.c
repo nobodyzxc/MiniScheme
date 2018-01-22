@@ -73,10 +73,6 @@ Obj eval(Obj val , Obj env){
 #ifndef TCO_OPT
                     return apply_clos(app , args , env);
 #endif
-                    env = clos_env(app);
-                    /* important !
-                     * use clos_env
-                     * instead of env */
                     Obj tail = app;
                     /* tco opt */
                     app = new(CLOSURE , new(EXPR , NULL , args , app) , env);
@@ -89,6 +85,7 @@ Obj eval(Obj val , Obj env){
                     bool is_tail = false;
                     while(tail){
                         args = clos_args(app);
+                        env = clos_env(tail);
                         if(args == err || tail == err) break;
                         if(tail->type == FUNCTION)
                             return tail->proc->apply(args , env);
@@ -107,7 +104,6 @@ Obj eval(Obj val , Obj env){
                             break;
                         }
                         else if(tail->type == CLOSURE){
-                            env = clos_env(tail);
                             app = find_tail(app , clos_body(tail) ,
                                     zip_env(clos_args(tail) , args ,
                                         is_tail ? env : new(ENV , env)));

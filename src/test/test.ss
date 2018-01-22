@@ -8,7 +8,7 @@
 (define (fold f b l)
   (if (null? l) b (fold f (f (car l) b) (cdr l))))
 
-(print "(display (fold + 0 (range 1000)))")
+(print "(fold + 0 (range 1000))")
 (print "= " (fold + 0 (range 1000)))
 
 (newline)
@@ -16,20 +16,24 @@
 (display "> test 2 : macro speed\n")
 (define (f acc it) (cond ((= it 0) acc) (else (f (+ acc it) (- it 1)))))
 (define (g acc it) (if (= it 0) acc (g (+ acc it) (- it 1))))
+(define arg 10000)
 (print "apply if-rec : ")
 (print "(define (f acc it)\n"
        "  (cond\n"
        "    ((= it 0) acc)\n"
        "    (else (f (+ acc it) (- it 1)))))")
-(print "= " (g 0 10000))
+(print "(g 0 " arg ")" " = " (g 0 arg))
+
 (newline)
+
 (print "apply cond-rec : ")
 (print "(define (g acc it)\n"
        "  (if (= it 0)\n"
        "     acc\n"
        "     (g (+ acc it) (- it 1)))")
+(show "(f 0 " arg ")")
 (flush-output)
-(print "= " (f 0 10000))
+(print " = " (f 0 arg))
 
 (newline)
 
@@ -38,8 +42,7 @@
   (if (= it 0) acc (tail (+ acc it) (- it 1))))
 (print "(define (tail acc it)\n
   (if (= it 0) acc (tail (+ acc it) (- it 1))))")
-(print "(tail 0 10000)")
-(print "= " (tail 0 100000))
+(print "(tail 0 10000) = " (tail 0 100000))
 
 (newline)
 

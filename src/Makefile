@@ -1,5 +1,6 @@
 CXX = gcc
 FLAG = -g -O3 -DSHARE_BUFFER -DTCO_OPT
+# if -DTCO_OPT , -O3 must be add , too.
 MAIN     = main
 _MAIN    = ${MAIN:%=%.c}
 SRCS     = type token parse eval mem util proc func syntax gc opt

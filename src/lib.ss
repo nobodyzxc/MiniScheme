@@ -102,6 +102,9 @@
 (define (print . args)
   (map display args)(newline))
 
+(define (show . args)
+  (map display args))
+
 (define \
   (syntax-rules
     (->)

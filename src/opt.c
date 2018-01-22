@@ -69,7 +69,6 @@ Obj build_tail(Obj clos , Obj expr , Obj env){
         Obj app = car(expr);
         app = app->type == SYMBOL ?
             lookup_symbol(app->str , env) : eval(app , env);
-        /* speed up beg , why? */
         if(app->type == SYNTAX){/* consider quote? */
             if(app->proc->apply == apply_quote)
                 return set_clos(clos , cadr(expr) , NULL);
@@ -78,7 +77,6 @@ Obj build_tail(Obj clos , Obj expr , Obj env){
         }
         if(app->type == MACRO)
             return build_tail(clos , apply_macro(app , cdr(expr) , env) , env);
-        /* speed up end */
         return set_clos(clos , map_eval(cdr(expr) , env) , app);
     }
     printf("cannot do tail eval : ");
