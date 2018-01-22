@@ -17,23 +17,40 @@
 (define (f acc it) (cond ((= it 0) acc) (else (f (+ acc it) (- it 1)))))
 (define (g acc it) (if (= it 0) acc (g (+ acc it) (- it 1))))
 (print "apply if-rec : ")
-(print "(cond ((= it 0) acc) (else (f (+ acc it) (- it 1))))")
-(print "= " (g 0 5000))
+(print "(define (f acc it)\n"
+       "  (cond\n"
+       "    ((= it 0) acc)\n"
+       "    (else (f (+ acc it) (- it 1)))))")
+(print "= " (g 0 10000))
+(newline)
 (print "apply cond-rec : ")
-(print "(if (= it 0) acc (g (+ acc it) (- it 1)))")
+(print "(define (g acc it)\n"
+       "  (if (= it 0)\n"
+       "     acc\n"
+       "     (g (+ acc it) (- it 1)))")
 (flush-output)
-(print "= " (f 0 5000))
+(print "= " (f 0 10000))
 
 (newline)
 
-(display "> test 3 : macro in macro\n")
+(display "> test 3 : TCO stack test\n")
+(define (tail acc it)
+  (if (= it 0) acc (tail (+ acc it) (- it 1))))
+(print "(define (tail acc it)\n
+  (if (= it 0) acc (tail (+ acc it) (- it 1))))")
+(print "(tail 0 10000)")
+(print "= " (tail 0 100000))
+
+(newline)
+
+(display "> test 4 : macro in macro\n")
 (print
   "(begin (cond (#f 1) (else 2))) = "
   (begin (cond (#f 1) (else 2))))
 
 (newline)
 
-(display "> test 4 : define with head form\n")
+(display "> test 5 : define with head form\n")
 (define ((f a) b) (+ a b))
 (print "(define ((f a) b) (+ a b))")
 (define fa (f 1))
@@ -45,7 +62,7 @@
 
 (newline)
 
-(display "> test 5 : set-cdr! set-car!\n")
+(display "> test 6 : set-cdr! set-car!\n")
 (define y (list 1 2 3 4))
 (define x 3)
 (print "y -> " y)
@@ -56,3 +73,20 @@
 (print "(set-cdr! y x)")
 (set-cdr! y x)
 (print "y -> " y)
+
+(newline)
+
+(display "> test 7 : TCO env test\n")
+(define *cont*
+    (lambda (x) x))
+
+(define (f a cont)
+    (g 2 (lambda (v)
+            (cont (print a)))))
+
+(define (g b cont)
+    (cont (print b)))
+
+(f 1 *cont*)
+
+(newline)

@@ -7,7 +7,6 @@
 
 #include <assert.h>
 
-
 Obj map_eval(Obj ls , Obj env){
     cons_t head;
     Cons last = &head;
@@ -64,13 +63,16 @@ Obj eval(Obj val , Obj env){
                     continue;
                 }
 
-                if((args = map_eval(args , env)) == err) return (Obj)err;
+                if((args = map_eval(args , env)) == err)
+                    return (Obj)err;
                 assert(args != NULL);
                 //consider cost of space
                 if(app->type == FUNCTION)
                     return app->proc->apply(args , env);
                 else if(app->type == CLOSURE){
-                    //return apply_clos(app , args , env);
+#ifndef TCO_OPT
+                    return apply_clos(app , args , env);
+#endif
                     env = clos_env(app);
                     /* important !
                      * use clos_env
@@ -82,8 +84,7 @@ Obj eval(Obj val , Obj env){
                      * expr's args : ((1 , 2 , 3)[iter args] ,
                      * expr's body : (f a b c) . (+ a b c) , env)[tail] , env)
                      * */
-                    env = new_ENV(env);
-                    /* ^ keep original clos's env clean */
+
                     bool re_eval = false;
                     bool is_tail = false;
                     while(tail){
@@ -106,9 +107,6 @@ Obj eval(Obj val , Obj env){
                             break;
                         }
                         else if(tail->type == CLOSURE){
-                            //env = zip_env(clos_args(tail) , args ,
-                            //            is_tail ? env : new(ENV , env));
-                            //app = find_tail(app , clos_body(tail) , env);
                             env = clos_env(tail);
                             app = find_tail(app , clos_body(tail) ,
                                     zip_env(clos_args(tail) , args ,
