@@ -38,11 +38,6 @@
 #define is_selfeval(expr) \
     ((expr) && (expr)->type != PAIR)
 
-#define IS_EXPR_OF(expr , call) \
-    ((expr) && (expr)->type == PAIR \
-     && car(expr)->type == SYMBOL \
-     && car(expr)->proc->apply ==  apply_ ## call)
-
 #define is_selfeval(expr) ((expr) && (expr)->type != PAIR)
 
 enum types{

@@ -80,6 +80,8 @@
 (newline)
 
 (display "> test 7 : TCO env test\n")
+(print
+"
 (define *cont*
     (lambda (x) x))
 
@@ -89,7 +91,16 @@
 
 (define (g b cont)
     (cont (print b)))
+")
+(define *cont*
+    (lambda (x) x))
 
+(define (f a cont)
+    (g 2 (lambda (v)
+            (cont (print a)))))
+
+(define (g b cont)
+    (cont (print b)))
 (f 1 *cont*)
 
 (newline)

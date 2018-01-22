@@ -158,7 +158,7 @@ char *tok_string(char* buffer , char *p , Token *phead , Token *ptail){
                 p = input(buffer , "" , true);
                 break;
             }
-            if(buf[l] == '\n') stdin_printf("... ") , l -= 1;
+            if(buf[l] == '\n') stdin_printf("... ");
             l++;
         }
     }

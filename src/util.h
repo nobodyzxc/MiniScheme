@@ -55,8 +55,7 @@ void detail(Obj obj);
 #define falert(s , str , obj) \
     fprintf(s , str) , fprint_obj(s , obj) , fputs("" , s)
 
-#define alert(str , obj) \
-    falert(stdout , str , obj) , puts("")
+Obj alert(char *str , Obj obj);
 
 #define msgobjc(str , obj) \
     fprintf(stdout , str) , detail(obj)

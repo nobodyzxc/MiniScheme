@@ -257,10 +257,8 @@ Obj apply_eqnum(Obj args , Obj env){
         while(args->type == PAIR)
             if(is_num(car(args)))
                 rtn &= cmp_num(head , car(args)) , args = cdr(args);
-            else{
-                alert("apply = on non-number obj" , car(args));
-                return (Obj)err;
-            }
+            else
+                return alert("apply = on non-number obj" , car(args));
         return new(BOOLEAN , rtn);
     }
     return (Obj)err;
@@ -274,7 +272,7 @@ Obj apply_eqnum(Obj args , Obj env){
             for( ; iterable(args) && not_nil(cdr(args)) ; \
                     args = cdr(args)) \
             if(!(num_of(car(args)) op num_of(cadr(args)))) \
-            return (Obj)false_obj; \
+                return (Obj)false_obj; \
             return (Obj)true_obj; \
         } \
         return (Obj)err; \
@@ -371,8 +369,7 @@ Obj apply_read(Obj args , Obj env){
         if(6 op 3 == 2 || 6 op 3 == 0){ \
             if(num_of(car(args)) == 0){ \
             printf(6 op 3 ? "/" : "%%");    \
-            alert(" : arg cannot be zero , got " , car(args)); \
-            return (Obj)err; \
+            return alert(" : arg cannot be zero , got " , car(args)); \
             } \
         } \
         if(!is_num(car(args))) \

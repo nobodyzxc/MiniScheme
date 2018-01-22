@@ -32,8 +32,7 @@ Obj  add_symbol(Obj sym , Obj val , Obj env_obj){
                     if(v == 0)
                         iter->val = val;
                     else
-                        *s = new_symtree(
-                                sym , val , NULL , NULL);
+                        *s = new_symtree(sym , val , NULL , NULL);
                     return sym;
                 }
             }
@@ -117,12 +116,10 @@ void init_buildins(){
     BIND(FUNCTION , "equal?"       , &apply_equalq       , glenv);
     BIND(FUNCTION , "read"         , &apply_read         , glenv);
 
-    BIND(SYNTAX   , "if"           , &apply_if           , glenv);
-    BIND(SYNTAX   , "quote"        , &apply_quote        , glenv);
-
     lambda_symbol =
     BIND(SYNTAX   , "lambda"       , &apply_lambda       , glenv);
-
+    BIND(SYNTAX   , "if"           , &apply_if           , glenv);
+    BIND(SYNTAX   , "quote"        , &apply_quote        , glenv);
     BIND(SYNTAX   , "define"       , &apply_define       , glenv);
     BIND(SYNTAX   , "set!"         , &apply_set          , glenv);
     BIND(SYNTAX   , "set-cdr!"     , &apply_set_cdr      , glenv);

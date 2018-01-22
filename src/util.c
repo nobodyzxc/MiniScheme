@@ -325,3 +325,8 @@ void fprint_obj(FILE *s , kObj obj){
 void print_obj(kObj obj){
     return fprint_obj(stdout , obj);
 }
+
+Obj alert(char *str , Obj obj){
+    falert(stdout , str , obj) , puts("");
+    return (Obj)err;
+}

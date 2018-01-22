@@ -58,31 +58,24 @@ Obj find_tail(Obj , Obj , Obj);
 Obj build_tail(Obj clos , Obj expr , Obj env){
     if(expr == NULL)
         return set_clos(clos , NULL , NULL);
-    else if(is_selfeval(expr)
-            || IS_EXPR_OF(expr , define)
-            || IS_EXPR_OF(expr , quote)
-            || IS_EXPR_OF(expr , set)
-           ){
+    else if(is_selfeval(expr))
         return set_clos(clos , eval(expr , env) , NULL);
-    }
     else if(is_pair(expr)){
         Obj app = car(expr);
         app = app->type == SYMBOL ?
             lookup_symbol(app->str , env) : eval(app , env);
-        if(app->type == SYNTAX){/* consider quote? */
-            if(app->proc->apply == apply_quote)
-                return set_clos(clos , cadr(expr) , NULL);
-            else
-                return build_tail(clos , app->proc->apply(cdr(expr) , env) , env);
-        }
-        if(app->type == MACRO)
+
+        if(app->type == SYNTAX) /* consider quote */
+            return app->proc->apply == apply_quote ?
+                set_clos(clos , cadr(expr) , NULL) :
+                build_tail(clos , app->proc->apply(cdr(expr) , env) , env);
+
+        else if(app->type == MACRO)
             return build_tail(clos , apply_macro(app , cdr(expr) , env) , env);
+
         return set_clos(clos , map_eval(cdr(expr) , env) , app);
     }
-    printf("cannot do tail eval : ");
-    print_obj(expr); puts("");
-    exit(1);
-    return (Obj)err;
+    return alert("cannot do tail eval : " , expr);
 }
 
 Obj find_last_expr(Obj exprs , Obj env){

@@ -136,8 +136,7 @@ Obj apply_macro(Obj macro , Obj args , Obj env){
     }
     printf("cannot match any rule");
     printf("\n > ") , detail(macro);
-    alert("\n > " , args);
-    return (Obj)err;
+    return alert("\n > " , args);
 }
 
 Obj apply_if(Obj args , Obj env){
