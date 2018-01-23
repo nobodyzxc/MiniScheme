@@ -126,8 +126,8 @@ Obj apply_exit(Obj args , Obj env){
 }
 
 Obj apply_clos(Obj pcr , Obj args , Obj env){
-    env = zipped_env(clos_args(pcr) , args , clos_env(pcr));
     Obj iter = clos_body(pcr) , val = NULL;
+    env = zipped_env(clos_args(pcr) , args , clos_env(pcr));
     while(not_nil(iter))
         val = eval(car(iter) , env) , iter = cdr(iter);
     return val;

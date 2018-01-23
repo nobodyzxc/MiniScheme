@@ -285,7 +285,36 @@ zekin is a naive scheme interpreter wrote in C.
 
 #### Library Functions
 
-
+```scheme
+   (caar x)        (car (car x))
+   (cadr x)        (car (cdr x))
+   (cdar x)        (cdr (car x))
+   (cddr x)        (cdr (cdr x))
+   (caaar x)       (car (car (car x)))
+   (caadr x)       (car (car (cdr x)))
+   (cadar x)       (car (cdr (car x)))
+   (caddr x)       (car (cdr (cdr x)))
+   (cdaar x)       (cdr (car (car x)))
+   (cdadr x)       (cdr (car (cdr x)))
+   (cddar x)       (cdr (cdr (car x)))
+   (cdddr x)       (cdr (cdr (cdr x)))
+   (caaaar x)      (car (car (car (car x))))
+   (caaadr x)      (car (car (car (cdr x))))
+   (caadar x)      (car (car (cdr (car x))))
+   (caaddr x)      (car (car (cdr (cdr x))))
+   (cadaar x)      (car (cdr (car (car x))))
+   (cadadr x)      (car (cdr (car (cdr x))))
+   (caddar x)      (car (cdr (cdr (car x))))
+   (cadddr x)      (car (cdr (cdr (cdr x))))
+   (cdaaar x)      (cdr (car (car (car x))))
+   (cdaadr x)      (cdr (car (car (cdr x))))
+   (cdadar x)      (cdr (car (cdr (car x))))
+   (cdaddr x)      (cdr (car (cdr (cdr x))))
+   (cddaar x)      (cdr (cdr (car (car x))))
+   (cddadr x)      (cdr (cdr (car (cdr x))))
+   (cdddar x)      (cdr (cdr (cdr (car x))))
+   (cddddr x)      (cdr (cdr (cdr (cdr x))))
+```
 ```scheme
    (list e ...) -> list?
    e : any/c
@@ -309,13 +338,6 @@ zekin is a naive scheme interpreter wrote in C.
    e : list?
 ```
 ```scheme
-   caar
-   cadr
-   caddr
-   cadddr
-   cddr
-```
-```scheme
    (newline) -> void?
 ```
 ```scheme
@@ -331,4 +353,8 @@ zekin is a naive scheme interpreter wrote in C.
 ```scheme
    (range n) -> list?
    n : integer?
+```
+```scheme
+   (print elt ...) -> void?
+   elt : any/c
 ```

@@ -31,34 +31,33 @@ Obj eval_symbol(Obj val , Obj env){
     return elt;
 }
 
-Obj tco(Obj args , Obj tail , Obj env){
-    Obj app = new(CLOSURE , new(EXPR , NULL , args , app) , env);
-    /* closure of tail form ^ , expr in clos :
-     * expr's args : ((1 , 2 , 3)[iter args] ,
-     * expr's body : tail recursion function */
+Obj tco(Obj args , Obj clos , Obj env){
+    Obj tail = new(CLOSURE ,
+            new(EXPR , NULL ,
+                args , /* return args as tail call's Ans */
+                clos), /* contain tail call's pars & def */
+            env);
     bool is_tail = false;
-    while(tail){
-        env = clos_env(tail);
-        args = clos_args(app);
-        if(args == err || tail == err) break;
-        if(tail->type == FUNCTION)
-            return tail->proc->apply(args , env);
-        else if(tail->type == CLOSURE)
-            app = find_tail(app , clos_body(tail) ,
-                    zip_env(clos_args(tail) , args ,
-                        is_tail ? env : new(ENV , env)));
-        else break;
-        is_tail = tail == clos_body(app);
-        tail = clos_body(app);
+    while(clos && clos != err
+            && clos_args(tail) != err
+            && clos->type == CLOSURE){
+        tail = find_tail(tail , clos_body(clos) ,
+                zip_env(
+                    clos_args(clos) ,
+                    clos_args(tail) ,
+                    is_tail ? clos_env(clos) :
+                    new(ENV , clos_env(clos))));
+        is_tail = clos == clos_body(tail);
+        clos = clos_body(tail);
     }
-    if(tail && tail != err)
-        alert("TCO cannot apply " , tail);
-    return tail ? (Obj)err : clos_args(app);
+    if(clos && clos != err) alert("not a procedure : " , clos);
+    return clos || args == err ? (Obj)err : clos_args(tail);
 }
 
 Obj eval(Obj val , Obj env){
-    if(!val || val == err) return val;
-    if(val->type == SYMBOL)
+    if(!val || val == err)
+        return val;
+    else if(val->type == SYMBOL)
         return eval_symbol(val , env);
     else if(val->type == PAIR){
         Obj app = car(val) , args = cdr(val);
@@ -69,8 +68,10 @@ Obj eval(Obj val , Obj env){
             app = app->type == SYMBOL ?
                 lookup_symbol(app->str , env) : eval(app , env);
 
-            if(!app || app == err)
+            if(app == err)
                 return (Obj)err;
+            else if(app == NULL)
+                return alert("not a procedure : " , app);
 
             else if(app->type == SYNTAX)
                 return
@@ -86,6 +87,7 @@ Obj eval(Obj val , Obj env){
             if(app->type == FUNCTION)
                 return app->proc->apply(args , env);
             else if(app->type == CLOSURE){
+                env = clos_env(app);
 #ifndef TCO_OPT
                 return apply_clos(app , args , env);
 #endif

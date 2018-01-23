@@ -61,21 +61,28 @@ Obj build_tail(Obj clos , Obj expr , Obj env){
     else if(is_selfeval(expr))
         return set_clos(clos , eval(expr , env) , NULL);
     else if(is_pair(expr)){
-        Obj app = car(expr);
+        Obj app = car(expr) , args = cdr(expr);
         app = app->type == SYMBOL ?
             lookup_symbol(app->str , env) : eval(app , env);
 
-        if(app->type == SYNTAX) /* consider quote */
+        if(app == NULL)
+            return set_clos(clos , alert("cannot not apply " , app) , NULL);
+        else if(app->type == SYNTAX) /* consider quote */
             return app->proc->apply == apply_quote ?
                 set_clos(clos , cadr(expr) , NULL) :
-                build_tail(clos , app->proc->apply(cdr(expr) , env) , env);
+                build_tail(clos , app->proc->apply(args , env) , env);
 
         else if(app->type == MACRO)
-            return build_tail(clos , apply_macro(app , cdr(expr) , env) , env);
+            return build_tail(clos , apply_macro(app , args , env) , env);
 
-        return set_clos(clos , map_eval(cdr(expr) , env) , app);
+        args = map_eval(args , env);
+
+        return set_clos(clos ,
+                app->type == FUNCTION ?
+                app->proc->apply(args , env) : args ,
+                app->type == FUNCTION ?  NULL : app);
     }
-    return alert("cannot do tail eval : " , expr);
+    return set_clos(clos , alert("cannot do tail eval : " , expr) , NULL);
 }
 
 Obj find_last_expr(Obj exprs , Obj env){

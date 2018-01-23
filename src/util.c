@@ -82,7 +82,7 @@ void detail(Obj obj){
 void print_esc(char *str){
     char *k = "abfnrtv\\'?" , *v = "\a\b\f\n\r\t\v\\\'\?";
     while(*str){
-        if(*str == '\\' && strchr("abfnrtv\\'?" , *(str + 1)))
+        if(*str == '\\' && strchr(k , *(str + 1)))
             putchar(v[strchr(k , *(str + 1)) - k]) , str++;
         else
             putchar(*str);
@@ -269,6 +269,16 @@ void print_pair(kObj pr){
     return fprint_pair(stdout , pr);
 }
 
+void fprint_unesc_str(FILE *f , char* s){
+    char *k = "abfnrtv\\'?" , *v = "\a\b\f\n\r\t\v\\\'\?";
+    for(fprintf(f , "\"") ; *s ; s++)
+        if(strchr(v , *s))
+            fprintf(f , "\\%c" , k[strchr(v , *s) - v]);
+        else
+            fprintf(f , "%c" , *s);
+    fprintf(f , "\"");
+}
+
 void fprint_obj(FILE *s , kObj obj){
     if(!obj) fprintf(s , "<void>");
     else{
@@ -286,7 +296,8 @@ void fprint_obj(FILE *s , kObj obj){
                 fprintf(s , "#\\%c" , obj->chr);
                 break;
             case STRING  :
-                fprintf(s , "\"%s\"" , obj->str);
+                fprint_unesc_str(s , obj->str);
+                //fprintf(s , "\"%s\"" , obj->str);
                 break;
             case SYMBOL  :
                 fprintf(s , "'%s" , obj->str);
@@ -308,7 +319,6 @@ void fprint_obj(FILE *s , kObj obj){
                 break;
             case CLOSURE :
                 fprintf(s , "<closure>");
-                //print_obj(obj->clos->exp);
                 break;
             case EXPR    :
                 fprintf(s , "<expression> : ");

@@ -143,22 +143,21 @@ char *tok_string(char* buffer , char *p , Token *phead , Token *ptail){
     while((q = strchr(q + 1 , '"')) && *(q - 1) == '\\');
     if(q) add_token(ya_strndup(p , q - p + 1) , ptail) , p = q + 1;
     else{
-        if(strlen(p) > sizeof(buf))
+        int l = strlen(p) + 1;
+        if(l > SIZE)
             error("exceed string limit\n");
-        strcpy(buf , p);
-        int l = strlen(buf);
-        stdin_printf("... ");
+        sprintf(buf , "%s\n" , p);
         while(1){
+            if(buf[l - 1] == '\n')
+                stdin_printf("... ");
             if(l > SIZE)
                 error("exceed string limit : " xstr(SIZE) "\n");
             else
                 buf[l] = read_char();
             if(buf[l] == '"' && buf[l - 1] != '\\'){
                 add_token(ya_strndup(buf , l + 1) , ptail);
-                p = input(buffer , "" , true);
-                break;
+                return input(buffer , "" , true);
             }
-            if(buf[l] == '\n') stdin_printf("... ");
             l++;
         }
     }
