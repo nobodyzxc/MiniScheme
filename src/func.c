@@ -203,7 +203,7 @@ Obj apply_lookup_symbol(Obj args , Obj env){
         if(res != err)
             return res;
         else
-            alert("lookup-symbol : cannot found symbol" , car(args));
+            alert("lookup-symbol : cannot found symbol " , car(args));
     }
     return (Obj)err;
 }

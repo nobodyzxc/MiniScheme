@@ -90,7 +90,7 @@ void init_buildins(){
     BIND(FUNCTION , "="            , &apply_eqnum        , glenv);
     BIND(FUNCTION , "<"            , &apply_lt           , glenv);
     BIND(FUNCTION , ">"            , &apply_gt           , glenv);
-    BIND(FUNCTION , ">="           , &apply_let          , glenv);
+    BIND(FUNCTION , "<="           , &apply_let          , glenv);
     BIND(FUNCTION , ">="           , &apply_get          , glenv);
     BIND(FUNCTION , "mod"          , &apply_mod          , glenv);
     BIND(FUNCTION , "not"          , &apply_not          , glenv);

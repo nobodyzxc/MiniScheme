@@ -109,13 +109,14 @@ char *get_extname(char *path){
     sprintf(name ,
             "%s/" EXTENSION ,
             dirname(path));
+    free(path);
     return name;
 }
 
 int main(int argc , char *argv[]){
     stream = stdin;
     init_buildins();
-    bool succ = load_script(get_extname(argv[0]) , false);
+    bool succ = load_script(get_extname(strdup(argv[0])) , false);
     if(argc == 1)
         interpret = true;
     else

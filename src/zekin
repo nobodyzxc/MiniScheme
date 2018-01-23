@@ -13,5 +13,5 @@ fi
 
 if command -v rlwrap 1>/dev/null
     then rlwrap ${DST}/main $*
-    else ${DST}/main
+    else ${DST}/main $*
 fi

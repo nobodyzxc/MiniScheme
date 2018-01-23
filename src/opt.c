@@ -54,7 +54,10 @@ Obj set_clos(Obj clos , Obj args , Obj body){
 }
 
 Obj find_tail(Obj , Obj , Obj);
-/* tail call opt */
+
+/* tail call opt ,
+ * build_tail rely on gcc's TCO XD ,
+ * or I need rewrite it to loop */
 Obj build_tail(Obj clos , Obj expr , Obj env){
     if(expr == NULL)
         return set_clos(clos , NULL , NULL);

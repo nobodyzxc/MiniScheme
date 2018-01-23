@@ -1,5 +1,5 @@
 CXX = gcc
-FLAG = -g -O3 -DSHARE_BUFFER -DTCO_OPT
+FLAG = -g -O3 -DSHARE_BUFFER -DTCO_OPT -lm
 # if -DTCO_OPT , -O3 must be add , too.
 MAIN     = main
 _MAIN    = ${MAIN:%=%.c}
