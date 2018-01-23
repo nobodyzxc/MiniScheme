@@ -9,6 +9,7 @@
 #define cadddr(p) (car(cdr(cdr(cdr(p)))))
 #define caar(p) (car(car(p)))
 #define caaar(p) (car(car(car(p))))
+#define cadar(p) (car(cdr(car(p))))
 #define cdar(p) (cdr(car(p)))
 #define cdaar(p) (cdr(car(car(p))))
 

@@ -41,7 +41,7 @@ Obj  add_symbol(Obj sym , Obj val , Obj env_obj){
     return (Obj)err;
 }
 
-Obj lookup_symbol(char *symstr , Obj env_obj){
+Obj search_symbol(char *symstr , Obj env_obj){
     while(env_obj){
         Symtree iter = env_obj->env->symtab;
         while(iter){
@@ -51,8 +51,14 @@ Obj lookup_symbol(char *symstr , Obj env_obj){
         }
         env_obj = env_obj->env->parent;
     }
-    printf("lookup_symbol : cannot find symbol \"%s\"\n" , symstr);
     return (Obj)err;
+}
+
+Obj lookup_symbol(char *symstr , Obj env_obj){
+    Obj rtn = search_symbol(symstr , env_obj);
+    if(rtn == err)
+        printf("lookup_symbol : cannot find symbol \"%s\"\n" , symstr);
+    return rtn;
 }
 
 Obj lookup_symenv(char *symstr , Obj env_obj){
@@ -76,9 +82,6 @@ Obj lookup_symenv(char *symstr , Obj env_obj){
 
 void init_buildins(){
     glenv = new(ENV , NULL);
-    BIND(FUNCTION , "cons"         , &apply_cons         , glenv);
-    BIND(FUNCTION , "apply"        , &apply_apply        , glenv);
-    BIND(FUNCTION , "null?"        , &apply_nullq        , glenv);
     BIND(FUNCTION , "+"            , &apply_add          , glenv);
     BIND(FUNCTION , "*"            , &apply_mul          , glenv);
     BIND(FUNCTION , "-"            , &apply_sub          , glenv);
@@ -91,33 +94,37 @@ void init_buildins(){
     BIND(FUNCTION , ">="           , &apply_get          , glenv);
     BIND(FUNCTION , "mod"          , &apply_mod          , glenv);
     BIND(FUNCTION , "not"          , &apply_not          , glenv);
+    BIND(FUNCTION , "cons"         , &apply_cons         , glenv);
     BIND(FUNCTION , "car"          , &apply_car          , glenv);
     BIND(FUNCTION , "cdr"          , &apply_cdr          , glenv);
     BIND(FUNCTION , "length"       , &apply_length       , glenv);
+    BIND(FUNCTION , "apply"        , &apply_apply        , glenv);
 
     BIND(FUNCTION , "display"      , &apply_display      , glenv);
     BIND(FUNCTION , "source"       , &apply_source       , glenv);
+    BIND(FUNCTION , "system"       , &apply_system       , glenv);
     BIND(FUNCTION , "void"         , &apply_void         , glenv);
     BIND(FUNCTION , "void?"        , &apply_voidq        , glenv);
     BIND(FUNCTION , "symbol?"      , &apply_symbolq      , glenv);
-    BIND(FUNCTION , "pair?"        , &apply_pairq        , glenv);
-    BIND(FUNCTION , "list?"        , &apply_listq        , glenv);
+    BIND(FUNCTION , "boolean?"     , &apply_booleanq     , glenv);
     BIND(FUNCTION , "number?"      , &apply_numberq      , glenv);
     BIND(FUNCTION , "string?"      , &apply_stringq      , glenv);
     BIND(FUNCTION , "exact?"       , &apply_exactq       , glenv);
     BIND(FUNCTION , "integer?"     , &apply_integerq     , glenv);
+    BIND(FUNCTION , "pair?"        , &apply_pairq        , glenv);
+    BIND(FUNCTION , "null?"        , &apply_nullq        , glenv);
+    BIND(FUNCTION , "list?"        , &apply_listq        , glenv);
+    BIND(FUNCTION , "procedure?"   , &apply_procedureq   , glenv);
     BIND(FUNCTION , "closure?"     , &apply_closureq     , glenv);
     BIND(FUNCTION , "env?"         , &apply_envq         , glenv);
-
-    BIND(FUNCTION , "boolean?"     , &apply_booleanq     , glenv);
-    BIND(FUNCTION , "procedure?"   , &apply_procedureq   , glenv);
     BIND(FUNCTION , "eq?"          , &apply_eqq          , glenv);
     BIND(FUNCTION , "eqv?"         , &apply_eqvq         , glenv);
     BIND(FUNCTION , "equal?"       , &apply_equalq       , glenv);
+
     BIND(FUNCTION , "read"         , &apply_read         , glenv);
 
     lambda_symbol =
-    BIND(SYNTAX   , "lambda"       , &apply_lambda       , glenv);
+        BIND(SYNTAX   , "lambda"       , &apply_lambda       , glenv);
     BIND(SYNTAX   , "if"           , &apply_if           , glenv);
     BIND(SYNTAX   , "quote"        , &apply_quote        , glenv);
     BIND(SYNTAX   , "define"       , &apply_define       , glenv);
@@ -130,6 +137,8 @@ void init_buildins(){
     BIND(FUNCTION , "exit"         , &apply_exit         , glenv);
     BIND(FUNCTION , "flush-output" , &apply_flush_output , glenv);
     BIND(FUNCTION , "get-env"      , &apply_get_env      , glenv);
+    BIND(FUNCTION , "get-curenv"   , &apply_get_curenv   , glenv);
+    BIND(FUNCTION , "lookup-symbol", &apply_lookup_symbol, glenv);
 
     add_symbol(new(SYMBOL , strdup("global")) , glenv    , glenv);
 }

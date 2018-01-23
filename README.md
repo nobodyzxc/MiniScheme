@@ -20,6 +20,17 @@ zekin is a naive scheme interpreter wrote in C.
           -h     display the help information
 ```
 
+### Goals
+
+> Provide some interesting functions to observe the ecology
+
+> Do some interesting optimizations
+(symbol , gc , TCO , any opt about speed and space)
+
+> System calls
+
+> Macro
+
 ### Final Goal :
 
 > Run repl.ss by using zekin
@@ -33,7 +44,7 @@ zekin is a naive scheme interpreter wrote in C.
       (f 100000) ; Can I opt it to tail call? (Do I need CPS?)
    ```
    3. add let family , `let*` , `letrec` ...
-   4. figureout `syntax-rules` and improve(rewrite) macro
+   4. figureout `syntax-rules` and improve ( rewrite ) macro
 
 ### Feature :
 
@@ -292,6 +303,21 @@ zekin is a naive scheme interpreter wrote in C.
    (get-env clos) -> env?
    clos : closure?
 ```
+```scheme
+   (get-curenv v ...) -> env?
+   v : any/c
+```
+```scheme
+   (lookup-symbol sym env) -> any
+   sym : symbol?
+   env : env?
+```
+```scheme
+   (system cmd) -> void?
+   cmd : string?
+```
+
+
 
 #### Library Functions
 

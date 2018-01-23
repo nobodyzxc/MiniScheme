@@ -1,3 +1,4 @@
+CUR=`pwd`
 DST=`dirname $0`
 if [ -f ${DST}/src/main.c ]; then
     DST=${DST}/src
@@ -7,7 +8,10 @@ elif [ ! -f ${DST}/main.c ]; then
 fi
 
 if [ ! -f ${DST}/main ]; then
-    cd $DST ; make
+    make -C${DST}
 fi
-cd $DST 2>/dev/null
-if command -v rlwrap 1>/dev/null;then rlwrap ./main $*;else ./main;fi
+
+if command -v rlwrap 1>/dev/null
+    then rlwrap ${DST}/main $*
+    else ${DST}/main
+fi

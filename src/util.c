@@ -66,13 +66,18 @@ void detail(Obj obj){
         printf("<macro ");
         print_obj(obj->mac->keyws);
         printf(" . ");
-        print_obj(obj->mac->rules);
+        for(Obj it = obj->mac->rules ;
+                iterable(it) ; it = cdr(it)){
+            falert(stdout , "\n  (" , caar(it));
+            falert(stdout , "\n    " , cadar(it));
+            printf(")");
+        }
         printf(">");
     }
     else if(obj && obj->type == ENV){
         puts("================ENV================");
         print_symtree(obj->env->symtab);
-        printf("=================================");
+        printf("===================================");
     }
     else{
         print_obj(obj);

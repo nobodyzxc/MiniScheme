@@ -2,6 +2,9 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <libgen.h>
+
 #include "mem.h"
 #include "type.h"
 #include "proc.h"
@@ -46,11 +49,24 @@ void repl(bool repl_p , bool auto_gc){
     clear_buf();
 }
 
-bool load_script(char *name){
+void path_error(char *name){
+    char cwd[1024];
+    getcwd(cwd , sizeof(cwd));
+    if(name[0] == '/')
+        fprintf(stderr , "cannot load %s\n" , name);
+    else if(name[0] == '.' && name[1] == '/')
+        fprintf(stderr , "cannot load %s/%s\n" , cwd , name + 2);
+    else
+        fprintf(stderr , "cannot load %s/%s\n" , cwd , name);
+}
+
+bool load_script(char *name , bool log){
     FILE *prev_stream = stream;
     bool succ = stream = fopen(name , "r");
     if(stream)
         repl(false , false) , fclose(stream);
+    else if(log)
+        path_error(name);
     stream = prev_stream;
     return succ;
 }
@@ -84,14 +100,22 @@ int handle_flags(int argc , char *argv[]){
             }
             exit(0);
         }
-        else load_script(argv[i]);
+        else load_script(argv[i] , true);
     }
+}
+
+char *get_extname(char *path){
+    static char name[300];
+    sprintf(name ,
+            "%s/" EXTENSION ,
+            dirname(path));
+    return name;
 }
 
 int main(int argc , char *argv[]){
     stream = stdin;
     init_buildins();
-    bool succ = load_script(EXTENSION);
+    bool succ = load_script(get_extname(argv[0]) , false);
     if(argc == 1)
         interpret = true;
     else

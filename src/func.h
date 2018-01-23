@@ -6,6 +6,7 @@
 Obj apply_gc(Obj pr , Obj env);
 Obj apply_exit(Obj pr , Obj env);
 Obj apply_source(Obj pr , Obj env);
+Obj apply_system(Obj pr , Obj env);
 Obj apply_apply(Obj pr , Obj env);
 Obj apply_nullq(Obj pr , Obj env);
 Obj apply_not(Obj pr , Obj env);
@@ -44,5 +45,7 @@ Obj apply_get(Obj pr , Obj env);
 Obj apply_read(Obj pr , Obj env);
 
 Obj apply_get_env(Obj args , Obj env);
+Obj apply_get_curenv(Obj args , Obj env);
+Obj apply_lookup_symbol(Obj args , Obj env);
 Obj apply_clos(Obj pcr , Obj args , Obj env);
 #endif

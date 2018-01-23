@@ -143,12 +143,20 @@ Obj apply_source(Obj args , Obj env){
         alert("source : only accepts 1 arg , got " , args);
     else if(car(args)->type != STRING)
         puts("source file name must be string");
-    else if(load_script(car(args)->str)){
+    else if(load_script(car(args)->str , true)){
         stdin_printf("ok , \"%s\" loaded\n" , car(args)->str);
         return NULL;
     }
-    else
-        printf("cannot load \"%s\"\n" , car(args)->str);
+    return (Obj)err;
+}
+
+Obj apply_system(Obj args , Obj env){
+    if(length(args) != 1)
+        alert("system : only accepts 1 arg , got " , args);
+    else if(car(args)->type != STRING)
+        puts("system : command must be string");
+    else if(!system(car(args)->str))
+            return NULL;
     return (Obj)err;
 }
 
@@ -179,6 +187,27 @@ Obj apply_get_env(Obj args , Obj env){
     return (Obj)err;
 }
 
+Obj apply_get_curenv(Obj args , Obj env){
+    return env;
+}
+
+Obj apply_lookup_symbol(Obj args , Obj env){
+    if(length(args) != 2)
+        alert("lookup-env : only accepts 2 arg , got " , args);
+    else if(!car(args) || car(args)->type != SYMBOL)
+        alert("lookup-env's 1st arg should be symbol , got " , car(args));
+    else if(!cadr(args) || cadr(args)->type != ENV)
+        alert("lookup-env's 2nd arg should be environment , got " , cadr(args));
+    else{
+        Obj res = search_symbol(car(args)->str , cadr(args));
+        if(res != err)
+            return res;
+        else
+            alert("lookup-symbol : cannot found symbol" , car(args));
+    }
+    return (Obj)err;
+}
+
 Obj apply_flush_output(Obj args , Obj env){
     fflush(stdout);
     return NULL;
@@ -197,6 +226,8 @@ Obj apply_display(Obj args , Obj env){
         else if(car(args)->type == CLOSURE)
             detail(car(args));
         else if(car(args)->type == ENV)
+            detail(car(args));
+        else if(car(args)->type == MACRO)
             detail(car(args));
         else
             print_obj(car(args));
