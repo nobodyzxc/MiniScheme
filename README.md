@@ -7,7 +7,17 @@ zekin is a naive scheme interpreter wrote in C.
 ### Usage :
 ```shell
    chmod a+x zekin
-   ./zekin # will compile automatically
+
+   # compile automatically when first execution
+
+   ./zekin [ -e exprs | [ -i ] scripts | -h ]
+
+   COMMAND LINE OPTIONS
+          -e     eval expressions after the flag
+
+          -i     enter interactive mode after load scripts
+
+          -h     display the help information
 ```
 
 ### Final Goal :

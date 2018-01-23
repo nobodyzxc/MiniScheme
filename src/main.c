@@ -60,18 +60,27 @@ int handle_flags(int argc , char *argv[]){
     for(int i = 1 ; i < argc ; i++){
         if(EQS(argv[i] , "-i"))
             interpret = true;
+        else if(EQS(argv[i] , "-h")){
+            printf("%s [ -e exprs | [ -i ] scripts | -h ] \n\n"
+                    "COMMAND LINE OPTIONS\n"
+                    "       -e     eval expressions after the flag\n\n"
+                    "       -i     enter interactive mode after load scripts\n\n"
+                    "       -h     display the help information\n" ,
+                    argv[0]);
+            exit(0);
+        }
         else if(EQS(argv[i] , "-e")){
             if(i + 1 >= argc) puts("null expr") , exit(1);
-            for(int i = 0 ; i < argc ; i++){
-                for(int j = 0 ; j < strlen(argv[i]) ; j++)
-                    printf("%c -> %p\n" , argv[i][j] , &argv[i][j]);
-                puts("");
+            sprintf(glo_buffer , "");
+            for(++i ; i < argc ; i++){
+                sprintf(glo_buffer , "%s %s" ,
+                        glo_buffer , argv[i]);
             }
-
-            glo_bufptr = argv[i + 1];
+            glo_bufptr = glo_buffer;
             while(*glo_bufptr){
                 glo_bufptr = tokenize(glo_buffer , glo_bufptr , &tok);
-                print_obj(eval(parse(tok) , glenv));
+                Obj val = eval(parse(tok) , glenv);
+                if(val != err) alert("" , val);
             }
             exit(0);
         }
