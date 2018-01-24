@@ -222,7 +222,7 @@ Obj apply_display(Obj args , Obj env){
         if(!car(args)) /* handle void */
             print_obj(args);
         else if(car(args)->type == STRING)
-            print_esc(car(args)->str);
+            printf(car(args)->str);
         else if(car(args)->type == CLOSURE)
             detail(car(args));
         else if(car(args)->type == ENV)
@@ -289,7 +289,7 @@ Obj apply_eqnum(Obj args , Obj env){
             if(is_num(car(args)))
                 rtn &= cmp_num(head , car(args)) , args = cdr(args);
             else
-                return alert("apply = on non-number obj" , car(args));
+                return alert("apply = on non-number obj " , car(args));
         return new(BOOLEAN , rtn);
     }
     return (Obj)err;
@@ -358,17 +358,11 @@ Obj apply_read(Obj args , Obj env){
     FILE *prev_stream = stream;
     stream = stdin;
     Token tok = NULL;
-#ifdef SHARE_BUFFER
-    while(is_blank(*glo_bufptr)) glo_bufptr++;
-    if(!*glo_bufptr) glo_bufptr = NULL;
-    glo_bufptr = tokenize(glo_buffer ,
-            get_non_blank(glo_buffer , glo_bufptr) ,
-            &tok);
-#else
-    char buffer[300] , *p = NULL;
-    p = tokenize(buffer ,
-            get_non_blank(buffer , p) ,
-            &tok);
+    while(is_blank(*ctx_p)) ctx_p++;
+    if(!*ctx_p) ctx_p = NULL;
+    ctx_p = tokenize(get_non_blank(ctx_p) , &tok);
+#ifdef PURE_READ
+    clear_buffer();
 #endif
     Obj val = parse(tok);
     free_token(tok);
@@ -395,7 +389,7 @@ Obj apply_read(Obj args , Obj env){
         args = cdr(args); \
     } \
     for( ; args ; args = cdr(args)){ \
-        if(args->type == NIL) \
+        if(is_nil(args)) \
         break; \
         if(6 op 3 == 2 || 6 op 3 == 0){ \
             if(num_of(car(args)) == 0){ \

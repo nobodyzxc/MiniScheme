@@ -59,9 +59,9 @@ Obj find_tail(Obj , Obj , Obj);
  * build_tail rely on gcc's TCO XD ,
  * or I need rewrite it to loop */
 Obj build_tail(Obj clos , Obj expr , Obj env){
-    if(expr == NULL)
-        return set_clos(clos , NULL , NULL);
-    else if(is_selfeval(expr))
+    if(is_selfeval(expr))
+        return set_clos(clos , expr , NULL);
+    else if(is_symbol(expr))
         return set_clos(clos , eval(expr , env) , NULL);
     else if(is_pair(expr)){
         Obj app = car(expr) , args = cdr(expr);
@@ -70,10 +70,11 @@ Obj build_tail(Obj clos , Obj expr , Obj env){
 
         if(app == NULL)
             return set_clos(clos , alert("cannot not apply " , app) , NULL);
-        else if(app->type == SYNTAX) /* consider quote */
+        else if(app->type == SYNTAX) /* consider quote */{
             return app->proc->apply == apply_quote ?
                 set_clos(clos , cadr(expr) , NULL) :
                 build_tail(clos , app->proc->apply(args , env) , env);
+        }
 
         else if(app->type == MACRO)
             return build_tail(clos , apply_macro(app , args , env) , env);

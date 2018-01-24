@@ -134,9 +134,8 @@ Obj apply_macro(Obj macro , Obj args , Obj env){
             return expand(rule , args);
         }
     }
-    printf("cannot match any rule");
-    printf("\n > ") , detail(macro);
-    return alert("\n > " , args);
+    msgobj("cannot match any rule\n" , macro);
+    return alert("\n--> " , args);
 }
 
 Obj apply_if(Obj args , Obj env){
@@ -196,10 +195,11 @@ Obj apply_define(Obj args , Obj env){
 Obj apply_lambda(Obj args , Obj env){
     if(length(args) < 2)
         alert("lambda : accepts at least 2 args , got " , args);
-    else if(is_symbol(car(args)) || is_sympr(car(args)))
+    else if(is_symbol(car(args)) || is_sympr(car(args))){
         return new(CLOSURE ,
                 new(EXPR , NULL ,
                     car(args) , cdr(args)) , env);
+    }
     else
         alert("lambda args contains non-symbol atom : "
                 , car(args));

@@ -1,21 +1,17 @@
 CXX = gcc
-FLAG = -g -O3 -DSHARE_BUFFER -DTCO_OPT -lm
+FLAG = -g -O3
+LNKS = -lm -lreadline
+DEFS = -DTCO_OPT # -DSHARE_BUFFER
 # if -DTCO_OPT , -O3 must be add , too.
 MAIN     = main
 _MAIN    = ${MAIN:%=%.c}
 SRCS     = type token parse eval mem util proc func syntax gc opt
 _SRCS    = ${SRCS:%=%.c}
 _OBJS    = ${SRCS:%=%.o}
-TARGET   = main
+TARGET   = zekin
 
 all:
-	$(CXX) $(FLAG) -c $(_SRCS)
-	$(CXX) $(FLAG) -o $(TARGET) $(_MAIN) $(_OBJS)
-c:
-	gcc $(FLAG) -c $(_SRCS)
-	#gcc $(FLAG) -o $(TARGET) $(_MAIN) $(_OBJS)
-cc:
-	g++ $(FLAG) -c $(_SRCS)
-	g++ $(FLAG) -o $(TARGET) $(_MAIN) $(_OBJS)
+	$(CXX) $(FLAG) $(DEFS) -c $(_SRCS) $(LNKS)
+	$(CXX) $(FLAG) $(DEFS) -o $(TARGET) $(_MAIN) $(_OBJS) $(LNKS)
 clean:
 	rm -rf $(_OBJS) $(TARGET)

@@ -196,8 +196,7 @@ void free_symtree(Symtree tree){
 void free_obj(Obj obj){
     obj_count--;
     if(!obj) return;
-    if(obj->type == NIL)
-        return;
+    if(is_nil(obj)) return;
     if(obj->type == STRING || obj->type == SYMBOL)
         free(obj->str);
     else if(obj->type == EXPR)

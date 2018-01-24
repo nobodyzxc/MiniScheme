@@ -16,6 +16,27 @@ long long parse_integer(char *v){
     return atoll(v);
 }
 
+char *parse_str(char *beg , char *end){
+    // "abcde"
+    //  ^    ^ ya_strndup(v + 1 , strlen(v) - 2))
+    char *v =                    /* for \0 */
+        malloc(sizeof(char) * (end - beg) + 1);
+    char *p = v;
+    char *k = "abfnrtv\\'?\"" , *e = "\a\b\f\n\r\t\v\\\'\?\"";
+    /* todo : parse \n \x \e \U \u */
+    while(beg < end){
+        if(*beg == '\\'){
+            char *t = strchr(k , *(beg + 1));
+            if(t) *p = e[t - k] , beg++;
+            else *p = *beg;
+        }
+        else *p = *beg;
+        p++ , beg++;
+    }
+    *p = 0;
+    return v;
+}
+
 Obj new_lit(char *v){
     Obj obj;
     if(v[0] == '#') // not impl char yet
@@ -27,7 +48,7 @@ Obj new_lit(char *v){
             obj = new(DECIMAL , parse_decimal(v));
     }
     else if(v[0] == '"')
-        obj = new(STRING , ya_strndup(v + 1 , strlen(v) - 2));
+        obj = new(STRING , parse_str(v + 1 , v + strlen(v) - 1));
     else if(EQS(v , "nil"))
         obj = (Obj)nil;
     else if(EQS(v , "..."))

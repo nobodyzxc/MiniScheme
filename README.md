@@ -31,9 +31,24 @@ zekin is a naive scheme interpreter wrote in C.
 
 > Macro
 
+### Optional Goal
+
+> escape char in string (numberical , like \x \o ...)
+
+> more types , i.e. char , big number (8 byte current) , rational ...
+
+> string operations
+
+> support printf function
+
 ### Final Goal :
 
 > Run repl.ss by using zekin
+
+### Consider :
+
+   1. consider tco , when apply a closure ,
+      with non-lambda args , can I just update without new a env?
 
 ### Todo :
 
@@ -50,12 +65,10 @@ zekin is a naive scheme interpreter wrote in C.
 
    1. TCO
    2. naive macro expansion (may improve it after I finishing SICP)
-   3. lack of char type.
-   4. 8 bytes integer.
-   5. autoload some functions defed in lib.ss
-   6. weak error handling (maybe the last thing I'll do)
-   7. share buffer (`-DSHARE_BUFFER` in Makefile) or not share buffer
-   8. multi-line comment (`#| bala bala |#`)
+   3. autoload some functions defed in lib.ss
+   4. weak error handling (maybe the last thing I'll do)
+   5. multi-line comment (`#| bala bala |#`)
+   6. use GNU readline function in interative mode
 
 ###  Reference :
 

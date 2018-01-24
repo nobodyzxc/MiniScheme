@@ -36,9 +36,10 @@
 
 #define is_str(obj) ((obj) && (obj)->type == STRING)
 #define is_selfeval(expr) \
-    ((expr) && (expr)->type != PAIR)
-
-#define is_selfeval(expr) ((expr) && (expr)->type != PAIR)
+    ((!expr) || (expr == err) || \
+     ((expr) \
+      && (expr)->type != PAIR \
+      && (expr)->type != SYMBOL))
 
 enum types{
     BOOLEAN ,

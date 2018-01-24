@@ -84,17 +84,6 @@ void detail(Obj obj){
     }
 }
 
-void print_esc(char *str){
-    char *k = "abfnrtv\\'?" , *v = "\a\b\f\n\r\t\v\\\'\?";
-    while(*str){
-        if(*str == '\\' && strchr(k , *(str + 1)))
-            putchar(v[strchr(k , *(str + 1)) - k]) , str++;
-        else
-            putchar(*str);
-        *str++;
-    }
-}
-
 void print_symtree(Symtree tree){
     if(tree == NULL) return;
     print_symtree(tree->rt);
@@ -197,7 +186,7 @@ Obj zip_env(Obj syms , Obj args , Obj env){
 bool is_list(Obj pr){
     while(pr && pr->type == PAIR)
         pr = cdr(pr);
-    return pr && pr->type == NIL;
+    return is_nil(pr);
 }
 
 bool cmp_num(Obj a , Obj b){
@@ -274,8 +263,8 @@ void print_pair(kObj pr){
     return fprint_pair(stdout , pr);
 }
 
-void fprint_unesc_str(FILE *f , char* s){
-    char *k = "abfnrtv\\'?" , *v = "\a\b\f\n\r\t\v\\\'\?";
+void fprint_esc_str(FILE *f , char* s){
+    char *k = "abfnrtv\\'?\"" , *v = "\a\b\f\n\r\t\v\\\'\?\"";
     for(fprintf(f , "\"") ; *s ; s++)
         if(strchr(v , *s))
             fprintf(f , "\\%c" , k[strchr(v , *s) - v]);
@@ -301,8 +290,7 @@ void fprint_obj(FILE *s , kObj obj){
                 fprintf(s , "#\\%c" , obj->chr);
                 break;
             case STRING  :
-                fprint_unesc_str(s , obj->str);
-                //fprintf(s , "\"%s\"" , obj->str);
+                fprint_esc_str(s , obj->str);
                 break;
             case SYMBOL  :
                 fprintf(s , "'%s" , obj->str);

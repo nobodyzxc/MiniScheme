@@ -6,22 +6,43 @@
 #include <stdbool.h>
 #include <assert.h>
 
-char glo_buffer[SIZE];
-char *glo_bufptr;
+#include <readline/readline.h>
+#include <readline/history.h>
 
-char *tok_list(char *buffer , char *p , Token *phead , Token *ptail);
+#define max(a , b) (a > b ? a : b)
 
-void clear_buf(void){
-    memset(glo_buffer , 0 , sizeof(glo_buffer));
+char *buffer = NULL;
+char *ctx_p = NULL;
+
+char *tok_list(char *p , Token *phead , Token *ptail);
+
+void clear_buffer(void){
+    free(buffer);
+    buffer = NULL;
+    ctx_p = NULL;
 }
 
-char *input(char *buffer , const char *prompt , bool lock){
-    stdin_printf(prompt);
+char *input(const char *prompt , bool lock){
+
+    free(buffer);
+
+    rl_instream = stream;
+
+    FILE *prev_rl_outstream = rl_outstream;
+
+    rl_outstream = stream == stdin ? stdout : fopen("/dev/null", "w");
+
+
     if(lock)
-        while(!fgets(buffer , SIZE , stream));
+        while(!(buffer = readline(prompt)));
     else
-        if(!fgets(buffer , SIZE , stream)) return NULL;
-    buffer[strlen(buffer) - 1] = 0;
+        if(!(buffer = readline(prompt))) return NULL;
+
+    if(stream == stdin) add_history(buffer);
+    if(stream != stdin) fclose(rl_outstream);
+
+    rl_outstream = prev_rl_outstream;
+
     return buffer;
 }
 
@@ -76,14 +97,14 @@ bool is_multi_comnt(char *p){
 }
 
 /* Multi-line Comments #| |# */
-char *ignore_comnt(char *buffer , char *p){
+char *ignore_comnt(char *p){
     assert(p);
     if(!is_multi_comnt(p))
         error("unexpected token #*");
     p += 2;
     while(1){
         while(!(p = strstr(p , mulcmt_end)))
-            p = get_non_blank(buffer , p);
+            p = get_non_blank(p);
         if(is_tokch(*(p + strlen(mulcmt_end)))) break;
     }
     return p + strlen(mulcmt_end);
@@ -103,30 +124,30 @@ void add_token(char *p , Token *plast){
         (*plast) = new_tok;
 }
 
-char *get_non_blank(char* buffer , char *p){
+char *get_non_blank(char *p){
     while(p && *p && is_blank(*p)) p++;
     while(!p || !*p){
-        p = input(buffer , p ? "... " : "" , true);
+        p = input(p ? DESIRE_PAR_PROMPT : "" , true);
         while(*p && is_blank(*p)) p++;
     }
     return p;
 }
 
-char *add_quote(char* buffer , char *p , Token *plast){
+char *add_quote(char *p , Token *plast){
     if(*p != '\'')
         error("unmatched quote %s\n" , p);
     else
         p += 1;
 
-    p = get_non_blank(buffer , p);
+    p = get_non_blank(p);
 
     add_token(strdup("(") , plast);
     add_token(strdup("quote") , plast);
     if(*p == '(' || *p == '\''){
         if(*p == '(')
-            p = tok_list(buffer , p , &(*plast)->next , plast);
+            p = tok_list(p , &(*plast)->next , plast);
         else
-            p = add_quote(buffer , p , plast);
+            p = add_quote(p , plast);
     }
     else{
         char *s = p;
@@ -136,27 +157,51 @@ char *add_quote(char* buffer , char *p , Token *plast){
     return p;
 }
 
-char *tok_string(char* buffer , char *p , Token *phead , Token *ptail){
+char *salloc(char *str , int size){
+    char *re = malloc(sizeof(char) * size);
+    sprintf(re , str ? str : "") , free(str);
+    return re;
+}
+
+bool even_backslash(char* beg , char *end){
+    if(!end) return true;
+    int acc = 0;
+    for(char *p = end - 1 ; p >= beg ; p--)
+        if(*p == '\\') acc++;
+        else break;
+    return acc % 2 == 0;
+}
+
+char *tok_string(char *p , Token *phead , Token *ptail){
     if(*p != '"')
         error("parse string start with %c\n" , *p);
-    char *q = p , buf[SIZE];
-    while((q = strchr(q + 1 , '"')) && *(q - 1) == '\\');
+    char *q = p , *str = salloc(NULL , SIZE);
+    while(!even_backslash(p , (q = strchr(q + 1 , '"'))));
     if(q) add_token(ya_strndup(p , q - p + 1) , ptail) , p = q + 1;
     else{
-        int l = strlen(p) + 1;
-        if(l > SIZE)
-            error("exceed string limit\n");
-        sprintf(buf , "%s\n" , p);
+        int len = SIZE , l = strlen(p) + 1;
+                        /* + 1 for \n */
+        if(l > len){
+            str = salloc(str , max(len , l) + 100);
+            len = max(len , l) + 100;
+        }
+        sprintf(str , "%s\n" , p);
         while(1){
-            if(buf[l - 1] == '\n')
-                stdin_printf("... ");
-            if(l > SIZE)
-                error("exceed string limit : " xstr(SIZE) "\n");
-            else
-                buf[l] = read_char();
-            if(buf[l] == '"' && buf[l - 1] != '\\'){
-                add_token(ya_strndup(buf , l + 1) , ptail);
-                return input(buffer , "" , true);
+            if(str[l - 1] == '\n')
+                stdin_printf(DESIRE_STR_PROMPT);
+            if(l > len){
+                str = salloc(str , l + 100);
+                len = l + 100;
+            }
+            str[l] = read_char();
+            if(str[l] == '"' && str[l - 1] != '\\'){
+                str[l + 1] = 0;
+                add_token(str , ptail);
+                clear_buffer();
+                buffer = salloc(NULL , 300);
+                fgets(buffer , sizeof(char) * 300 , stream);
+                buffer[strlen(buffer) - 1] = 0;
+                return buffer;
             }
             l++;
         }
@@ -164,7 +209,7 @@ char *tok_string(char* buffer , char *p , Token *phead , Token *ptail){
     return p;
 }
 
-char *tok_atom(char* buffer , char *p , Token *phead , Token *ptail){
+char *tok_atom(char *p , Token *phead , Token *ptail){
     if(!p) return p;
     while(*p && is_blank(*p)) p++;
     token_t head
@@ -173,13 +218,13 @@ char *tok_atom(char* buffer , char *p , Token *phead , Token *ptail){
     if(is_paren_r(*p))
         error("unmatched paren while parsing atom\n");
     if(*p == '\'')
-        p = add_quote(buffer , p , &last);
+        p = add_quote(p , &last);
     else if(*p == ';')
         return strchr(p , '\0');
     else if(*p == '"')
-        p = tok_string(buffer , p , &head.next , &last);
+        p = tok_string(p , &head.next , &last);
     else if(is_multi_comnt(p))
-        p = ignore_comnt(buffer , p);
+        p = ignore_comnt(p);
     else{
         char *d = tokstr(p);
         add_token(ya_strndup(p , d - p) , &last);
@@ -190,7 +235,7 @@ char *tok_atom(char* buffer , char *p , Token *phead , Token *ptail){
     return p;
 }
 
-char *tok_list(char* buffer , char *p , Token *phead , Token *ptail){
+char *tok_list(char *p , Token *phead , Token *ptail){
     char hp = *p;
     if(!is_paren_l(*p))
         error("unmatched list %s\n" , p);
@@ -198,12 +243,12 @@ char *tok_list(char* buffer , char *p , Token *phead , Token *ptail){
     Token head , tail;
     head = tail = new_token(strdup("(") , NULL); //must use strdup
     while(1){
-        p = get_non_blank(buffer , p);
+        p = get_non_blank(p);
         switch(*p){
             case '(':
             case '[':
             case '{':
-                p = tok_list(buffer , p , &tail->next , &tail) - 1;
+                p = tok_list(p , &tail->next , &tail) - 1;
                 break;
             case ')':
             case ']':
@@ -215,7 +260,7 @@ char *tok_list(char* buffer , char *p , Token *phead , Token *ptail){
                 if(ptail) (*ptail) = tail;
                 return p + 1;
             default:
-                p = tok_atom(buffer , p , &tail->next , &tail) - 1;
+                p = tok_atom(p , &tail->next , &tail) - 1;
                 break;
         }
         p += 1;
@@ -230,12 +275,12 @@ void print_token(Token tok){
         printf(" %s %s" , tok->p , tok->next ? "," : " \n");
 }
 
-char *tokenize(char *buffer , char *p , Token *tok){
-    if(!*p) p = input(buffer , "> " , false);
+char *tokenize(char *p , Token *tok){
+    if(!*p) p = input("> " , false);
     Token head = NULL , t;
     while(*p && is_blank(*p)) p += 1;
-    if(*p == '(') p = tok_list(buffer , p , &head , NULL);
-    else if(*p) p = tok_atom(buffer , p , &head , NULL);
+    if(*p == '(') p = tok_list(p , &head , NULL);
+    else if(*p) p = tok_atom(p , &head , NULL);
     (*tok) = head;
     return p;
 }

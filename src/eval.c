@@ -4,6 +4,7 @@
 #include "func.h"
 #include "syntax.h"
 #include "opt.h"
+#include "util.h"
 
 #include <assert.h>
 
@@ -31,12 +32,13 @@ Obj eval_symbol(Obj val , Obj env){
 }
 
 Obj tco(Obj args , Obj clos , Obj env){
+
     Obj tail = new(CLOSURE ,
             new(EXPR , NULL ,
                 args , /* return args as tail call's Ans */
                 clos), /* contain tail call's pars & def */
             env);
-    bool is_tail = false;
+    //bool is_tail = false;
     while(clos && clos != err
             && clos_args(tail) != err
             && clos->type == CLOSURE){
@@ -44,9 +46,11 @@ Obj tco(Obj args , Obj clos , Obj env){
                 zip_env(
                     clos_args(clos) ,
                     clos_args(tail) ,
-                    is_tail ? clos_env(clos) :
-                    new(ENV , clos_env(clos))));
-        is_tail = clos == clos_body(tail);
+                    new(ENV , clos_env(clos))
+                    //is_tail && 0 ? clos_env(clos) :
+                    //new(ENV , clos_env(clos))
+                    ));
+        //is_tail = clos == clos_body(tail);
         clos = clos_body(tail);
     }
     if(clos && clos != err) alert("not a procedure : " , clos);
@@ -54,11 +58,11 @@ Obj tco(Obj args , Obj clos , Obj env){
 }
 
 Obj eval(Obj val , Obj env){
-    if(!val || val == err)
+    if(is_selfeval(val))
         return val;
-    else if(val->type == SYMBOL)
+    else if(is_symbol(val))
         return eval_symbol(val , env);
-    else if(val->type == PAIR){
+    else if(is_pair(val)){
         Obj app = car(val) , args = cdr(val);
         if(!is_list(args))
             return alert("func call should be list , got" , val);
@@ -95,5 +99,5 @@ Obj eval(Obj val , Obj env){
         }
         return alert("not a procedure : " , app);
     }
-    else return val;
+    return alert("cannot eval : " , val);
 }

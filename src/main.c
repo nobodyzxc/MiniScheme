@@ -26,15 +26,15 @@ bool is_shebang(char *p){
 void repl(bool repl_p , bool auto_gc){
     Token tok = NULL;
     bool first_line = true;
-    while((glo_bufptr && *glo_bufptr) || (glo_bufptr = input(glo_buffer , "> " , false))){
+    while((ctx_p && *ctx_p) || (ctx_p = input("> " , false))){
         if(first_line){
             first_line = false;
-            if(is_shebang(glo_bufptr)){
-                glo_bufptr = NULL;
+            if(is_shebang(ctx_p)){
+                ctx_p = NULL;
                 continue;
             }
         }
-        if(*glo_bufptr) glo_bufptr = tokenize(glo_buffer , glo_bufptr , &tok);
+        if(*ctx_p) ctx_p = tokenize(ctx_p , &tok);
         if(!tok) continue;
         //print_token(tok);
         Obj val = parse(tok);
@@ -46,7 +46,7 @@ void repl(bool repl_p , bool auto_gc){
         tok = NULL , val = NULL;
         if(auto_gc) auto_try_gc();
     }
-    clear_buf();
+    clear_buffer();
 }
 
 void path_error(char *name){
@@ -87,14 +87,14 @@ int handle_flags(int argc , char *argv[]){
         }
         else if(EQS(argv[i] , "-e")){
             if(i + 1 >= argc) puts("null expr") , exit(1);
-            sprintf(glo_buffer , "");
+            char expr[300];
+            sprintf(expr , "");
             for(++i ; i < argc ; i++){
-                sprintf(glo_buffer , "%s %s" ,
-                        glo_buffer , argv[i]);
+                sprintf(expr , "%s %s" , expr , argv[i]);
             }
-            glo_bufptr = glo_buffer;
-            while(*glo_bufptr){
-                glo_bufptr = tokenize(glo_buffer , glo_bufptr , &tok);
+            ctx_p = expr;
+            while(*ctx_p){
+                ctx_p = tokenize(ctx_p , &tok);
                 Obj val = eval(parse(tok) , glenv);
                 if(val != err) alert("" , val);
             }
