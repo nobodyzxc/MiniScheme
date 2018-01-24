@@ -1,4 +1,4 @@
 all:
-	$(MAKE) -C src all
+	@$(MAKE) -C src all
 clean:
-	$(MAKE) -C src clean
+	@$(MAKE) -C src clean

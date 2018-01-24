@@ -14,16 +14,17 @@
 #include "parse.h"
 #include "gc.h"
 
-#define EXTENSION "lib.ss"
 FILE *stream;
 bool interpret = false;
 
+char cwd[1024];
+char lib_logs[500];
 
 bool is_shebang(char *p){
     return p && *p && !strncmp(p , "#!" , 2);
 }
 
-void repl(bool repl_p , bool auto_gc){
+bool repl(bool repl_p , bool auto_gc){
     Token tok = NULL;
     bool first_line = true;
     while((ctx_p && *ctx_p) || (ctx_p = input("> " , false))){
@@ -36,38 +37,36 @@ void repl(bool repl_p , bool auto_gc){
         }
         if(*ctx_p) ctx_p = tokenize(ctx_p , &tok);
         if(!tok) continue;
-        //print_token(tok);
         Obj val = parse(tok);
         val = eval(val , glenv);
         if(repl_p && stream == stdin && val && val != err)
             print_obj(val) , printf("\n");
         //if(val == err) puts("  _(:з」∠)_  ");
         free_token(tok);
-        tok = NULL , val = NULL;
         if(auto_gc) auto_try_gc();
+        if(val == err) return false;
+        tok = NULL , val = NULL;
     }
     clear_buffer();
+    return true;
 }
 
 void path_error(char *name){
-    char cwd[1024];
-    getcwd(cwd , sizeof(cwd));
     if(name[0] == '/')
         fprintf(stderr , "cannot load %s\n" , name);
-    else if(name[0] == '.' && name[1] == '/')
-        fprintf(stderr , "cannot load %s/%s\n" , cwd , name + 2);
     else
-        fprintf(stderr , "cannot load %s/%s\n" , cwd , name);
+        fprintf(stderr , "cannot load %s\n" , name);
 }
 
 bool load_script(char *name , bool log){
     FILE *prev_stream = stream;
     bool succ = stream = fopen(name , "r");
     if(stream)
-        repl(false , false) , fclose(stream);
+        succ &= repl(false , false) , fclose(stream);
     else if(log)
         path_error(name);
     stream = prev_stream;
+    if(!succ) printf(" ... %s\n" , name);
     return succ;
 }
 
@@ -104,27 +103,48 @@ int handle_flags(int argc , char *argv[]){
     }
 }
 
-char *get_extname(char *path){
-    static char name[300];
-    sprintf(name ,
-            "%s/" EXTENSION ,
-            dirname(path));
-    free(path);
-    return name;
+void load_libraries(){
+    chdir(xstr(LIBPATH));
+    char lib_path[300];
+    char lib_name[100];
+    sprintf(lib_logs , "");
+    FILE *config = fopen(xstr(LIBPATH) xstr(LIBCONFIG) , "r");
+    if(config){
+        while(~fscanf(config , "%s" , lib_name)){
+            if(lib_name[0] == '#') continue;
+
+            sprintf(lib_path ,
+                    (lib_name[0] == '/' ?
+                     "%s" : xstr(LIBPATH) "%s")
+                    , lib_name);
+            sprintf(lib_logs , "%s (%s %s)" , lib_logs , lib_name ,
+                    load_script(lib_path , false) ? "loaded" : "failed");
+        }
+        fclose(config);
+    }
+    else puts("cannot load config file : " xstr(LIBPATH) xstr(LIBCONFIG));
+    chdir(cwd);
+}
+
+void show_logs(){
+    printf(lib_logs);
 }
 
 int main(int argc , char *argv[]){
+
+    getcwd(cwd , sizeof(cwd));
+
     stream = stdin;
     init_buildins();
-    bool succ = load_script(get_extname(strdup(argv[0])) , false);
+    load_libraries();
+
     if(argc == 1)
         interpret = true;
     else
         handle_flags(argc , argv);
     if(interpret){
         stdin_printf("Welcome to Zekin v1.0");
-        if(succ) stdin_printf(" (\"" EXTENSION "\" loaded)");
-        stdin_printf("\n");
+        show_logs() , puts("");
         repl(true , true); stdin_printf("\n");
     }
     return 0;
