@@ -4,9 +4,18 @@ To learn how to make an interpreter , I started the project.
 
 zekin is a naive scheme interpreter wrote in C.
 
+### Requirements :
+
+   1. GCC
+   2. [GNU Readline Library](https://tiswww.case.edu/php/chet/readline/rltop.html)
+
+### Install :
+```bash
+   make
+```
+
 ### Usage :
 ```shell
-   make
 
    ./zekin [ -e exprs | [ -i ] scripts | -h ]
 
