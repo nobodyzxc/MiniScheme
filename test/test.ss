@@ -40,9 +40,11 @@
 (display "> test 3 : TCO stack test\n")
 (define (tail acc it)
   (if (= it 0) acc (tail (+ acc it) (- it 1))))
+
 (print "(define (tail acc it)\n
   (if (= it 0) acc (tail (+ acc it) (- it 1))))")
-(print "(tail 0 10000) = " (tail 0 100000))
+
+(print "(tail 0 10000) = " (tail 0 10))
 
 (newline)
 

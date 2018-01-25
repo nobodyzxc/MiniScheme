@@ -43,12 +43,10 @@ char *input(const char *prompt , bool lock){
 
     rl_outstream = prev_rl_outstream;
 
+    if(buffer == NULL) puts("buffer NULL");
     return buffer;
 }
 
-char read_char(){
-    return getc(stream);
-}
 bool is_blank(char p){
     return p && strchr(" \n\r\t" , p) != NULL;
 }
@@ -170,38 +168,38 @@ bool even_backslash(char* beg , char *end){
     return acc % 2 == 0;
 }
 
+char read_char(){
+    return getc(stream);
+}
+
 char *tok_string(char *p , Token *phead , Token *ptail){
     if(*p != '"')
         error("invalid call tok_string %c\n" , *p);
-    char *q = p , *str = salloc(NULL , SIZE);
+    char *q = p;
     while(!even_backslash(p , (q = strchr(q + 1 , '"'))));
     if(q) add_token(ya_strndup(p , q - p + 1) , ptail) , p = q + 1;
     else{
-        int len = SIZE , l = strlen(p) + 1;
-        /* + 1 for \n */
-        if(l > len){
-            str = salloc(str , max(len , l) + 100);
-            len = max(len , l) + 100;
-        }
-        sprintf(str , "%s\n" , p);
+        int l = strlen(p);
+        int len = max(SIZE , l) + 100;
+        char *str = salloc(NULL , len);
+        sprintf(str , "%s" , p) , p = strchr(p , 0);
         while(1){
-            if(str[l - 1] == '\n')
-                stdin_printf(DESIRE_STR_PROMPT);
             if(l > len){
-                str = salloc(str , l + 100);
                 len = l + 100;
+                str = salloc(str , len);
             }
-            str[l] = read_char();
-            if(str[l] == '"' && str[l - 1] != '\\'){
+            if(!*p){
+                p = input(DESIRE_STR_PROMPT , false);
+                str[l] = '\n' , l++;
+                continue;
+            }
+            str[l] = *p;
+            if(str[l] == '"' && even_backslash(str , str + l)){
                 str[l + 1] = 0;
                 add_token(str , ptail);
-                clear_buffer();
-                buffer = salloc(NULL , 300);
-                fgets(buffer , sizeof(char) * 300 , stream);
-                buffer[strlen(buffer) - 1] = 0;
-                return buffer;
+                return p + 1;
             }
-            l++;
+            l++ , p++;
         }
     }
     return p;
