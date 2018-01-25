@@ -7,7 +7,7 @@
 
 #define SIZE 300
 
-#define DESIRE_STR_PROMPT "\".. "
+#define DESIRE_STR_PROMPT "___ "
 #define DESIRE_PAR_PROMPT "... "
 
 typedef struct token_tag *Token;
