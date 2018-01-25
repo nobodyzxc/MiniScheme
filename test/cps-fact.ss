@@ -4,4 +4,4 @@
         (fact (- n 1)
             (lambda (v)
                 (k (* v n))))))
-(fact 5 display)
+(fact 5 print)
