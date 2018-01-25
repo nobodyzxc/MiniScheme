@@ -100,5 +100,6 @@ Obj find_last_expr(Obj exprs , Obj env){
 }
 
 Obj find_tail(Obj clos , Obj body , Obj env){
+    if(env == err) return env;
     return build_tail(clos , find_last_expr(body , env) , env);
 }

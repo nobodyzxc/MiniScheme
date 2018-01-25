@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #define max(a , b) (a > b ? a : b)
 
+void print_short_pair(Obj obj);
+
 Obj lssym_rec(Obj ls , Obj sym){
     if(sym->type != SYMBOL) return NULL;
     for(Obj it = ls ; it &&
@@ -171,8 +173,9 @@ Obj zip_env(Obj syms , Obj args , Obj env){
     int argslen = length(args);
     if(isls && length(syms) != argslen ||
             !isls && pat_num(syms) > max(argslen , 1)){
-        printf("unmatch args: ") , print_obj(syms);
-        printf(" <- ") , print_obj(args) , error("");
+        printf("unmatched args: ") , print_short_pair(syms);
+        printf(" <- ") , print_short_pair(args) , puts("");
+        return (Obj)err;
     }
     while(syms->type == PAIR){
         add_symbol(car(syms), car(args), env);
@@ -327,6 +330,28 @@ void fprint_obj(FILE *s , kObj obj){
 
 void print_obj(kObj obj){
     return fprint_obj(stdout , obj);
+}
+
+void print_short_obj(Obj obj){
+    if(!is_pair(obj))
+        print_obj(obj);
+    else
+        print_short_pair(obj);
+}
+
+void print_short_pair(Obj obj){
+    /* assert is_list(obj)*/
+    int lim = 5;
+    printf("(");
+    while(lim && is_pair(obj)){
+        if(lim != 10)
+            printf(" ");
+        print_short_obj(car(obj));
+        lim-- , obj = cdr(obj);
+    }
+    if(lim == 0 && !is_nil(obj))
+        printf(" ...");
+    printf(")");
 }
 
 Obj alert(char *str , Obj obj){

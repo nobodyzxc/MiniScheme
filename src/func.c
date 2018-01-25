@@ -162,6 +162,21 @@ Obj apply_system(Obj args , Obj env){
     return (Obj)err;
 }
 
+Obj apply_eval(Obj args , Obj env){
+    int len = length(args);
+    if(len != 1 && len != 2)
+        alert("eval : accepts 1 to 2 args , got " , args);
+    else if(len == 2 && !is_env(cadr(args)))
+        alert("eval : second arg must be env , got " , cadr(args));
+    else if(len == 1)
+        return eval(car(args) , env);
+    else if(len == 2)
+        return eval(car(args) , cadr(args));
+    else
+        alert("cannot eval " , args);
+    return (Obj)err;
+}
+
 Obj apply_apply(Obj args , Obj env){
     if(length(args) != 2)
         alert("apply : only accepts 2 args , got " , args);

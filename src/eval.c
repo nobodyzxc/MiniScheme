@@ -51,7 +51,7 @@ Obj tco(Obj args , Obj clos , Obj env){
                     //new(ENV , clos_env(clos))
                     ));
         //is_tail = clos == clos_body(tail);
-        clos = clos_body(tail);
+        clos = tail == err ? tail : clos_body(tail);
     }
     if(clos && clos != err) alert("not a procedure : " , clos);
     return clos || args == err ? (Obj)err : clos_args(tail);

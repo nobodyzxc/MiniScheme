@@ -84,7 +84,7 @@ To learn how to make an interpreter , I started the project.
 >    (f 100000) ; Can I opt it to tail call? (Do I need CPS?)
 > ```
 >
-> 3. add let family , `let*` , `letrec` ...
+> 3. add let family , `let\*` , `letrec` ...
 >
 > 4. figureout `syntax-rules` and improve ( rewrite ) macro
 >
@@ -93,328 +93,135 @@ To learn how to make an interpreter , I started the project.
 
 ##  Reference :
 
-#### 1. Syntax Forms
+#### Primary
+```
+; operators
 
-> ```scheme
->    (if test-expr then-expr else-expr)
->    (if test-expr then-expr)
-> ```
-> ```scheme
->    'datum
->    (quote datum)
-> ```
-> ```scheme
->    (lambda params body ...)
->    params = (id ...)
->           | (id ... . rest-id)
->           | rest-id
-> ```
-> ```scheme
->    (define id expr)
->    (define (head args) body ...)
->    head = id
->         | (head args)
->    args = arg ...
->         | arg ... . rest-id
->     arg = arg-id
-> ```
-> ```scheme
->    (syntax-rules
->       (keywords ...)
->       (pattern template) ...)
->    pattern = (_ match ...)
->      match = keywords
->            | keywords ellipsis
->            | parameter
->            | parameter ellipsis
->            | (match ...)
->            | (match ...) ellipsis
->    ellipsis = ...
->    ; use define to binding syntax-rules
->    ; can ref lib.ss
-> ```
-> ```scheme
->    (set! id expr)
-> ```
-> ```scheme
->    (set-cdr! expr expr)
-> ```
-> ```scheme
->    (set-car! expr expr)
-> ```
+'%               : <procedure:%>
+'*               : <procedure:*>
+'+               : <procedure:+>
+'-               : <procedure:->
+'/               : <procedure:/>
+'mod             : <procedure:mod>
 
-### Macro Forms
+; boolean functions , predictors
 
-> ```scheme
->    (and expr ...)
-> ```
-> ```scheme
->    (or expr ...)
-> ```
-> ```scheme
->    (let ((id val-expr) ...) body ...+)
-> ```
-> ```scheme
->    (begin expr ...)
-> ```
-> ```scheme
->    (cond cond-clause ...)
->    cond-clause = (test-expr then-body ...)
->                | (else then-body ...)
->                | (test-expr => proc-expr)
->                | (test-expr)
->                | test-expr    ; my special define
-> ```
-> ```scheme
->    (case val-expr case-clause ...)
->    case-clause = ((datum ...) then-body ...))
->                | (else then-body ...)
-> ```
+'<               : <procedure:<>
+'<=              : <procedure:<=>
+'=               : <procedure:=>
+'>               : <procedure:>>
+'>=              : <procedure:>=>
+'eq?             : <procedure:eq?>
+'eqv?            : <procedure:eqv?>
+'equal?          : <procedure:equal?>
 
-### Built-in Functions
+'not             : <procedure:not>
+'env?            : <procedure:env?>
+'void?           : <procedure:void?>
+'null?           : <procedure:null?>
+'pair?           : <procedure:pair?>
+'list?           : <procedure:list?>
+'boolean?        : <procedure:boolean?>
+'symbol?         : <procedure:symbol?>
+'string?         : <procedure:string?>
+'exact?          : <procedure:exact?>
+'number?         : <procedure:number?>
+'integer?        : <procedure:integer?>
+'closure?        : <procedure:closure?>
+'procedure?      : <procedure:procedure?>
 
-> ```scheme
->    (void? v) -> boolean?
->    v : any/c
-> ```
-> ```scheme
->    (null? v) -> boolean?
->    v : any/c
-> ```
-> ```scheme
->    (pair? v) -> boolean?
->    v : any/c
-> ```
-> ```scheme
->    (list? v) -> boolean?
->    v : any/c
-> ```
-> ```scheme
->    (symbol? v) -> boolean?
->    v : any/c
-> ```
-> ```scheme
->    (number? v) -> boolean?
->    v : any/c
-> ```
-> ```scheme
->    (exact? v) -> boolean?
->    v : any/c
-> ```
-> ```scheme
->    (integer? v) -> boolean?
->    v : any/c
-> ```
-> ```scheme
->    (string? v) -> boolean?
->    v : any/c
-> ```
-> ```scheme
->    (procedure? v) -> boolean?
->    v : any/c
-> ```
-> ```scheme
->    (closure? v) -> boolean?
->    v : any/c
-> ```
-> ```scheme
->    (env? v) -> boolean?
->    v : any/c
-> ```
-> ```scheme
->    (eq? v1 v2) -> boolean?
->    v1 : any/c
->    v2 : any/c
-> ```
-> ```scheme
->    (eqv? v1 v2) -> boolean?
->    v1 : any/c
->    v2 : any/c
-> ```
-> ```scheme
->    (equal? v1 v2) -> boolean?
->    v1 : any/c
->    v2 : any/c
-> ```
-> ```scheme
->    (void z ...) -> void?
->    z : any/c
-> ```
-> ```scheme
->    (not v) -> boolean?
->    v : any/c
-> ```
-> ```scheme
->    (cons a d) -> pair?
->    a : any/c
->    d : any/c
-> ```
-> ```scheme
->    (car p) -> any/c
->    p : pair?
-> ```
-> ```scheme
->    (cdr p) -> any/c
->    p : pair?
-> ```
-> ```scheme
->    (length lst) -> integer?
->    lst : list?
-> ```
-> ```scheme
->    (= z w ...) -> boolean?
->    z : number?
->    w : number?
-> ```
-> ```scheme
->    (< x y ...) -> boolean?
->    x : number?
->    y : number?
-> ```
-> ```scheme
->    (> x y ...) -> boolean?
->    x : number?
->    y : number?
-> ```
-> ```scheme
->    (<= x y ...) -> boolean?
->    x : number?
->    y : number?
-> ```
-> ```scheme
->    (>= x y ...) -> boolean?
->    x : number?
->    y : number?
-> ```
-> ```scheme
->    (+ z ...) -> number?
->    z : number?
-> ```
-> ```scheme
->    (- z ...) -> number?
->    z : number?
-> ```
-> ```scheme
->    (* z ...) -> number?
->    z : number?
-> ```
-> ```scheme
->    (/ z ...) -> number?
->    z : number? ; cannot be zero
-> ```
-> ```scheme
->    (% z ...) -> number?
->    (mod z ...) -> number?
->    z : number? ; cannot be zero
-> ```
-> ```scheme
->    (display datum) -> void?
->    datum : any/c
-> ```
-> ```scheme
->    (source script) -> void?
->    script : string?
-> ```
-> ```scheme
->    (read) -> any/c
-> ```
-> ```scheme
->    (apply proc v) -> any
->    proc : procedure?
->    v : any/c
-> ```
-> ```scheme
->    (get-env clos) -> env?
->    clos : closure?
-> ```
-> ```scheme
->    (get-curenv v ...) -> env?
->    v : any/c
-> ```
-> ```scheme
->    (lookup-symbol sym env) -> any
->    sym : symbol?
->    env : env?
-> ```
-> ```scheme
->    (system cmd) -> void?
->    cmd : string?
-> ```
+; ctor , list
+
+'car             : <procedure:car>
+'cdr             : <procedure:cdr>
+'cons            : <procedure:cons>
+'void            : <procedure:void>
+'length          : <procedure:length>
 
 
+; environment
 
-### Library Functions
+'eval            : <procedure:eval>
+'apply           : <procedure:apply>
+'global          : <environment>
+'get-env         : <procedure:get-env>
+'get-curenv      : <procedure:get-curenv>
+'lookup-symbol   : <procedure:lookup-symbol>
 
-> ```scheme
->    (caar x)        (car (car x))
->    (cadr x)        (car (cdr x))
->    (cdar x)        (cdr (car x))
->    (cddr x)        (cdr (cdr x))
->    (caaar x)       (car (car (car x)))
->    (caadr x)       (car (car (cdr x)))
->    (cadar x)       (car (cdr (car x)))
->    (caddr x)       (car (cdr (cdr x)))
->    (cdaar x)       (cdr (car (car x)))
->    (cdadr x)       (cdr (car (cdr x)))
->    (cddar x)       (cdr (cdr (car x)))
->    (cdddr x)       (cdr (cdr (cdr x)))
->    (caaaar x)      (car (car (car (car x))))
->    (caaadr x)      (car (car (car (cdr x))))
->    (caadar x)      (car (car (cdr (car x))))
->    (caaddr x)      (car (car (cdr (cdr x))))
->    (cadaar x)      (car (cdr (car (car x))))
->    (cadadr x)      (car (cdr (car (cdr x))))
->    (caddar x)      (car (cdr (cdr (car x))))
->    (cadddr x)      (car (cdr (cdr (cdr x))))
->    (cdaaar x)      (cdr (car (car (car x))))
->    (cdaadr x)      (cdr (car (car (cdr x))))
->    (cdadar x)      (cdr (car (cdr (car x))))
->    (cdaddr x)      (cdr (car (cdr (cdr x))))
->    (cddaar x)      (cdr (cdr (car (car x))))
->    (cddadr x)      (cdr (cdr (car (cdr x))))
->    (cdddar x)      (cdr (cdr (cdr (car x))))
->    (cddddr x)      (cdr (cdr (cdr (cdr x))))
-> ```
-> ```scheme
->    (list e ...) -> list?
->    e : any/c
-> ```
-> ```scheme
->    append not ready yet
-> ```
-> ```scheme
->    (map proc e ...) -> any/c
->    proc : procedure?
->    e : list?
-> ```
-> ```scheme
->    (fold proc e) -> any/c
->    proc : procedure?
->    e : list?
-> ```
-> ```scheme
->    (filter proc e) -> any/c
->    proc : procedure?
->    e : list?
-> ```
-> ```scheme
->    (newline) -> void?
-> ```
-> ```scheme
->    (assoc v ls) -> (or/c pair? #f)
->    v : any/c
->    ls : list?
-> ```
-> ```scheme
->    (indexof v ls) -> integer?
->    v : any/c
->    ls : list?
-> ```
-> ```scheme
->    (range n) -> list?
->    n : integer?
-> ```
-> ```scheme
->    (print elt ...) -> void?
->    elt : any/c
-> ```
+; syntax
+
+'if              : <syntax:if>
+'quote           : <syntax:quote>
+'define          : <syntax:define>
+'lambda          : <syntax:lambda>
+'set!            : <syntax:set!>
+'set-car!        : <syntax:set-car!>
+'set-cdr!        : <syntax:set-cdr!>
+'syntax-rules    : <syntax:syntax-rules>
+
+; io , system
+
+'gc              : <procedure:gc>
+'exit            : <procedure:exit>
+'read            : <procedure:read>
+'source          : <procedure:source>
+'system          : <procedure:system>
+'display         : <procedure:display>
+'flush-output    : <procedure:flush-output>
+```
+
+#### Library
+```
+'or              : <macro>
+'and             : <macro>
+'cond            : <macro>
+'case            : <macro>
+'let             : <macro>
+'begin           : <macro>
+
+'caar            : <closure>
+'cadr            : <closure>
+'cdar            : <closure>
+'cddr            : <closure>
+'caaar           : <closure>
+'caadr           : <closure>
+'cadar           : <closure>
+'caddr           : <closure>
+'cdaar           : <closure>
+'cdadr           : <closure>
+'cddar           : <closure>
+'cdddr           : <closure>
+'caaaar          : <closure>
+'caaadr          : <closure>
+'caadar          : <closure>
+'caaddr          : <closure>
+'cadaar          : <closure>
+'cadadr          : <closure>
+'caddar          : <closure>
+'cadddr          : <closure>
+'cdaaar          : <closure>
+'cdaadr          : <closure>
+'cdadar          : <closure>
+'cdaddr　　　　　: <closure>
+'cddaar          : <closure>
+'cddadr          : <closure>
+'cdddar          : <closure>
+'cddddr          : <closure>
+
+'map             : <closure>
+'fold            : <closure>
+'filter          : <closure>
+
+'list            : <closure>
+'range           : <closure>
+'assoc           : <closure>
+'append          : <closure>
+'indexof         : <closure>
+
+'odd?            : <closure>
+'even?           : <closure>
+
+'show            : <closure>
+'print           : <closure>
+'newline         : <closure>
+```

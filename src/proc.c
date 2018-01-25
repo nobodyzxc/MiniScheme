@@ -9,7 +9,7 @@
 Obj lambda_symbol = NULL;
 
 #define LoR(node , v) \
-    (v < 0 ? &((node)->lt) : &((node)->rt))
+    (v > 0 ? &((node)->lt) : &((node)->rt))
 #define cmp_node(s , n) \
     (strcmp((s) , (n)->sym->str))
 
@@ -98,6 +98,7 @@ void init_buildins(){
     BIND(FUNCTION , "car"          , &apply_car          , glenv);
     BIND(FUNCTION , "cdr"          , &apply_cdr          , glenv);
     BIND(FUNCTION , "length"       , &apply_length       , glenv);
+    BIND(FUNCTION , "eval"         , &apply_eval         , glenv);
     BIND(FUNCTION , "apply"        , &apply_apply        , glenv);
 
     BIND(FUNCTION , "display"      , &apply_display      , glenv);
