@@ -23,5 +23,3 @@ all:
 	$(CXX) $(FLAG) $(DEFS) -o $(TARGET) $(_MAIN) $(_OBJS) $(LNKS)
 clean:
 	rm -rf $(_OBJS) $(TARGET)
-echo:
-	echo $(LIBPATH)
