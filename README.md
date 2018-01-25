@@ -49,11 +49,11 @@ To learn how to make an interpreter , I started the project.
 #### General :
 
 > 1. Macro
-
+>
 > 2. System calls
-
+>
 > 3. Provide some interesting functions to observe the ecology
-
+>
 > 4. Do some interesting optimizations
       (symbol , gc , TCO , any opt about speed and space)
 
@@ -61,13 +61,13 @@ To learn how to make an interpreter , I started the project.
 #### Optional :
 
 > 1. escape char in string (numberical , like \x \o ...)
-
+>
 > 2. more types , i.e. char , big number (8 byte current) , rational ...
-
+>
 > 3. string operations
-
+>
 > 4. support printf function
-
+>
 > 5. implement continuation
 
 #### Final :
@@ -77,17 +77,17 @@ To learn how to make an interpreter , I started the project.
 ## Todo :
 
 > 1. consider syntax expansion speed (cond vs if) [ done ]
-
+>
 > 2. consider the expressions below
 > ```scheme
 >    (define f (lambda (x) (if (= x 0) 0 (+ x (f (- x 1))))))
 >    (f 100000) ; Can I opt it to tail call? (Do I need CPS?)
 > ```
-
+>
 > 3. add let family , `let*` , `letrec` ...
-
+>
 > 4. figureout `syntax-rules` and improve ( rewrite ) macro
-
+>
 > 5. consider tco , when apply a closure ,
       with non-lambda args , can I just update without new a env?
 
@@ -108,25 +108,20 @@ To learn how to make an interpreter , I started the project.
 >    params = (id ...)
 >           | (id ... . rest-id)
 >           | rest-id
-
 > ```
 > ```scheme
 >    (define id expr)
 >    (define (head args) body ...)
-
 >    head = id
 >         | (head args)
-
 >    args = arg ...
 >         | arg ... . rest-id
-
 >     arg = arg-id
 > ```
 > ```scheme
 >    (syntax-rules
 >       (keywords ...)
 >       (pattern template) ...)
-
 >    pattern = (_ match ...)
 >      match = keywords
 >            | keywords ellipsis
@@ -134,9 +129,7 @@ To learn how to make an interpreter , I started the project.
 >            | parameter ellipsis
 >            | (match ...)
 >            | (match ...) ellipsis
-
 >    ellipsis = ...
-
 >    ; use define to binding syntax-rules
 >    ; can ref lib.ss
 > ```
@@ -166,7 +159,6 @@ To learn how to make an interpreter , I started the project.
 > ```
 > ```scheme
 >    (cond cond-clause ...)
-
 >    cond-clause = (test-expr then-body ...)
 >                | (else then-body ...)
 >                | (test-expr => proc-expr)
@@ -175,7 +167,6 @@ To learn how to make an interpreter , I started the project.
 > ```
 > ```scheme
 >    (case val-expr case-clause ...)
-
 >    case-clause = ((datum ...) then-body ...))
 >                | (else then-body ...)
 > ```
