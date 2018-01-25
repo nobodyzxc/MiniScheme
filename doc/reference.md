@@ -1,4 +1,4 @@
-#### 1. Syntax Forms
+### Syntax Forms
 
 > ```scheme
 >    (if test-expr then-expr else-expr)

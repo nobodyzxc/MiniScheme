@@ -121,12 +121,12 @@ To learn how to make an interpreter , I started the project.
 'null?           : <procedure:null?>
 'pair?           : <procedure:pair?>
 'list?           : <procedure:list?>
-'boolean?        : <procedure:boolean?>
-'symbol?         : <procedure:symbol?>
-'string?         : <procedure:string?>
 'exact?          : <procedure:exact?>
 'number?         : <procedure:number?>
 'integer?        : <procedure:integer?>
+'symbol?         : <procedure:symbol?>
+'string?         : <procedure:string?>
+'boolean?        : <procedure:boolean?>
 'closure?        : <procedure:closure?>
 'procedure?      : <procedure:procedure?>
 
