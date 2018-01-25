@@ -135,7 +135,7 @@ char *get_non_blank(char *p){
 
 char *add_quote(char *p , Token *plast){
     if(*p != '\'')
-        error("unmatched quote %s\n" , p);
+        error("invalid call add_quote %s\n" , p);
     else
         p += 1;
 
@@ -143,12 +143,10 @@ char *add_quote(char *p , Token *plast){
 
     add_token(strdup("(") , plast);
     add_token(strdup("quote") , plast);
-    if(*p == '(' || *p == '\''){
-        if(*p == '(')
-            p = tok_list(p , &(*plast)->next , plast);
-        else
-            p = add_quote(p , plast);
-    }
+    if(*p == '(')
+        p = tok_list(p , &(*plast)->next , plast);
+    else if(*p == '\'')
+        p = add_quote(p , plast);
     else{
         char *s = p;
         add_token(ya_strndup(s , (p = tokstr(p)) - s) , plast);
@@ -174,13 +172,13 @@ bool even_backslash(char* beg , char *end){
 
 char *tok_string(char *p , Token *phead , Token *ptail){
     if(*p != '"')
-        error("parse string start with %c\n" , *p);
+        error("invalid call tok_string %c\n" , *p);
     char *q = p , *str = salloc(NULL , SIZE);
     while(!even_backslash(p , (q = strchr(q + 1 , '"'))));
     if(q) add_token(ya_strndup(p , q - p + 1) , ptail) , p = q + 1;
     else{
         int len = SIZE , l = strlen(p) + 1;
-                        /* + 1 for \n */
+        /* + 1 for \n */
         if(l > len){
             str = salloc(str , max(len , l) + 100);
             len = max(len , l) + 100;
@@ -215,8 +213,12 @@ char *tok_atom(char *p , Token *phead , Token *ptail){
     token_t head
         = {.p = NULL , .next = NULL};
     Token last = &head;
-    if(is_paren_r(*p))
-        error("unmatched paren while parsing atom\n");
+    if(is_paren_r(*p)){
+        printf("unmatched paren while parsing atom\n");
+        (*phead) = head.next;
+        if(ptail) (*ptail) = last;
+        return NULL;
+    }
     if(*p == '\'')
         p = add_quote(p , &last);
     else if(*p == ';')
@@ -237,11 +239,11 @@ char *tok_atom(char *p , Token *phead , Token *ptail){
 
 char *tok_list(char *p , Token *phead , Token *ptail){
     char hp = *p;
-    if(!is_paren_l(*p))
-        error("unmatched list %s\n" , p);
-    p += 1;
     Token head , tail;
+    if(!is_paren_l(*p))
+        error("invalid call tok_list %s\n" , p);
     head = tail = new_token(strdup("(") , NULL); //must use strdup
+    p += 1;
     while(1){
         p = get_non_blank(p);
         switch(*p){
@@ -253,12 +255,18 @@ char *tok_list(char *p , Token *phead , Token *ptail){
             case ')':
             case ']':
             case '}':
-                if(*p != rev_paren(hp))
-                    error("unmatched paren %c , %c\n" , hp , *p);
-                add_token(ya_strndup(p , 1) , &tail);
-                (*phead) = head;
-                if(ptail) (*ptail) = tail;
-                return p + 1;
+                if(*p == rev_paren(hp)){
+                    add_token(strdup(")") , &tail);
+                    (*phead) = head;
+                    if(ptail) (*ptail) = tail;
+                    return p + 1;
+                }
+                else{
+                    printf("unmatched paren %c , %c\n" , hp , *p);
+                    (*phead) = head;
+                    if(ptail) (*ptail) = tail;
+                    return NULL;
+                }
             default:
                 p = tok_atom(p , &tail->next , &tail) - 1;
                 break;
@@ -279,8 +287,11 @@ char *tokenize(char *p , Token *tok){
     if(!*p) p = input("> " , false);
     Token head = NULL , t;
     while(*p && is_blank(*p)) p += 1;
-    if(*p == '(') p = tok_list(p , &head , NULL);
-    else if(*p) p = tok_atom(p , &head , NULL);
+    if(is_paren_l(*p))
+        p = tok_list(p , &head , NULL);
+    else if(*p)
+        p = tok_atom(p , &head , NULL);
+    if(p == NULL) free_token(head) , head = NULL;
     (*tok) = head;
     return p;
 }

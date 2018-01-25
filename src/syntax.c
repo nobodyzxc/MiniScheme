@@ -87,8 +87,10 @@ Obj substitute(Obj tml , Obj pat , Obj tab){
     for( ; iterable(tml) ; tml = cdr(tml)){
         Obj unit = car(tml);
         Obj next = is_nil(cdr(tml)) ? NULL : (cadr(tml));
-        if(next && next == eli && unit->type != SYMBOL)
-            error("ellipsis must follow a symbol in template");
+        if(next && next == eli && unit->type != SYMBOL){
+            puts("ellipsis must follow a symbol in template");
+            return (Obj) err;
+        }
         if(unit->type == PAIR){
             last->cdr = new(PAIR , new_cons(NULL , NULL));
             car(last->cdr) = substitute(unit , pat , tab);
@@ -96,7 +98,10 @@ Obj substitute(Obj tml , Obj pat , Obj tab){
         else if(next && next == eli){
             tml = cdr(tml); /* discard ... */
             Obj sub = lookup_symbol(unit->str , tab);
-            if(!sub) error("ellipsis must follow pat var");
+            if(!sub){
+                puts("ellipsis must follow pat var");
+                return (Obj) err;
+            }
             if(is_nil(sub)) continue;
             last->cdr = new(PAIR , new_cons(NULL , NULL));
             car(last->cdr) = car(sub);
@@ -178,7 +183,7 @@ Obj apply_define(Obj args , Obj env){
                         env) != err)
                     return NULL;
             else alert("define : id should only be"
-                    " followd by 1 expr"" , got" , expr);
+                    " followd by 1 expr"" , got " , expr);
         }
         else if(id->type == PAIR){ /* func short form */
             if(add_symbol(

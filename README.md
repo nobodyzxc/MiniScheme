@@ -236,7 +236,6 @@ To learn how to make an interpreter , I started the project.
 >    v1 : any/c
 >    v2 : any/c
 > ```
-
 > ```scheme
 >    (void z ...) -> void?
 >    z : any/c

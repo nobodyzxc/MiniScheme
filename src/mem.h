@@ -32,8 +32,6 @@ Obj new_MACRO(Obj keyws , Obj rules);
 //Cons copy_cons(Cons pr);
 
 void free_obj(Obj obj);
-void free_cons(Cons);
-void free_cons_shallow(Cons pr);
 void free_token(Token tok);
 
 long long get_obj_num();

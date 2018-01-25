@@ -393,8 +393,8 @@ Obj apply_read(Obj args , Obj env){
             rtn->decimal = car(args)->decimal; \
         } \
         else{ \
-            printf("cannot apply " xstr(op) " on non-number obj"); \
-            print_obj(car(args)); error("");\
+            printf("cannot apply " xstr(op) " on non-number obj "); \
+            return alert("" , car(args)); \
         } \
         args = cdr(args); \
     } \
@@ -407,8 +407,10 @@ Obj apply_read(Obj args , Obj env){
             return alert(" : arg cannot be zero , got " , car(args)); \
             } \
         } \
-        if(!is_num(car(args))) \
-        error("cannot apply " xstr(op) " on non-number obj"); \
+        if(!is_num(car(args))){ \
+            printf("cannot apply " xstr(op) " on non-number obj "); \
+            return alert("" , car(args)); \
+        } \
         else if(rtn->type == DECIMAL){ \
             HANDEL_DEC1(args , rtn , op , base) \
         } \
@@ -446,10 +448,14 @@ apply_opr(div , / , 1);
 #undef HANDEL_DEC1
 #undef HANDEL_DEC2
 #define HANDEL_DEC1(args , rtn , op , base) \
-    error("cannot apply %% on decimal");
+    { \
+        printf("cannot apply %% on decimal\n"); \
+        return (Obj) err; \
+    }
 #define HANDEL_DEC2(args , rtn , op , base) \
     else if(car(args)->type == DECIMAL){ \
-        error("cannot apply %% on decimal"); \
+        printf("cannot apply %% on decimal\n"); \
+        return (Obj) err; \
     }
 #define MOD
 apply_opr(mod , % , 1);

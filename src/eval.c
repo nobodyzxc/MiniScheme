@@ -65,7 +65,7 @@ Obj eval(Obj val , Obj env){
     else if(is_pair(val)){
         Obj app = car(val) , args = cdr(val);
         if(!is_list(args))
-            return alert("func call should be list , got" , val);
+            return alert("func call should be list , got " , val);
         else if(app->type == SYMBOL || app->type == PAIR){
 
             app = app->type == SYMBOL ?

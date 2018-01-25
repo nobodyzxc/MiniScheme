@@ -62,13 +62,14 @@ Obj new_lit(char *v){
 
 // <bool> | <num> | <symbol> | <list>
 Obj parse(Token tok){
+    if(!tok) puts("fuck") , exit(1);
     if(tok == NULL) return NULL;
-    Obj rtn;
+    Obj val;
     if(EQS(tok->p , "("))
-        parse_list(tok , &rtn);
+        parse_list(tok , &val);
     else
-        rtn = parse_listlit(tok);
-    return rtn;
+        val = parse_listlit(tok);
+    return val;
 }
 
 // <list-lit>       ::= <id> | <num> | <bool> |  ( <list-lit>* )
@@ -77,7 +78,7 @@ Obj parse_listlit(Token tok){
 }
 
 Token parse_list(Token tok , Obj *rtn){
-    bool last_elt = false;
+    bool is_pair = false;
     if(!EQS(tok->p , "("))
         error("parse %s as (" , tok->p);
     cons_t head;
@@ -85,31 +86,55 @@ Token parse_list(Token tok , Obj *rtn){
     tok = tok->next;
     while(tok && !EQS(tok->p , ")")){
         if(EQS(tok->p , ".")){
-            if(last_elt)
-                error("unexpected token: .\n");
-            last_elt = true;
+            if(pr == &head){
+                puts(". : need first elt");
+                *rtn = (Obj)err;
+                return tok;
+            }
             tok = tok->next;
-            continue;
+            if(EQS(tok->p , ")")){
+                puts(". : need second elt");
+                *rtn = (Obj)err;
+                return tok;
+            }
+            is_pair = true;
         }
-        if(last_elt) last_elt++;
-        if(last_elt > 2) error("expected one element after .\n");
         if(EQS(tok->p , "(")){
             Obj sublist;
             tok = parse_list(tok , &sublist);
-            pr->cdr = new(PAIR , new_cons(sublist , NULL));
+            if(sublist == err){
+                *rtn = (Obj)err;
+                return tok;
+            }
+            pr->cdr = is_pair ?  sublist :
+                new(PAIR , new_cons(sublist , NULL));
         }
         else{
-            if(last_elt)
-                pr->cdr = parse_listlit(tok);
-            else
-                pr->cdr = new(PAIR , new_cons(parse_listlit(tok) , NULL));
+            Obj lit = parse_listlit(tok);
+            if(lit == err){
+                *rtn = (Obj)err;
+                return tok;
+            }
+
+            pr->cdr = is_pair ? lit :
+                new(PAIR , new_cons(lit , NULL));
+
             tok = tok->next;
         }
         pr = pr->cdr->pair;
+        if(is_pair){
+            if(tok && EQS(tok->p , ")"))
+                break;
+            else{
+                puts(". : can only followed by 1 elt");
+                *rtn = (Obj)err;
+                return tok;
+            }
+        }
     }
-    if(!tok) error("miss )");
+    if(!tok) error("miss token : \")\"");
     else tok = tok->next;
-    if(!last_elt)
+    if(!is_pair)
         pr->cdr = (Obj)nil;
     (*rtn) = head.cdr;
     return tok;

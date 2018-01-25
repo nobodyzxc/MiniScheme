@@ -194,6 +194,8 @@ void free_symtree(Symtree tree){
 }
 
 void free_obj(Obj obj){
+    if(!obj || obj->mark == true)
+        return;
     obj_count--;
     if(!obj) return;
     if(is_nil(obj)) return;

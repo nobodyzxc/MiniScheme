@@ -25,7 +25,6 @@ bool is_shebang(char *p){
 }
 
 bool repl(bool repl_p , bool auto_gc){
-    Token tok = NULL;
     bool first_line = true;
     while((ctx_p && *ctx_p) || (ctx_p = input("> " , false))){
         if(first_line){
@@ -35,17 +34,18 @@ bool repl(bool repl_p , bool auto_gc){
                 continue;
             }
         }
+        Token tok = NULL;
         if(*ctx_p) ctx_p = tokenize(ctx_p , &tok);
         if(!tok) continue;
         Obj val = parse(tok);
-        val = eval(val , glenv);
-        if(repl_p && stream == stdin && val && val != err)
-            print_obj(val) , printf("\n");
-        //if(val == err) puts("  _(:з」∠)_  ");
         free_token(tok);
+        if(val != err){
+            val = eval(val , glenv);
+            if(repl_p && stream == stdin && val && val != err)
+                print_obj(val) , printf("\n");
+        }
         if(auto_gc) auto_try_gc();
         if(val == err) return false;
-        tok = NULL , val = NULL;
     }
     clear_buffer();
     return true;
@@ -121,7 +121,7 @@ void load_libraries(){
     chdir(xstr(LIBPATH));
     char lib_path[300];
     char lib_name[100];
-    sprintf(lib_logs , "");
+    sprintf(lib_logs , " [ ");
     FILE *config = fopen(xstr(LIBPATH) xstr(LIBCONFIG) , "r");
     if(config){
         while(~fscanf(config , "%s" , lib_name)){
@@ -133,12 +133,13 @@ void load_libraries(){
                     (lib_name[0] == '/' ?
                      "%s" : xstr(LIBPATH) "%s")
                     , lib_name);
-            sprintf(lib_logs , "%s (%s %s)" , lib_logs , lib_name ,
+            sprintf(lib_logs , "%s%s " , lib_logs , lib_name ,
                     load_script(lib_path , false) ? "loaded" : "failed");
         }
         fclose(config);
     }
     else puts("cannot load config file : " xstr(LIBPATH) xstr(LIBCONFIG));
+    sprintf(lib_logs , "%s] " , lib_logs);
     chdir(cwd);
 }
 
@@ -156,8 +157,10 @@ int main(int argc , char *argv[]){
         handle_flags(argc , argv);
     if(interpret){
         stdin_printf("Welcome to Zekin");
-        printf(lib_logs) , puts("");
-        repl(true , true); stdin_printf("\n");
+        printf("%s\n" , EQS(lib_logs , " [ ] ") ?
+                " [ primary ]" : lib_logs);
+        while(!repl(true , true));
+        stdin_printf("\n");
     }
     return 0;
 }

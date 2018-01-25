@@ -45,7 +45,6 @@ void mark(Obj obj){
 void sweep(){
     for(ObjList it = head , pre = NULL ;
             it ; pre = it , it = it->next){
-        //if(it->v->mark) it->v->mark = false;
         if(!it->v->mark){
             ObjList toFree = it;
             it = it->next;
@@ -54,7 +53,7 @@ void sweep(){
             free_obj(toFree->v) , free(toFree);
             if(pre) it = pre;
         }
-    } // todo
+    }
 }
 
 void unmark(){
@@ -90,8 +89,6 @@ void auto_try_gc(){
     if(before > pre_obj_num * 2){
         gc();
         long long after = get_obj_num();
-        //printf("auto gc end , %d obj cleared , %d obj left\n" ,
-        //        before - after , after);
         pre_obj_num = after;
     }
 }
