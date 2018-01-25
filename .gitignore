@@ -2,3 +2,5 @@
 *.o
 *.url
 *.*.stackdump
+obj
+
