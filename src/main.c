@@ -66,7 +66,7 @@ bool load_script(char *name , bool log){
     else if(log)
         path_error(name);
     stream = prev_stream;
-    if(!succ) printf(" ... %s\n" , name);
+    if(!succ) printf("\t     ... %s\n" , name);
     return succ;
 }
 
@@ -76,7 +76,7 @@ int handle_flags(int argc , char *argv[]){
         if(EQS(argv[i] , "-i"))
             interpret = true;
         else if(EQS(argv[i] , "-h")){
-            printf("usage: %s [-e exprs] [-h] [-i] [file ...]\n\n"
+            printf("usage: zekin [-h] [-v] [-l] [-e exprs] [-i] [file ...]\n\n"
                     "Yet another scheme interpreter\n\n"
                     "positional arguments:\n"
                     "   file   scheme script to run\n\n"
@@ -142,10 +142,6 @@ void load_libraries(){
     chdir(cwd);
 }
 
-void show_logs(){
-    printf(lib_logs);
-}
-
 int main(int argc , char *argv[]){
 
     getcwd(cwd , sizeof(cwd));
@@ -160,7 +156,7 @@ int main(int argc , char *argv[]){
         handle_flags(argc , argv);
     if(interpret){
         stdin_printf("Welcome to Zekin");
-        show_logs() , puts("");
+        printf(lib_logs) , puts("");
         repl(true , true); stdin_printf("\n");
     }
     return 0;

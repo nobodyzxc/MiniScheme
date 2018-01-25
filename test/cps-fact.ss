@@ -1,4 +1,3 @@
-
 (define (fact n k)
     (if (<= n 2)
         (k n)

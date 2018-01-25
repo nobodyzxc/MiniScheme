@@ -7,6 +7,8 @@
 #include "token.h"
 
 #include <math.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
 /* predictors */
 Obj apply_eqq(Obj args , Obj env){
@@ -355,6 +357,10 @@ Obj apply_procedureq(Obj args , Obj env){
 
 Obj apply_read(Obj args , Obj env){
     /* todo : input-port ? */
+    /* disable up down arrow key in read func */
+    rl_bind_keyseq("\\e[A" , rl_abort);
+    rl_bind_keyseq("\\e[B" , rl_abort);
+
     FILE *prev_stream = stream;
     stream = stdin;
     Token tok = NULL;
@@ -367,6 +373,10 @@ Obj apply_read(Obj args , Obj env){
     Obj val = parse(tok);
     free_token(tok);
     stream = prev_stream;
+
+    /* enable up down arrow key after read func */
+    rl_bind_keyseq("\\e[A" , rl_get_previous_history);
+    rl_bind_keyseq("\\e[B" , rl_get_next_history);
     return val;
 }
 
