@@ -76,16 +76,30 @@ int handle_flags(int argc , char *argv[]){
         if(EQS(argv[i] , "-i"))
             interpret = true;
         else if(EQS(argv[i] , "-h")){
-            printf("%s [ -e exprs | [ -i ] scripts | -h ] \n\n"
-                    "COMMAND LINE OPTIONS\n"
-                    "       -e     eval expressions after the flag\n\n"
-                    "       -i     enter interactive mode after load scripts\n\n"
-                    "       -h     display the help information\n" ,
-                    argv[0]);
+            printf("usage: %s [-e exprs] [-h] [-i] [file ...]\n\n"
+                    "Yet another scheme interpreter\n\n"
+                    "positional arguments:\n"
+                    "   file   scheme script to run\n\n"
+                    "optional arguments:\n"
+                    "   -i     run file interactively\n\n"
+                    "   -e     eval expressions and exit\n\n"
+                    "   -v     information about version\n\n"
+                    "   -l     show library path defined\n\n"
+                    "   -h     show this help message and exit\n" ,
+                    basename(argv[0]));
+            exit(0);
+        }
+        else if(EQS(argv[i] , "-v")){
+            printf("version : " xstr(VERSION) "\n");
+            exit(0);
+        }
+        else if(EQS(argv[i] , "-l")){
+            printf("library path  : " xstr(LIBPATH) "\n");
+            printf("configuration : " xstr(LIBPATH) xstr(LIBCONFIG) "\n");
             exit(0);
         }
         else if(EQS(argv[i] , "-e")){
-            if(i + 1 >= argc) puts("null expr") , exit(1);
+            if(i + 1 >= argc) exit(0); /* no expr to eval */
             char expr[300];
             sprintf(expr , "");
             for(++i ; i < argc ; i++){
@@ -111,8 +125,10 @@ void load_libraries(){
     FILE *config = fopen(xstr(LIBPATH) xstr(LIBCONFIG) , "r");
     if(config){
         while(~fscanf(config , "%s" , lib_name)){
-            if(lib_name[0] == '#') continue;
-
+            if(lib_name[0] == '#'){
+                fgets(lib_name , sizeof(lib_name) , config);
+                continue;
+            }
             sprintf(lib_path ,
                     (lib_name[0] == '/' ?
                      "%s" : xstr(LIBPATH) "%s")
@@ -143,7 +159,7 @@ int main(int argc , char *argv[]){
     else
         handle_flags(argc , argv);
     if(interpret){
-        stdin_printf("Welcome to Zekin v1.0");
+        stdin_printf("Welcome to Zekin");
         show_logs() , puts("");
         repl(true , true); stdin_printf("\n");
     }
