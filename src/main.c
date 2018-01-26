@@ -5,6 +5,9 @@
 #include <unistd.h>
 #include <libgen.h>
 
+#include <readline/readline.h>
+#include <readline/history.h>
+
 #include "mem.h"
 #include "type.h"
 #include "proc.h"
@@ -14,11 +17,51 @@
 #include "parse.h"
 #include "gc.h"
 
-FILE *stream;
+FILE *main_str;
 bool interpret = false;
 
 char cwd[1024];
 char lib_logs[500];
+char *buffer = NULL;
+char *ctx_p = NULL;
+
+char *raw_input(char *prompt){
+
+    free(buffer);
+
+    rl_instream = main_str;
+
+    FILE *prev_rl_outstream = rl_outstream;
+
+    rl_outstream = main_str == stdin ? stdout : fopen("/dev/null", "w");
+
+    if(!(buffer = readline(prompt))) return NULL;
+
+    if(main_str == stdin) add_history(buffer);
+    if(main_str != stdin) fclose(rl_outstream);
+
+    rl_outstream = prev_rl_outstream;
+
+    if(buffer == NULL) puts("buffer NULL");
+    return buffer;
+}
+
+char *non_blank(char *p , char *prompt){
+    while(p && *p && is_blank(*p)) p++;
+    while(!p || !*p){
+        p = raw_input(prompt);
+        if(p == NULL) return NULL;
+        while(*p && is_blank(*p)) p++;
+    }
+    return p;
+}
+
+void clear_buffer(void){
+    free(buffer);
+    buffer = NULL;
+    ctx_p = NULL;
+}
+
 
 bool is_shebang(char *p){
     return p && *p && !strncmp(p , "#!" , 2);
@@ -26,7 +69,7 @@ bool is_shebang(char *p){
 
 bool repl(bool repl_p , bool auto_gc){
     bool first_line = true;
-    while((ctx_p && *ctx_p) || (ctx_p = input("> " , false))){
+    while((ctx_p && *ctx_p) || (ctx_p = raw_input("> "))){
         if(first_line){
             first_line = false;
             if(is_shebang(ctx_p)){
@@ -35,13 +78,20 @@ bool repl(bool repl_p , bool auto_gc){
             }
         }
         Token tok = NULL;
-        if(*ctx_p) ctx_p = tokenize(ctx_p , &tok);
-        if(!tok) continue;
+        if(*ctx_p){
+            tok_raw_input = raw_input;
+            tok_non_blank = non_blank;
+            ctx_p = tokenize(ctx_p , &tok);
+        }
+        if(!tok){
+            if(ctx_p) continue;
+            else return false;
+        }
         Obj val = parse(tok);
         free_token(tok);
         if(val != err){
             val = eval(val , glenv);
-            if(repl_p && stream == stdin && val && val != err)
+            if(repl_p && main_str == stdin && val && val != err)
                 print_obj(val) , printf("\n");
         }
         if(auto_gc) auto_try_gc();
@@ -59,13 +109,13 @@ void path_error(char *name){
 }
 
 bool load_script(char *name , bool log){
-    FILE *prev_stream = stream;
-    bool succ = stream = fopen(name , "r");
-    if(stream)
-        succ &= repl(false , false) , fclose(stream);
+    FILE *prev_stream = main_str;
+    bool succ = main_str = fopen(name , "r");
+    if(main_str)
+        succ &= repl(false , false) , fclose(main_str);
     else if(log)
         path_error(name);
-    stream = prev_stream;
+    main_str = prev_stream;
     if(!succ) printf("\t     ... %s\n" , name);
     return succ;
 }
@@ -107,6 +157,8 @@ int handle_flags(int argc , char *argv[]){
             }
             ctx_p = expr;
             while(*ctx_p){
+                tok_raw_input = raw_input;
+                tok_non_blank = non_blank;
                 ctx_p = tokenize(ctx_p , &tok);
                 Obj val = eval(parse(tok) , glenv);
                 if(val != err) alert("" , val);
@@ -145,9 +197,9 @@ void load_libraries(){
 
 int main(int argc , char *argv[]){
 
+    main_str = stdin;
     getcwd(cwd , sizeof(cwd));
 
-    stream = stdin;
     init_buildins();
     load_libraries();
 

@@ -10,6 +10,10 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
+char *cnt_p = NULL;
+char *contnt = NULL;
+FILE *read_str;
+
 /* predictors */
 Obj apply_eqq(Obj args , Obj env){
     if(length(args) != 2)
@@ -158,7 +162,7 @@ Obj apply_system(Obj args , Obj env){
     else if(car(args)->type != STRING)
         puts("system : command must be string");
     else if(!system(car(args)->str))
-            return NULL;
+        return NULL;
     return (Obj)err;
 }
 
@@ -320,7 +324,7 @@ Obj apply_eqnum(Obj args , Obj env){
             for( ; iterable(args) && not_nil(cdr(args)) ; \
                     args = cdr(args)) \
             if(!(num_of(car(args)) op num_of(cadr(args)))) \
-                return (Obj)false_obj; \
+            return (Obj)false_obj; \
             return (Obj)true_obj; \
         } \
         return (Obj)err; \
@@ -370,28 +374,70 @@ Obj apply_procedureq(Obj args , Obj env){
     return (Obj)err;
 }
 
+#define RDSIZE 300
+char *handled_raw_input(char *raw){
+    char *p = raw;
+    while(*p){
+        if(*p == '\033'){
+            *p = ' ';
+            *(p + 1) = ' ';
+            *(p + 2) = ' ';
+            p += 2; /* replace arrow key "\033[A"*/
+        }
+        p++;
+    }
+    return raw;
+}
+
+char *read_raw_input(char *prompt){
+    free(contnt);
+    cnt_p = contnt = (char*)malloc(sizeof(char) * RDSIZE);
+    if(!fgets(contnt , RDSIZE , read_str)){
+        free(contnt);
+        return contnt = cnt_p = NULL;
+    }
+    contnt[strlen(contnt) - 1] = 0;
+    return handled_raw_input(contnt);
+}
+
+char *read_non_blank(char *p , char *prompt){
+    while(p && *p && is_blank(*p)) p++;
+    while(!p || !*p){
+        p = read_raw_input(prompt);
+        if(p == NULL) return NULL;
+        while(*p && is_blank(*p)) p++;
+    }
+    return p;
+}
+
 Obj apply_read(Obj args , Obj env){
     /* todo : input-port ? */
     /* disable up down arrow key in read func */
-    rl_bind_keyseq("\\e[A" , rl_abort);
-    rl_bind_keyseq("\\e[B" , rl_abort);
+    FILE *prev_str = read_str;
+    /* default stdin */
+    read_str = stdin;
 
-    FILE *prev_stream = stream;
-    stream = stdin;
     Token tok = NULL;
-    while(is_blank(*ctx_p)) ctx_p++;
-    if(!*ctx_p) ctx_p = NULL;
-    ctx_p = tokenize(get_non_blank(ctx_p) , &tok);
+    cnt_p = read_non_blank(cnt_p , "");
+
+    if(cnt_p == NULL){
+        read_str = prev_str;
+        return alert("recv EOF while applying read " , NULL);
+    }
+
+    tok_raw_input = read_raw_input;
+    tok_non_blank = read_non_blank;
+    cnt_p = tokenize(cnt_p , &tok);
+    read_str = prev_str;
+
+    if(cnt_p == NULL){
+        return alert("recv EOF while applying read " , NULL);
+    }
 #ifdef PURE_READ
-    clear_buffer();
+//    clear_buffer();
 #endif
     Obj val = parse(tok);
     free_token(tok);
-    stream = prev_stream;
-
-    /* enable up down arrow key after read func */
-    rl_bind_keyseq("\\e[A" , rl_get_previous_history);
-    rl_bind_keyseq("\\e[B" , rl_get_next_history);
     return val;
 }
 
@@ -418,8 +464,8 @@ Obj apply_read(Obj args , Obj env){
         break; \
         if(6 op 3 == 2 || 6 op 3 == 0){ \
             if(num_of(car(args)) == 0){ \
-            printf(6 op 3 ? "/" : "%%");    \
-            return alert(" : arg cannot be zero , got " , car(args)); \
+                printf(6 op 3 ? "/" : "%%");    \
+                return alert(" : arg cannot be zero , got " , car(args)); \
             } \
         } \
         if(!is_num(car(args))){ \
@@ -463,10 +509,10 @@ apply_opr(div , / , 1);
 #undef HANDEL_DEC1
 #undef HANDEL_DEC2
 #define HANDEL_DEC1(args , rtn , op , base) \
-    { \
-        printf("cannot apply %% on decimal\n"); \
-        return (Obj) err; \
-    }
+{ \
+    printf("cannot apply %% on decimal\n"); \
+    return (Obj) err; \
+}
 #define HANDEL_DEC2(args , rtn , op , base) \
     else if(car(args)->type == DECIMAL){ \
         printf("cannot apply %% on decimal\n"); \

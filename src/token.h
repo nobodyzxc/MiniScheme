@@ -9,6 +9,11 @@
 
 #define DESIRE_STR_PROMPT "___ "
 #define DESIRE_PAR_PROMPT "... "
+#define DESIRE_CMT_PROMPT "#.. "
+#define DESIRE_QUO_PROMPT "'.. "
+
+#define mulcmt_beg "#|"
+#define mulcmt_end "|#"
 
 typedef struct token_tag *Token;
 typedef struct token_tag token_t;
@@ -19,13 +24,11 @@ struct token_tag{
 };
 
 char *tokenize(char * , Token *);
-char *input(const char *prompt , bool lock);
-
-extern FILE *stream;
-extern char *ctx_p;
 
 bool is_blank(char p);
 void print_token(Token tok);
 void clear_buffer(void);
-char *get_non_blank(char *p);
+
+extern char *(*tok_raw_input)(char *p);
+extern char *(*tok_non_blank)(char *p , char *prompt);
 #endif

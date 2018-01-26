@@ -6,45 +6,16 @@
 #include <stdbool.h>
 #include <assert.h>
 
-#include <readline/readline.h>
-#include <readline/history.h>
-
 #define max(a , b) (a > b ? a : b)
 
-char *buffer = NULL;
-char *ctx_p = NULL;
+char *(*tok_raw_input)(char *p) = NULL;
+char *(*tok_non_blank)(char *p , char *prompt) = NULL;
 
 char *tok_list(char *p , Token *phead , Token *ptail);
 
-void clear_buffer(void){
-    free(buffer);
-    buffer = NULL;
-    ctx_p = NULL;
-}
-
-char *input(const char *prompt , bool lock){
-
-    free(buffer);
-
-    rl_instream = stream;
-
-    FILE *prev_rl_outstream = rl_outstream;
-
-    rl_outstream = stream == stdin ? stdout : fopen("/dev/null", "w");
-
-
-    if(lock)
-        while(!(buffer = readline(prompt)));
-    else
-        if(!(buffer = readline(prompt))) return NULL;
-
-    if(stream == stdin) add_history(buffer);
-    if(stream != stdin) fclose(rl_outstream);
-
-    rl_outstream = prev_rl_outstream;
-
-    if(buffer == NULL) puts("buffer NULL");
-    return buffer;
+char *err_tok(char *msg){
+    puts(msg);
+    return NULL;
 }
 
 bool is_blank(char p){
@@ -85,9 +56,6 @@ bool is_tokch(char ch){
             || ch == '"');
 }
 
-#define mulcmt_beg "#|"
-#define mulcmt_end "|#"
-
 bool is_multi_comnt(char *p){
     for(int i = 0 ; i < strlen(mulcmt_beg) ; i++)
         if(p[i] != mulcmt_beg[i]) return false;
@@ -101,8 +69,10 @@ char *ignore_comnt(char *p){
         error("unexpected token #*");
     p += 2;
     while(1){
-        while(!(p = strstr(p , mulcmt_end)))
-            p = get_non_blank(p);
+        while(p && !(p = strstr(p , mulcmt_end)))
+            p = tok_non_blank(p , DESIRE_CMT_PROMPT);
+        if(p == NULL)
+            return err_tok("unexpected EOF instead of " mulcmt_end);
         if(is_tokch(*(p + strlen(mulcmt_end)))) break;
     }
     return p + strlen(mulcmt_end);
@@ -122,22 +92,15 @@ void add_token(char *p , Token *plast){
         (*plast) = new_tok;
 }
 
-char *get_non_blank(char *p){
-    while(p && *p && is_blank(*p)) p++;
-    while(!p || !*p){
-        p = input(p ? DESIRE_PAR_PROMPT : "" , true);
-        while(*p && is_blank(*p)) p++;
-    }
-    return p;
-}
-
 char *add_quote(char *p , Token *plast){
     if(*p != '\'')
         error("invalid call add_quote %s\n" , p);
     else
         p += 1;
 
-    p = get_non_blank(p);
+    p = tok_non_blank(p , DESIRE_QUO_PROMPT);
+    if(p == NULL)
+        return err_tok("unexpected EOF instead of other elt");
 
     add_token(strdup("(") , plast);
     add_token(strdup("quote") , plast);
@@ -168,10 +131,6 @@ bool even_backslash(char* beg , char *end){
     return acc % 2 == 0;
 }
 
-char read_char(){
-    return getc(stream);
-}
-
 char *tok_string(char *p , Token *phead , Token *ptail){
     if(*p != '"')
         error("invalid call tok_string %c\n" , *p);
@@ -189,7 +148,9 @@ char *tok_string(char *p , Token *phead , Token *ptail){
                 str = salloc(str , len);
             }
             if(!*p){
-                p = input(DESIRE_STR_PROMPT , false);
+                p = tok_raw_input(DESIRE_STR_PROMPT);
+                if(p == NULL)
+                    return err_tok("unexpected EOF instead of \"");
                 str[l] = '\n' , l++;
                 continue;
             }
@@ -243,7 +204,9 @@ char *tok_list(char *p , Token *phead , Token *ptail){
     head = tail = new_token(strdup("(") , NULL); //must use strdup
     p += 1;
     while(1){
-        p = get_non_blank(p);
+        p = tok_non_blank(p , DESIRE_PAR_PROMPT);
+        if(p == NULL)
+            return err_tok("unexpected EOF instead of )");
         switch(*p){
             case '(':
             case '[':
@@ -269,6 +232,8 @@ char *tok_list(char *p , Token *phead , Token *ptail){
                 p = tok_atom(p , &tail->next , &tail) - 1;
                 break;
         }
+        if(p == NULL)
+            return NULL;
         p += 1;
     }
 }
@@ -282,7 +247,9 @@ void print_token(Token tok){
 }
 
 char *tokenize(char *p , Token *tok){
-    if(!*p) p = input("> " , false);
+    assert(p != NULL);
+    if(!*p) p = tok_raw_input("> ");
+    if(p == NULL) return NULL;
     Token head = NULL , t;
     while(*p && is_blank(*p)) p += 1;
     if(is_paren_l(*p))

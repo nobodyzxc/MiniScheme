@@ -1,8 +1,10 @@
 CC = gcc
-CFLAGS = -g -O3 -DTCO_OPT \
+CFLAGS = -g -O3 \
+		 -DTCO_OPT \
 		 -DLIBPATH="$(CURDIR)/lib/" \
 		 -DLIBCONFIG="config" \
-		 -DVERSION="20180125"
+		 -DVERSION="20180125" \
+		 #-DPURE_READ \
 
 # -DTCO_OPT
 # -O3 must be add , too.
@@ -29,5 +31,4 @@ $(O_DIR):
 	@mkdir $@
 
 clean:
-	rm -f $(OBJS) $(TARGET)
-	rmdir $(O_DIR)
+	rm -rf $(O_DIR) $(TARGET)

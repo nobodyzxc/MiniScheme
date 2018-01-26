@@ -12,6 +12,7 @@ To learn how to make an interpreter , I started the project.
    4. Interesting functions
    5. A simple library manage mechanism
    6. Friendly interative mode (GNU readline)
+   [Key binding list](http://readline.kablamo.org/emacs.html)
 
 ## Requirements :
 
@@ -202,7 +203,7 @@ To learn how to make an interpreter , I started the project.
 'cdaaar          : <closure>
 'cdaadr          : <closure>
 'cdadar          : <closure>
-'cdaddr　　　　　: <closure>
+'cdaddr          : <closure>
 'cddaar          : <closure>
 'cddadr          : <closure>
 'cdddar          : <closure>

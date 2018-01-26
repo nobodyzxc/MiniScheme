@@ -72,7 +72,7 @@ void detail(Obj obj);
     printf(fmt , ##__VA_ARGS__) , exit(1)
 
 #define stdin_printf(fmt , ...) \
-    printf(stream == stdin ? (fmt) : "" , ##__VA_ARGS__) , fflush(stdout)
+    printf(main_str == stdin ? (fmt) : "" , ##__VA_ARGS__) , fflush(stdout)
 
 #define falert(s , str , obj) \
     fprintf(s , str) , fprint_obj(s , obj) , fputs("" , s)

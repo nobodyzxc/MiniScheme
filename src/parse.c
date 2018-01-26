@@ -62,7 +62,7 @@ Obj new_lit(char *v){
 
 // <bool> | <num> | <symbol> | <list>
 Obj parse(Token tok){
-    if(!tok) puts("fuck") , exit(1);
+    if(!tok) puts("parse NULL tok") , exit(1);
     if(tok == NULL) return NULL;
     Obj val;
     if(EQS(tok->p , "("))
