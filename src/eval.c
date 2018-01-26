@@ -53,7 +53,8 @@ Obj tco(Obj args , Obj clos , Obj env){
         //is_tail = clos == clos_body(tail);
         clos = tail == err ? tail : clos_body(tail);
     }
-    if(clos && clos != err) alert("not a procedure : " , clos);
+    if(clos && clos != err && !is_clos(clos))
+            alert("not a procedure : " , clos);
     return clos || args == err ? (Obj)err : clos_args(tail);
 }
 
@@ -97,7 +98,7 @@ Obj eval(Obj val , Obj env){
                 return tco(args , app , env);
             }
         }
-        return alert("not a procedure : " , app);
+        return alert("weired list expr : " , val);
     }
     return alert("cannot eval : " , val);
 }

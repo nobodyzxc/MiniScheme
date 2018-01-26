@@ -358,3 +358,8 @@ Obj alert(char *str , Obj obj){
     falert(stdout , str , obj) , puts("");
     return (Obj)err;
 }
+
+Obj warning(char *str){
+    puts(str);
+    return (Obj)err;
+}

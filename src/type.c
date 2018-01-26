@@ -6,7 +6,7 @@ Obj glenv;
 const obj_t nil_t = { .type = NIL , .mark = true};
 const obj_t eli_t = { .type = SYMBOL , .mark = true , .str = "..."};
 const obj_t els_t = { .type = SYMBOL , .mark = true , .str = "else"};
-const obj_t err_t = { .type = SYMBOL , .mark = true , .str = "ERROR"};
+const obj_t err_t = { .type = SYMBOL , .mark = true , .str = "(ERROR)"};
 const obj_t true_t = { .type = BOOLEAN , .mark = true , .boolean = true};
 const obj_t false_t = { .type = BOOLEAN , .mark = true , .boolean = false};
 /* mark nil is very very important or mark it then get seg fault */

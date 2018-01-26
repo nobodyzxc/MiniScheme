@@ -78,6 +78,7 @@ void detail(Obj obj);
     fprintf(s , str) , fprint_obj(s , obj) , fputs("" , s)
 
 Obj alert(char *str , Obj obj);
+Obj warning(char *str);
 
 #define msgobjc(str , obj) \
     fprintf(stdout , str) , detail(obj)

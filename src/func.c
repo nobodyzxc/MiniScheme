@@ -434,7 +434,7 @@ Obj apply_read(Obj args , Obj env){
 
     if(cnt_p == NULL){
         read_str = prev_str;
-        return alert("recv EOF while applying read " , NULL);
+        return warning("recv EOF while applying read");
     }
 
     tok_raw_input = read_raw_input;
@@ -443,7 +443,7 @@ Obj apply_read(Obj args , Obj env){
     read_str = prev_str;
 
     if(cnt_p == NULL){
-        return alert("recv EOF while applying read " , NULL);
+        return warning("recv EOF while applying read");
     }
 #ifdef PURE_READ
 //    clear_buffer();

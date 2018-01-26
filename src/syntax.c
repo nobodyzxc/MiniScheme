@@ -176,21 +176,20 @@ Obj apply_define(Obj args , Obj env){
         if(id == err || expr == err)
             return (Obj) err;
         else if(id->type == SYMBOL){
-            if(length(expr) == 1 &&
-                    add_symbol(
-                        id ,
-                        eval(car(expr) , env) ,
-                        env) != err)
-                    return NULL;
-            else alert("define : id should only be"
-                    " followd by 1 expr"" , got " , expr);
+            if(length(expr) != 1)
+                return alert("define : id should only be"
+                        " followd by 1 expr"" , got " , expr);
+            else if(add_symbol(id ,
+                        eval(car(expr) , env) , env) == err)
+                return (Obj) err;
+            else return NULL;
         }
         else if(id->type == PAIR){ /* func short form */
             if(add_symbol(
                         prid(id) ,
                         eval(new_nested_lambda(id , expr) , env) ,
                         env) != err);
-                return NULL;
+            return NULL;
         }
         else alert("def with a non-sym/non-pair obj : " , id);
     }
