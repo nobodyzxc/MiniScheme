@@ -3,7 +3,7 @@ CFLAGS = -g -O3 \
 		 -DTCO_OPT \
 		 -DLIBPATH="$(CURDIR)/lib/" \
 		 -DLIBCONFIG="config" \
-		 -DVERSION="20180127" \
+		 -DVERSION="v1.0" \
 #		 -DPURE_READ \
 
 # -DTCO_OPT

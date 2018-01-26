@@ -208,7 +208,7 @@ int main(int argc , char *argv[]){
     else
         handle_flags(argc , argv);
     if(flag_i){
-        stdin_printf("Welcome to Zekin");
+        stdin_printf("Welcome to Zekin " xstr(VERSION));
         printf("%s\n" , EQS(lib_logs , " [ ] ") ?
                 " [ primary ]" : lib_logs);
         while(!repl(true , true));
