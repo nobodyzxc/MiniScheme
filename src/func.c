@@ -422,6 +422,10 @@ char *read_non_blank(char *p , char *prompt){
     return p;
 }
 
+void clear_read_buffer(){
+    free(contnt) , contnt = cnt_p = NULL;
+}
+
 Obj apply_read(Obj args , Obj env){
     /* todo : input-port ? */
     /* disable up down arrow key in read func */
@@ -446,7 +450,7 @@ Obj apply_read(Obj args , Obj env){
         return warning("recv EOF while applying read");
     }
 #ifdef PURE_READ
-//    clear_buffer();
+    clear_read_buffer();
 #endif
     Obj val = parse(tok);
     free_token(tok);

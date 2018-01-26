@@ -3,8 +3,8 @@ CFLAGS = -g -O3 \
 		 -DTCO_OPT \
 		 -DLIBPATH="$(CURDIR)/lib/" \
 		 -DLIBCONFIG="config" \
-		 -DVERSION="20180125" \
-		 #-DPURE_READ \
+		 -DVERSION="20180127" \
+#		 -DPURE_READ \
 
 # -DTCO_OPT
 # -O3 must be add , too.
@@ -17,7 +17,11 @@ LIBS = -lm -lreadline
 S_DIR    = src
 O_DIR    = obj
 TARGET   = zekin
-SOURCE   = main type token parse eval mem util proc func syntax gc opt
+SOURCE   = main type util mem \
+		   token parse eval \
+		   syntax func proc \
+		   gc opt
+
 SRCS    = ${SOURCE:%=$(S_DIR)/%.c}
 OBJS    = ${SOURCE:%=$(O_DIR)/%.o}
 
