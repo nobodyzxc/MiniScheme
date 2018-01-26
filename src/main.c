@@ -17,17 +17,18 @@
 #include "parse.h"
 #include "gc.h"
 
-FILE *main_str;
-bool interpret = false;
 
 char cwd[1024];
+bool flag_i = false;
+
+FILE *main_str;
 char lib_logs[500];
-char *buffer = NULL;
 char *ctx_p = NULL;
+char *contxt = NULL;
 
 char *raw_input(char *prompt){
 
-    free(buffer);
+    free(contxt);
 
     rl_instream = main_str;
 
@@ -35,15 +36,15 @@ char *raw_input(char *prompt){
 
     rl_outstream = main_str == stdin ? stdout : fopen("/dev/null", "w");
 
-    if(!(buffer = readline(prompt))) return NULL;
+    if(!(contxt = readline(prompt))) return NULL;
 
-    if(main_str == stdin) add_history(buffer);
+    if(main_str == stdin) add_history(contxt);
     if(main_str != stdin) fclose(rl_outstream);
 
     rl_outstream = prev_rl_outstream;
 
-    if(buffer == NULL) puts("buffer NULL");
-    return buffer;
+    if(contxt == NULL) puts("buffer NULL");
+    return contxt;
 }
 
 char *non_blank(char *p , char *prompt){
@@ -56,9 +57,9 @@ char *non_blank(char *p , char *prompt){
     return p;
 }
 
-void clear_buffer(void){
-    free(buffer);
-    buffer = NULL;
+void clear_contxt(void){
+    free(contxt);
+    contxt = NULL;
     ctx_p = NULL;
 }
 
@@ -97,7 +98,7 @@ bool repl(bool repl_p , bool auto_gc){
         if(auto_gc) auto_try_gc();
         if(val == err) return false;
     }
-    clear_buffer();
+    clear_contxt();
     return true;
 }
 
@@ -124,10 +125,10 @@ int handle_flags(int argc , char *argv[]){
     Token tok;
     for(int i = 1 ; i < argc ; i++){
         if(EQS(argv[i] , "-i"))
-            interpret = true;
+            flag_i = true;
         else if(EQS(argv[i] , "-h")){
             printf("usage: zekin [-h] [-v] [-l] [-e exprs] [-i] [file ...]\n\n"
-                    "Yet another scheme interpreter\n\n"
+                    "Yet another scheme flag_ier\n\n"
                     "positional arguments:\n"
                     "   file   scheme script to run\n\n"
                     "optional arguments:\n"
@@ -152,9 +153,8 @@ int handle_flags(int argc , char *argv[]){
             if(i + 1 >= argc) exit(0); /* no expr to eval */
             char expr[300];
             sprintf(expr , "");
-            for(++i ; i < argc ; i++){
+            for(++i ; i < argc ; i++)
                 sprintf(expr , "%s %s" , expr , argv[i]);
-            }
             ctx_p = expr;
             while(*ctx_p){
                 tok_raw_input = raw_input;
@@ -204,10 +204,10 @@ int main(int argc , char *argv[]){
     load_libraries();
 
     if(argc == 1)
-        interpret = true;
+        flag_i = true;
     else
         handle_flags(argc , argv);
-    if(interpret){
+    if(flag_i){
         stdin_printf("Welcome to Zekin");
         printf("%s\n" , EQS(lib_logs , " [ ] ") ?
                 " [ primary ]" : lib_logs);

@@ -8,12 +8,10 @@
 
 #include <math.h>
 #include <ctype.h>
-#include <readline/readline.h>
-#include <readline/history.h>
 
+FILE *read_str;
 char *cnt_p = NULL;
 char *contnt = NULL;
-FILE *read_str;
 
 /* predictors */
 Obj apply_eqq(Obj args , Obj env){

@@ -247,11 +247,11 @@ void print_token(Token tok){
 }
 
 char *tokenize(char *p , Token *tok){
-    assert(p != NULL);
-    if(!*p) p = tok_raw_input("> ");
-    if(p == NULL) return NULL;
+    assert(p), assert(*p);
+    assert(tok_raw_input);
+    assert(tok_non_blank);
     Token head = NULL , t;
-    while(*p && is_blank(*p)) p += 1;
+    while(*p && is_blank(*p)) p++;
     if(is_paren_l(*p))
         p = tok_list(p , &head , NULL);
     else if(*p)
