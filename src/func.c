@@ -7,6 +7,7 @@
 #include "token.h"
 
 #include <math.h>
+#include <ctype.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -383,6 +384,17 @@ char *handled_raw_input(char *raw){
             *(p + 1) = ' ';
             *(p + 2) = ' ';
             p += 2; /* replace arrow key "\033[A"*/
+        }
+        else if(isalnum(*p));
+        else if(ispunct(*p));
+        else if(iscntrl(*p)){
+            *p = ' ';
+        }
+        else if(isgraph(*p)){
+            *p = ' ';
+        }
+        else if(isprint(*p) && *p != ' '){
+            printf("isprint(%c)=>' '\n" , *p);
         }
         p++;
     }
