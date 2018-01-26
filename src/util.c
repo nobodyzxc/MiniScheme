@@ -341,10 +341,11 @@ void print_short_obj(Obj obj){
 
 void print_short_pair(Obj obj){
     /* assert is_list(obj)*/
-    int lim = 5;
+#define LIM 5
+    int lim = LIM;
     printf("(");
     while(lim && is_pair(obj)){
-        if(lim != 10)
+        if(lim != LIM)
             printf(" ");
         print_short_obj(car(obj));
         lim-- , obj = cdr(obj);

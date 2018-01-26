@@ -67,9 +67,9 @@ Obj eval(Obj val , Obj env){
         Obj app = car(val) , args = cdr(val);
         if(!is_list(args))
             return alert("func call should be list , got " , val);
-        else if(app->type == SYMBOL || app->type == PAIR){
+        else if(is_symbol(app) || is_pair(app)){
 
-            app = app->type == SYMBOL ?
+            app = is_symbol(app) ?
                 lookup_symbol(app->str , env) : eval(app , env);
 
             if(app == err)
@@ -98,7 +98,7 @@ Obj eval(Obj val , Obj env){
                 return tco(args , app , env);
             }
         }
-        return alert("weired list expr : " , val);
+        return alert("cannot apply : " , app);
     }
-    return alert("cannot eval : " , val);
+    return alert("cannot eval known type : " , val);
 }
