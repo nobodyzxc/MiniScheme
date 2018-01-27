@@ -92,10 +92,11 @@ Obj eval(Obj val , Obj env){
                 return app->proc->apply(args , env);
             else if(app->type == CLOSURE){
                 env = clos_env(app);
-#ifndef TCO_OPT
+#ifdef TCO_OPT
+                return tco(args , app , env);
+#else
                 return apply_clos(app , args , env);
 #endif
-                return tco(args , app , env);
             }
         }
         return alert("cannot apply : " , app);

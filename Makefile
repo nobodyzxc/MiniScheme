@@ -1,31 +1,38 @@
 ################################
 # SELECT INPUT MODE UNDER REPL #
-# ##############################
+################################
 
-#I_MODE = rl
+I_MODE = rl
 # GNU READLINE
-I_MODE = read
+#I_MODE = read
 # NATIVE FGETS , IF YOU DON'T WANT TO USE GNU READLINE
 
 CC = gcc
-CFLAGS = -g -O3 \
-		 -DTCO_OPT \
+CFLAGS = -g \
 		 -DLIBPATH="$(CURDIR)/lib/" \
 		 -DLIBCONFIG="config" \
 		 -DVERSION="v1.0" \
-		 -DI_MODE=$(I_MODE) \
 		 -DI_MODE_PORT=$(I_MODE)_pt \
 		 -DI_MODE_NON_BLANK=$(I_MODE)_non_blank \
 		 -DI_MODE_RAW_INPUT=$(I_MODE)_raw_input \
-#		 -DPURE_READ \
 
-# -DTCO_OPT
-# -O3 must be add , too.
+################################
+# ENABLE TAILCALL OPTIMIZATION #
+################################
+CFLAGS += -O3 -DTCO_OPT
 
-# -DPURE_READ
-# read function discard other atom in one read
+################################
+# IF CLEAR BUFFER EVERY (read) #
+# Discard rest atoms per read  #
+################################
+#CFLAGS += -DPURE_READ
 
-LIBS = -lm -lreadline
+LIBS = -lm
+
+ifeq ($(I_MODE) , rl)
+	CFLAGS += -DRL_LIB
+	LIBS += -lreadline
+endif
 
 S_DIR    = src
 O_DIR    = obj

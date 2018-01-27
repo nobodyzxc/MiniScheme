@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#if I_MODE == rl
+#ifdef RL_LIB
 #include <readline/readline.h>
 #include <readline/history.h>
 Obj rl_pt = NULL;
