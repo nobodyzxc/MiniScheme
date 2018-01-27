@@ -5,13 +5,9 @@
 #include "main.h"
 #include "parse.h"
 #include "token.h"
+#include "io.h"
 
 #include <math.h>
-#include <ctype.h>
-
-FILE *read_str;
-char *cnt_p = NULL;
-char *contnt = NULL;
 
 /* predictors */
 Obj apply_eqq(Obj args , Obj env){
@@ -149,7 +145,7 @@ Obj apply_source(Obj args , Obj env){
     else if(car(args)->type != STRING)
         puts("source file name must be string");
     else if(load_script(car(args)->str , true)){
-        stdin_printf("ok , \"%s\" loaded\n" , car(args)->str);
+        imode_msg("ok , %-24s loaded\n" , car(args)->str);
         return NULL;
     }
     return (Obj)err;
@@ -373,83 +369,32 @@ Obj apply_procedureq(Obj args , Obj env){
     return (Obj)err;
 }
 
-#define RDSIZE 300
-char *handled_raw_input(char *raw){
-    char *p = raw;
-    while(*p){
-        if(*p == '\033'){
-            *p = ' ';
-            *(p + 1) = ' ';
-            *(p + 2) = ' ';
-            p += 2; /* replace arrow key "\033[A"*/
-        }
-        else if(isalnum(*p));
-        else if(ispunct(*p));
-        else if(iscntrl(*p)){
-            *p = ' ';
-        }
-        else if(isgraph(*p)){
-            *p = ' ';
-        }
-        else if(isprint(*p) && *p != ' '){
-            printf("isprint(%c)=>' '\n" , *p);
-        }
-        p++;
-    }
-    return raw;
-}
-
-char *read_raw_input(char *prompt){
-    free(contnt);
-    cnt_p = contnt = (char*)malloc(sizeof(char) * RDSIZE);
-    if(!fgets(contnt , RDSIZE , read_str)){
-        free(contnt);
-        return contnt = cnt_p = NULL;
-    }
-    contnt[strlen(contnt) - 1] = 0;
-    return handled_raw_input(contnt);
-}
-
-char *read_non_blank(char *p , char *prompt){
-    while(p && *p && is_blank(*p)) p++;
-    while(!p || !*p){
-        p = read_raw_input(prompt);
-        if(p == NULL) return NULL;
-        while(*p && is_blank(*p)) p++;
-    }
-    return p;
-}
-
-void clear_read_buffer(){
-    free(contnt) , contnt = cnt_p = NULL;
-}
-
 Obj apply_read(Obj args , Obj env){
     /* todo : input-port ? */
     /* disable up down arrow key in read func */
-    FILE *prev_str = read_str;
+    Obj prev_pt = read_pt;
     /* default stdin */
-    read_str = stdin;
+    read_pt = stdin_pt;
 
     Token tok = NULL;
-    cnt_p = read_non_blank(cnt_p , "");
+    port_ptr(read_pt) = read_non_blank(port_ptr(read_pt) , "");
 
-    if(cnt_p == NULL){
-        read_str = prev_str;
+    if(port_ptr(read_pt) == NULL){
+        read_pt = prev_pt;
         return warning("recv EOF while applying read");
     }
 
     tok_raw_input = read_raw_input;
     tok_non_blank = read_non_blank;
-    cnt_p = tokenize(cnt_p , &tok);
-    read_str = prev_str;
-
-    if(cnt_p == NULL){
+    port_ptr(read_pt) = tokenize(port_ptr(read_pt) , &tok);
+    if(port_ptr(read_pt) == NULL){
+        read_pt = prev_pt;
         return warning("recv EOF while applying read");
     }
 #ifdef PURE_READ
-    clear_read_buffer();
+    clear_ctx(read_pt);
 #endif
+    read_pt = prev_pt;
     Obj val = parse(tok);
     free_token(tok);
     return val;

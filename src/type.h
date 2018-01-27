@@ -29,6 +29,7 @@
 
 #define is_clos(expr) ((expr) && (expr)->type == CLOSURE)
 #define is_env(expr) ((expr) && (expr)->type == ENV)
+#define is_port(expr) ((expr) && (expr)->type == PORT)
 
 #define is_nil(obj) ((obj) == (nil))
 #define not_nil(obj) (!is_nil(obj))
@@ -56,6 +57,7 @@ enum types{
     EXPR    ,
     MACRO   ,
     ENV     ,
+    PORT    ,
 };
 
 typedef enum types type_t;
@@ -76,6 +78,8 @@ typedef struct mac_tag  mac_t;
 typedef struct mac_tag  *Mac;
 typedef struct env_tag  env_t;
 typedef struct env_tag  *Env;
+typedef struct port_tag port_t;
+typedef struct port_tag *Port;
 typedef Obj (*func_ptr)(Obj , Obj);
 
 struct cons_tag{
@@ -98,6 +102,7 @@ struct obj_tag{
         Expr         expr;
         Mac          mac;
         Env          env;
+        Port         port;
     };
 };
 
@@ -135,6 +140,15 @@ struct env_tag{
     Obj parent;
 };
 
+struct port_tag{
+    FILE *fp;
+    char *name;
+    char *mode;
+    char *ctx;
+    char *ptr;
+    bool open;
+};
+
 extern kObj nil;
 extern kObj eli; /* ellipsis */
 extern kObj els; /* else sym */
@@ -142,5 +156,6 @@ extern kObj err;
 extern kObj true_obj;
 extern kObj false_obj;
 extern Obj glenv;
+extern Obj stdin_pt;
 
 #endif

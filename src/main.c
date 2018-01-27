@@ -4,101 +4,76 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <libgen.h>
-
-#include <readline/readline.h>
-#include <readline/history.h>
+#include <assert.h>
 
 #include "mem.h"
 #include "type.h"
+#include "util.h"
 #include "proc.h"
 #include "eval.h"
 #include "util.h"
 #include "token.h"
 #include "parse.h"
 #include "gc.h"
+#include "io.h"
 
+Obj repl_pt = NULL;
 
 char cwd[1024];
 bool flag_i = false;
 
-FILE *main_str;
 char lib_logs[500];
-char *ctx_p = NULL;
-char *contxt = NULL;
-
-char *raw_input(char *prompt){
-
-    free(contxt);
-
-    rl_instream = main_str;
-
-    FILE *prev_rl_outstream = rl_outstream;
-
-    rl_outstream = main_str == stdin ? stdout : fopen("/dev/null", "w");
-
-    if(!(contxt = readline(prompt))) return NULL;
-
-    if(main_str == stdin) add_history(contxt);
-    if(main_str != stdin) fclose(rl_outstream);
-
-    rl_outstream = prev_rl_outstream;
-
-    if(contxt == NULL) puts("buffer NULL");
-    return contxt;
-}
-
-char *non_blank(char *p , char *prompt){
-    while(p && *p && is_blank(*p)) p++;
-    while(!p || !*p){
-        p = raw_input(prompt);
-        if(p == NULL) return NULL;
-        while(*p && is_blank(*p)) p++;
-    }
-    return p;
-}
-
-void clear_contxt(void){
-    free(contxt);
-    contxt = NULL;
-    ctx_p = NULL;
-}
-
 
 bool is_shebang(char *p){
     return p && *p && !strncmp(p , "#!" , 2);
 }
 
 bool repl(bool repl_p , bool auto_gc){
+    assert(repl_pt);
+
     bool first_line = true;
-    while((ctx_p && *ctx_p) || (ctx_p = raw_input("> "))){
+    while(1){
+        if(!port_ptr(repl_pt) || !*port_ptr(repl_pt)){
+            Obj prev_pt = I_MODE_PORT;
+            I_MODE_PORT = repl_pt;
+            port_ptr(repl_pt) = I_MODE_RAW_INPUT("> ");
+            I_MODE_PORT = prev_pt;
+            if(!port_ptr(repl_pt)) break;
+        }
         if(first_line){
             first_line = false;
-            if(is_shebang(ctx_p)){
-                ctx_p = NULL;
+            if(is_shebang(port_ptr(repl_pt))){
+                port_ptr(repl_pt) = NULL;
                 continue;
             }
         }
         Token tok = NULL;
-        if(*ctx_p){
-            tok_raw_input = raw_input;
-            tok_non_blank = non_blank;
-            ctx_p = tokenize(ctx_p , &tok);
+        if(*port_ptr(repl_pt)){
+            Obj prev_pt = I_MODE_PORT;
+            I_MODE_PORT = repl_pt;
+            tok_raw_input = I_MODE_RAW_INPUT;
+            tok_non_blank = I_MODE_NON_BLANK;
+            port_ptr(repl_pt) =
+                tokenize(port_ptr(repl_pt) , &tok);
+            I_MODE_PORT = prev_pt;
         }
         if(!tok){
-            if(ctx_p) continue;
+            if(port_ptr(repl_pt)) continue;
             else return false;
         }
         Obj val = parse(tok);
         free_token(tok);
         if(val != err){
             val = eval(val , glenv);
-            if(repl_p && main_str == stdin && val && val != err)
+            if(repl_p &&
+                    port_fp(repl_pt) == stdin
+                    && val && val != err)
                 print_obj(val) , printf("\n");
         }
         if(auto_gc) auto_try_gc();
         if(val == err) return false;
     }
-    clear_contxt();
+    clear_ctx(repl_pt);
     return true;
 }
 
@@ -110,14 +85,19 @@ void path_error(char *name){
 }
 
 bool load_script(char *name , bool log){
-    FILE *prev_stream = main_str;
-    bool succ = main_str = fopen(name , "r");
-    if(main_str)
-        succ &= repl(false , false) , fclose(main_str);
+    Obj prev_pt = repl_pt;
+    repl_pt = open_port(name , "r");
+    bool succ = false;
+    if(repl_pt != err){
+        succ = true;
+        succ &= repl(false , false);
+        close_port(repl_pt);
+    }
     else if(log)
         path_error(name);
-    main_str = prev_stream;
-    if(!succ) printf("\t     ... %s\n" , name);
+    repl_pt = prev_pt;
+    if(!succ)
+        printf("\t     ... %s\n" , name);
     return succ;
 }
 
@@ -151,15 +131,19 @@ int handle_flags(int argc , char *argv[]){
         }
         else if(EQS(argv[i] , "-e")){
             if(i + 1 >= argc) exit(0); /* no expr to eval */
-            char expr[300];
-            sprintf(expr , "");
+            I_MODE_PORT = stdin_pt;
+            port_ptr(I_MODE_PORT) =
+                port_ctx(I_MODE_PORT) =
+                (char*)malloc(sizeof(char) * 300);
+            sprintf(port_ctx(I_MODE_PORT) , "");
             for(++i ; i < argc ; i++)
-                sprintf(expr , "%s %s" , expr , argv[i]);
-            ctx_p = expr;
-            while(*ctx_p){
-                tok_raw_input = raw_input;
-                tok_non_blank = non_blank;
-                ctx_p = tokenize(ctx_p , &tok);
+                sprintf(port_ctx(I_MODE_PORT) , "%s %s" ,
+                        port_ctx(I_MODE_PORT) , argv[i]);
+            while(*port_ptr(I_MODE_PORT)){
+                tok_raw_input = I_MODE_RAW_INPUT;
+                tok_non_blank = I_MODE_NON_BLANK;
+                port_ptr(I_MODE_PORT) =
+                    tokenize(port_ptr(I_MODE_PORT) , &tok);
                 Obj val = eval(parse(tok) , glenv);
                 if(val != err) alert("" , val);
             }
@@ -197,7 +181,7 @@ void load_libraries(){
 
 int main(int argc , char *argv[]){
 
-    main_str = stdin;
+    port_fp(stdin_pt) = stdin;
     getcwd(cwd , sizeof(cwd));
 
     init_buildins();
@@ -208,11 +192,12 @@ int main(int argc , char *argv[]){
     else
         handle_flags(argc , argv);
     if(flag_i){
-        stdin_printf("Welcome to Zekin " xstr(VERSION));
+        repl_pt = stdin_pt;
+        imode_msg("Welcome to Zekin " xstr(VERSION));
         printf("%s\n" , EQS(lib_logs , " [ ] ") ?
                 " [ primary ]" : lib_logs);
         while(!repl(true , true));
-        stdin_printf("\n");
+        imode_msg("\n");
     }
     return 0;
 }

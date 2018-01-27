@@ -85,6 +85,13 @@ Env new_env(Obj env){
     return inst;
 }
 
+Port new_port(FILE *fp , char *name , char *mode){
+    Port inst = (Port)MALLOC(sizeof(port_t));
+    inst->fp = fp , inst->name = name , inst->mode = mode;
+    inst->ctx = NULL , inst->ptr = NULL , inst->open = true;
+    return inst;
+}
+
 Token new_token(char *p , Token next){
     Token new_tok = (Token)MALLOC(sizeof(token_t));
     new_tok->p = p;
@@ -148,6 +155,12 @@ Obj new_ENV    (Obj env){
     return inst;
 }
 
+Obj  new_PORT   (FILE *fp , char *name , char *mode){
+    Obj inst = new_obj(PORT);
+    inst->port = new_port(fp , name , mode);
+    return inst;
+}
+
 Obj new_FUNCTION(char *name , func_ptr fp){
     Obj inst = new_obj(FUNCTION);
     inst->proc = (Proc)MALLOC(sizeof(proc_t));
@@ -193,18 +206,31 @@ void free_symtree(Symtree tree){
     free(tree);
 }
 
+void free_port(Port port){
+    free(port->ctx);
+    free(port->name);
+    if(port->open){
+        fclose(port->fp);
+        port->open = false;
+    }
+    port->ctx = port->ptr = NULL;
+}
+
 void free_obj(Obj obj){
     if(!obj || obj->mark == true)
         return;
     obj_count--;
     if(!obj) return;
     if(is_nil(obj)) return;
-    if(obj->type == STRING || obj->type == SYMBOL)
+    if(obj->type == STRING
+            || obj->type == SYMBOL)
         free(obj->str);
     else if(obj->type == EXPR)
         free(obj->expr->name);
     else if(obj->type == ENV)
         free_symtree(obj->env->symtab);
+    else if(obj->type == PORT)
+        free_port(obj->port);
     FREE(obj);
 }
 

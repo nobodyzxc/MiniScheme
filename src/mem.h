@@ -26,10 +26,8 @@ Obj  new_EXPR   (char *name , Obj args , Obj body);
 Obj  new_ENV    (Obj env);
 Obj  new_SYNTAX  (char *name , func_ptr fp);
 Obj  new_FUNCTION(char *name , func_ptr fp);
-Obj new_MACRO(Obj keyws , Obj rules);
-
-//Obj  copy_obj(Obj obj);
-//Cons copy_cons(Cons pr);
+Obj  new_MACRO(Obj keyws , Obj rules);
+Obj  new_PORT   (FILE *fp , char *name , char *mode);
 
 void free_obj(Obj obj);
 void free_token(Token tok);

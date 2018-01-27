@@ -81,6 +81,7 @@ Obj lookup_symenv(char *symstr , Obj env_obj){
             new(TYPE , strdup(SYM) , PROC) , ENV)
 
 void init_buildins(){
+
     glenv = new(ENV , NULL);
     BIND(FUNCTION , "+"            , &apply_add          , glenv);
     BIND(FUNCTION , "*"            , &apply_mul          , glenv);

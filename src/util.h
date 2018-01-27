@@ -38,7 +38,11 @@
 #define clos_expr(t) ((t)->clos->exp)
 #define clos_body(t) ((t)->clos->exp->expr->body)
 #define clos_args(t) ((t)->clos->exp->expr->args)
-#define clos_env(t) ((t)->clos->env)
+#define clos_env(t)  ((t)->clos->env)
+#define port_fp(t)   ((t)->port->fp)
+#define port_ctx(t)  ((t)->port->ctx)
+#define port_ptr(t)  ((t)->port->ptr)
+#define port_name(t) ((t)->port->name)
 
 
 bool is_list(Obj pr);
@@ -71,8 +75,8 @@ void detail(Obj obj);
 #define error(fmt , ...) \
     printf(fmt , ##__VA_ARGS__) , exit(1)
 
-#define stdin_printf(fmt , ...) \
-    printf(main_str == stdin ? (fmt) : "" , ##__VA_ARGS__) , fflush(stdout)
+#define imode_msg(fmt , ...) \
+    printf(port_fp(repl_pt) == stdin ? (fmt) : "" , ##__VA_ARGS__) , fflush(stdout)
 
 #define falert(s , str , obj) \
     fprintf(s , str) , fprint_obj(s , obj) , fputs("" , s)

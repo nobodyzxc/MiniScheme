@@ -1,9 +1,22 @@
+################################
+# SELECT INPUT MODE UNDER REPL #
+# ##############################
+
+#I_MODE = rl
+# GNU READLINE
+I_MODE = read
+# NATIVE FGETS , IF YOU DON'T WANT TO USE GNU READLINE
+
 CC = gcc
 CFLAGS = -g -O3 \
 		 -DTCO_OPT \
 		 -DLIBPATH="$(CURDIR)/lib/" \
 		 -DLIBCONFIG="config" \
 		 -DVERSION="v1.0" \
+		 -DI_MODE=$(I_MODE) \
+		 -DI_MODE_PORT=$(I_MODE)_pt \
+		 -DI_MODE_NON_BLANK=$(I_MODE)_non_blank \
+		 -DI_MODE_RAW_INPUT=$(I_MODE)_raw_input \
 #		 -DPURE_READ \
 
 # -DTCO_OPT
@@ -20,7 +33,7 @@ TARGET   = zekin
 SOURCE   = main type util mem \
 		   token parse eval \
 		   syntax func proc \
-		   gc opt
+		   gc opt io
 
 SRCS    = ${SOURCE:%=$(S_DIR)/%.c}
 OBJS    = ${SOURCE:%=$(O_DIR)/%.o}
