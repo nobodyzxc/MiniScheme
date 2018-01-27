@@ -34,15 +34,18 @@
 #define cddddr(x) (cdr(cdr(cdr(cdr(x)))))
 
 
-
 #define clos_expr(t) ((t)->clos->exp)
 #define clos_body(t) ((t)->clos->exp->expr->body)
 #define clos_args(t) ((t)->clos->exp->expr->args)
 #define clos_env(t)  ((t)->clos->env)
+#define mac_keys(t)  ((t)->mac->keyws)
+#define mac_rules(t)  ((t)->mac->rules)
 #define port_fp(t)   ((t)->port->fp)
 #define port_ctx(t)  ((t)->port->ctx)
 #define port_ptr(t)  ((t)->port->ptr)
 #define port_name(t) ((t)->port->name)
+#define port_mode(t) ((t)->port->mode)
+#define port_open(t) ((t)->port->open)
 
 
 bool is_list(Obj pr);
@@ -51,12 +54,14 @@ bool eqv(Obj a , Obj b);
 bool equal(Obj a , Obj b);
 int pat_num(Obj pr);
 int  length(Obj pr);
-void fprint_pair(FILE *s , kObj pr);
-void print_pair(kObj pr);
-void print_cons(Cons kons);
-void print_obj(kObj obj);
 void fprint_obj(FILE *s , kObj obj);
-void print_symtree(Symtree tree);
+void fprint_obj_dtl(FILE *s , Obj obj);
+void fprint_pair(FILE *s , kObj pr);
+void fprint_symtree(FILE *s , Symtree tree);
+
+#define print_obj(obj) fprint_obj(stdout , obj)
+#define print_pair(obj) fprint_pair(stdout , obj)
+
 Obj cons(kObj head , kObj body);
 
 Obj zip_env(Obj syms , Obj args , Obj env);
@@ -70,7 +75,6 @@ Obj lssym_rec(Obj ls , Obj sym);
 Obj lsobj(Obj ls , Obj obj);
 Obj prid(Obj ls);
 bool is_sympr(Obj ls);
-void detail(Obj obj);
 
 #define error(fmt , ...) \
     printf(fmt , ##__VA_ARGS__) , exit(1)
@@ -82,13 +86,14 @@ void detail(Obj obj);
     fprintf(s , str) , fprint_obj(s , obj) , fputs("" , s)
 
 Obj alert(char *str , Obj obj);
+Obj alert_dtl(char *str , Obj obj);
 Obj warning(char *str);
 
 #define msgobjc(str , obj) \
-    fprintf(stdout , str) , detail(obj)
+    fprintf(stdout , str) , fprint_obj_dtl(stdout , obj)
 
 #define msgobj(str , obj) \
-    fprintf(stdout , str) , detail(obj) , puts("")
+    fprintf(stdout , str) , fprint_obj_dtl(stdout , obj) , puts("")
 
 #define ASSERT(expr , msg) \
     if(!(expr)) error("%s : %s %d" , msg , __FILE__ , __LINE__)

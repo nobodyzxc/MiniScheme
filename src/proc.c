@@ -123,6 +123,13 @@ void init_buildins(){
     BIND(FUNCTION , "eqv?"         , &apply_eqvq         , glenv);
     BIND(FUNCTION , "equal?"       , &apply_equalq       , glenv);
 
+    BIND(FUNCTION , "port?"        , &apply_portq        , glenv);
+    BIND(FUNCTION , "out-port?"    , &apply_output_portq , glenv);
+    BIND(FUNCTION , "in-port?"     , &apply_input_portq  , glenv);
+    BIND(FUNCTION , "open-in-port" , &apply_open_inport  , glenv);
+    BIND(FUNCTION , "open-out-port", &apply_open_outport , glenv);
+    BIND(FUNCTION , "fclose"       , &apply_fclose       , glenv);
+
     BIND(FUNCTION , "read"         , &apply_read         , glenv);
 
     lambda_symbol =

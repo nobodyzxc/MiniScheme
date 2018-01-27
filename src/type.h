@@ -28,8 +28,11 @@
 #define is_symbol(expr) ((expr) && (expr)->type == SYMBOL)
 
 #define is_clos(expr) ((expr) && (expr)->type == CLOSURE)
+#define is_macro(expr) ((expr) && (expr)->type == MACRO)
 #define is_env(expr) ((expr) && (expr)->type == ENV)
 #define is_port(expr) ((expr) && (expr)->type == PORT)
+#define is_port_of(expr , mode) \
+    (is_port(expr) && strstr(port_mode(expr) , (mode)))
 
 #define is_nil(obj) ((obj) == (nil))
 #define not_nil(obj) (!is_nil(obj))

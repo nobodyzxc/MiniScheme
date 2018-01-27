@@ -17,12 +17,15 @@ To learn how to make an interpreter , I started the project.
 ## Requirements :
 
    1. GCC
-   2. [GNU Readline Library](https://tiswww.case.edu/php/chet/readline/rltop.html)
+   2. [GNU Readline Library](https://tiswww.case.edu/php/chet/readline/rltop.html) (optional)
 
 ## Install :
+
+All you need is just :
 ```bash
    make
 ```
+If you don't want to use GNU RL , uncomment it in Makefile
 
 ## Usage :
 ```shell
@@ -51,11 +54,9 @@ To learn how to make an interpreter , I started the project.
 
 > 1. Macro
 >
-> 2. System calls
+> 2. Provide some interesting functions to observe the ecology
 >
-> 3. Provide some interesting functions to observe the ecology
->
-> 4. Do some interesting optimizations
+> 3. Do some interesting optimizations
       (symbol , gc , TCO , any opt about speed and space)
 
 
@@ -77,20 +78,18 @@ To learn how to make an interpreter , I started the project.
 
 ## Todo :
 
-> 1. consider syntax expansion speed (cond vs if) [ done ]
->
-> 2. consider the expressions below
-> ```scheme
->    (define f (lambda (x) (if (= x 0) 0 (+ x (f (- x 1))))))
->    (f 100000) ; Can I opt it to tail call? (Do I need CPS?)
-> ```
->
-> 3. add let family , `let\*` , `letrec` ...
->
-> 4. figureout `syntax-rules` and improve ( rewrite ) macro
->
-> 5. consider tco , when apply a closure ,
-      with non-lambda args , can I just update without new a env?
+1. consider the expressions below
+```scheme
+   (define f (lambda (x) (if (= x 0) 0 (+ x (f (- x 1))))))
+   (f 100000) ; Can I opt it to tail call? (Do I need CPS?)
+```
+
+2. add let family , `let*` , `letrec` ...
+
+3. figureout `syntax-rules` to improve ( rewrite ) macro
+
+4. consider tco , when apply a closure ,
+    with non-lambda args , can I just update without new a env?
 
 ##  Reference :
 
@@ -131,6 +130,10 @@ To learn how to make an interpreter , I started the project.
 'closure?        : <procedure:closure?>
 'procedure?      : <procedure:procedure?>
 
+'port?           : <procedure:port?>
+'in-port?        : <procedure:in-port?>
+'out-port?       : <procedure:out-port?>
+
 ; ctor , list
 
 'car             : <procedure:car>
@@ -169,6 +172,11 @@ To learn how to make an interpreter , I started the project.
 'system          : <procedure:system>
 'display         : <procedure:display>
 'flush-output    : <procedure:flush-output>
+
+'open-in-port    : <procedure:open-in-port>
+'open-out-port   : <procedure:open-out-port>
+'fclose          : <procedure:fclose>
+
 ```
 
 #### Library

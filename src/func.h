@@ -36,9 +36,16 @@ Obj apply_stringq(Obj args , Obj env);
 Obj apply_booleanq(Obj args , Obj env);
 Obj apply_exactq(Obj args , Obj env);
 Obj apply_integerq(Obj args , Obj env);
-Obj apply_envq(Obj args , Obj env);
 Obj apply_closureq(Obj args , Obj env);
 Obj apply_procedureq(Obj args , Obj env);
+Obj apply_envq(Obj args , Obj env);
+Obj apply_portq(Obj args , Obj env);
+Obj apply_output_portq(Obj args , Obj env);
+Obj apply_input_portq(Obj args , Obj env);
+Obj apply_open_outport(Obj args , Obj env);
+Obj apply_open_inport(Obj args , Obj env);
+Obj apply_fclose(Obj args , Obj env);
+
 Obj apply_lt(Obj args , Obj env);
 Obj apply_gt(Obj args , Obj env);
 Obj apply_let(Obj args , Obj env);

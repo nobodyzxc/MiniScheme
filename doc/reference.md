@@ -123,6 +123,18 @@
 >    v : any/c
 > ```
 > ```scheme
+>    (port? v) -> boolean?
+>    v : any/c
+> ```
+> ```scheme
+>    (in-port? v) -> boolean?
+>    v : any/c
+> ```
+> ```scheme
+>    (out-port? v) -> boolean?
+>    v : any/c
+> ```
+> ```scheme
 >    (env? v) -> boolean?
 >    v : any/c
 > ```
@@ -213,19 +225,20 @@
 >    z : number? ; cannot be zero
 > ```
 > ```scheme
->    (display datum) -> void?
+>    (display datum [out]) -> void?
 >    datum : any/c
+>    out   : out-port?
 > ```
 > ```scheme
 >    (source script) -> void?
 >    script : string?
 > ```
 > ```scheme
->    (read) -> any/c
+>    (read [in]) -> any/c
+>    in : in-port?
 > ```
 > ```scheme
->    (eval val) -> any
->    (eval val env) -> any
+>    (eval val [env]) -> any
 >    val : any/c
 >    env : env?
 > ```
@@ -251,8 +264,18 @@
 >    (system cmd) -> void?
 >    cmd : string?
 > ```
-
-
+> ```scheme
+>    (open-in-port name) -> void?
+>    name : string?
+> ```
+> ```scheme
+>    (open-out-port name) -> void?
+>    name : string?
+> ```
+> ```scheme
+>    (fclose port) -> void?
+>    port : port?
+> ```
 
 ### Library Functions
 

@@ -56,45 +56,49 @@ bool is_sympr(Obj ls){
     return true;
 }
 
-void detail(Obj obj){
-    if(obj && obj->type == CLOSURE){
-        printf("<closure ");
-        print_obj(clos_args(obj));
-        printf(" . ");
-        print_obj(clos_body(obj));
-        printf(">");
+void fprint_obj_dtl(FILE *s , Obj obj){
+    if(is_clos(obj)){
+        fprintf(s , "<closure ");
+        fprint_obj(s , clos_args(obj));
+        fprintf(s , " . ");
+        fprint_obj(s , clos_body(obj));
+        fprintf(s , ">");
     }
-    else if(obj && obj->type == MACRO){
-        printf("<macro ");
-        print_obj(obj->mac->keyws);
-        printf(" . ");
-        for(Obj it = obj->mac->rules ;
+    else if(is_macro(obj)){
+        fprintf(s , "<macro ");
+        fprint_obj(s , mac_keys(obj));
+        fprintf(s , " . ");
+        for(Obj it = mac_rules(obj) ;
                 iterable(it) ; it = cdr(it)){
-            falert(stdout , "\n  (" , caar(it));
-            falert(stdout , "\n    " , cadar(it));
-            printf(")");
+            falert(s , "\n  (" , caar(it));
+            falert(s , "\n    " , cadar(it));
+            fprintf(s , ")");
         }
-        printf(">");
+        fprintf(s , ">");
     }
-    else if(obj && obj->type == ENV){
-        puts("================ENV================");
-        print_symtree(obj->env->symtab);
-        printf("===================================");
+    else if(is_env(obj)){
+        fprintf(s , "================ENV================\n");
+        fprint_symtree(s , obj->env->symtab);
+        fprintf(s , "===================================");
+    }
+    else if(is_port(obj)){
+        fprintf(s , "<%s-port %s ptr:%s>" ,
+            (is_port_of(obj , "r") ? "in" : "out") ,
+            port_name(obj) ,
+            port_ptr(obj) ? port_ptr(obj) : "NULL");
     }
     else{
-        print_obj(obj);
+        fprint_obj(s , obj);
     }
 }
 
-void print_symtree(Symtree tree){
+void fprint_symtree(FILE *s , Symtree tree){
     if(tree == NULL) return;
-    print_symtree(tree->rt);
-
-    printf("'%-15s" , tree->sym->str);
-    printf(" : ");
-    print_obj(tree->val);
-    puts("");
-    print_symtree(tree->lt);
+    fprint_symtree(s , tree->rt);
+    fprintf(s , "'%-15s : " , tree->sym->str);
+    fprint_obj(s , tree->val);
+    fprintf(s , "\n");
+    fprint_symtree(s , tree->lt);
 }
 
 Obj map_car(Obj ls){
@@ -262,10 +266,6 @@ void fprint_pair(FILE *s , kObj pr){
     fprintf(s , ")");
 }
 
-void print_pair(kObj pr){
-    return fprint_pair(stdout , pr);
-}
-
 void fprint_esc_str(FILE *f , char* s){
     char *k = "abfnrtv\\'?\"" , *v = "\a\b\f\n\r\t\v\\\'\?\"";
     for(fprintf(f , "\"") ; *s ; s++)
@@ -324,12 +324,11 @@ void fprint_obj(FILE *s , kObj obj){
             case ENV     :
                 fprintf(s , "<environment>");
                 break;
+            case PORT    :
+                fprintf(s , "<port>");
+                break;
         }
     }
-}
-
-void print_obj(kObj obj){
-    return fprint_obj(stdout , obj);
 }
 
 void print_short_obj(Obj obj){
@@ -356,7 +355,15 @@ void print_short_pair(Obj obj){
 }
 
 Obj alert(char *str , Obj obj){
-    falert(stdout , str , obj) , puts("");
+    falert(stderr , str , obj);
+    fprintf(stderr , "\n");
+    return (Obj)err;
+}
+
+Obj alert_dtl(char *str , Obj obj){
+    fprintf(stderr , str);
+    fprint_obj_dtl(stderr , obj);
+    fprintf(stderr , "\n");
     return (Obj)err;
 }
 

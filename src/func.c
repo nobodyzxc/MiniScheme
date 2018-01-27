@@ -117,6 +117,31 @@ Obj apply_envq(Obj args , Obj env){
         return new(BOOLEAN , is_env(car(args)));
     return (Obj)err;
 }
+
+Obj apply_portq(Obj args , Obj env){
+    if(length(args) != 1)
+        alert("port? : only accepts 1 arg , got " , args);
+    else
+        return new(BOOLEAN , is_port(car(args)));
+    return (Obj)err;
+}
+
+Obj apply_output_portq(Obj args , Obj env){
+    if(length(args) != 1)
+        alert("output-port? : only accepts 1 arg , got " , args);
+    else
+        return new(BOOLEAN , is_port_of(car(args) , "w"));
+    return (Obj)err;
+}
+
+Obj apply_input_portq(Obj args , Obj env){
+    if(length(args) != 1)
+        alert("input-port? : only accepts 1 arg , got " , args);
+    else
+        return new(BOOLEAN , is_port_of(car(args) , "r"));
+    return (Obj)err;
+}
+
 /* precedures */
 Obj apply_exit(Obj args , Obj env){
     if(length(args) > 0 &&
@@ -232,21 +257,19 @@ Obj apply_flush_output(Obj args , Obj env){
 Obj apply_display(Obj args , Obj env){
     /* todo : extend arity up to 2
      * to support output-port? */
-    if(length(args) != 1)
-        alert("display : only accepts 1 arg , got " , args);
+    int len = length(args);
+    if(len != 1 && len != 2)
+        alert("display : only accepts 1 to 2 args , got " , args);
+    else if(len == 2 && !is_port_of(cadr(args) , "w"))
+        alert_dtl("display : second arg must be out-port? , got " , cadr(args));
+    else if(len == 2 && !port_open(cadr(args)))
+        alert_dtl("display : output to a closed port => " , cadr(args));
     else{
-        if(!car(args)) /* handle void */
-            print_obj(args);
-        else if(car(args)->type == STRING)
-            printf(car(args)->str);
-        else if(car(args)->type == CLOSURE)
-            detail(car(args));
-        else if(car(args)->type == ENV)
-            detail(car(args));
-        else if(car(args)->type == MACRO)
-            detail(car(args));
+        FILE *fp = len == 2 ? port_fp(cadr(args)) : stdout;
+        if(is_str(car(args)))
+            fprintf(fp , car(args)->str);
         else
-            print_obj(car(args));
+            fprint_obj_dtl(fp , car(args));
         return NULL;
     }
     return (Obj)err;
@@ -286,7 +309,6 @@ Obj apply_cdr(Obj args , Obj env){
 }
 
 Obj apply_cons(Obj args , Obj env){
-    // assert arity == 2
     if(length(args) != 2)
         alert("cons : only accepts 2 args , got " , args);
     else
@@ -295,7 +317,6 @@ Obj apply_cons(Obj args , Obj env){
 }
 
 Obj apply_eqnum(Obj args , Obj env){
-    // assert arity > 1
     if(length(args) < 2)
         alert("= : accepts at least 2 args , got " , args);
     else{
@@ -371,10 +392,17 @@ Obj apply_procedureq(Obj args , Obj env){
 
 Obj apply_read(Obj args , Obj env){
     /* todo : input-port ? */
-    /* disable up down arrow key in read func */
+    int len = length(args);
+    if(len != 0 && len != 1)
+        return alert("read : only accepts 0 to 1 arg , got " , args);
+    else if(len && !is_port_of(car(args) , "r"))
+        return alert("read : first arg must be in-port? , got " , car(args));
+    else if(len && !port_open(car(args)))
+        return alert_dtl("read : read from a closed port => " , car(args));
+
     Obj prev_pt = read_pt;
     /* default stdin */
-    read_pt = stdin_pt;
+    read_pt = len ? car(args) : stdin_pt;
 
     Token tok = NULL;
     port_ptr(read_pt) = read_non_blank(port_ptr(read_pt) , "");
@@ -398,6 +426,44 @@ Obj apply_read(Obj args , Obj env){
     Obj val = parse(tok);
     free_token(tok);
     return val;
+}
+
+Obj apply_open_inport(Obj args , Obj env){
+    Obj rtn = NULL;
+    if(length(args) != 1)
+        alert("open-in-port : only accepts 1 arg , got " , args);
+    else if(!is_str(car(args)))
+        alert("open-in-port : first arg must be string , got " , car(args));
+    else if((rtn = open_port(car(args)->str , "r")) != err)
+        return rtn;
+    else
+        alert("open-in-port : cannot open file " , car(args));
+    return (Obj)err;
+}
+
+Obj apply_open_outport(Obj args , Obj env){
+    Obj rtn = NULL;
+    if(length(args) != 1)
+        alert("open-out-port : only accepts 1 arg , got " , args);
+    else if(!is_str(car(args)))
+        alert("open-out-port : first arg must be string , got " , car(args));
+    else if((rtn = open_port(car(args)->str , "w")) != err)
+        return rtn;
+    else
+        alert("open-out-port : cannot open file " , car(args));
+    return (Obj)err;
+}
+
+Obj apply_fclose(Obj args , Obj env){
+    if(length(args) != 1)
+        alert("fclose : only accepts 1 arg , got " , args);
+    else if(!is_port(car(args)))
+        alert("fclose : first arg must be port , got " , car(args));
+    else{
+        close_port(car(args));
+        return NULL;
+    }
+    return (Obj)err;
 }
 
 #define arith(args , rtn , op , base) \
