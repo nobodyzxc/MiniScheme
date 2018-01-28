@@ -21,11 +21,21 @@ To learn how to make an interpreter , I started the project.
 
 ## Install :
 
+If you don't want to use GNU RL , uncomment it in Makefile
 All you need is just :
 ```bash
    make
 ```
-If you don't want to use GNU RL , uncomment it in Makefile
+
+Or if you want to install readline and your environment is cygwin
+```bash
+   apt-cyg install libreadline-devel && make
+```
+
+Ubuntu
+```bash
+   sudo apt-get install libreadline6 libreadline6-dev && make
+```
 
 ## Usage :
 ```shell

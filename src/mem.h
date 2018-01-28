@@ -10,7 +10,9 @@
 
 Cons new_cons(kObj car  , kObj cdr);
 Token new_token(char *p , Token next);
-Symtree new_symtree(Obj s , Obj v , Symtree lt , Symtree rt);
+
+Symtree new_symtree(Obj s , Obj v ,
+        Symtree par , Symtree lt , Symtree rt);
 
 Obj new_nested_lambda(Obj head , Obj body);
 

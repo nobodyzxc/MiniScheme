@@ -16,41 +16,38 @@ Obj rl_pt = NULL;
 char *symbol_generator(const char *text , int state){
 
     static int len;
-    static Symtree iter;
-    static char dir;
-
+    static Symtree iter , prev;
     char *name = NULL;
 
     if (!state) {
-        dir = 'L';
         len = strlen(text);
         iter = glenv->env->symtab;
-        while(iter){
-            if(!strncmp(text , iter->sym->str , len))
-                break;
-            iter = *LoR(iter , cmp_node(text , iter));
-        }
-        if(!iter) return NULL;
+        prev = NULL;
     }
-    name = strdup(iter->sym->str);
-    /* move pointer */
-    switch(dir){
-        case 'L':
-            if(iter->lt) iter = iter->lt;
-            else if(iter->rt) iter = iter->lt;
-            else if(iter->parent){
-                /* do something recursively */
+
+    if(!iter) return NULL;
+
+    while(!name && iter){
+        if(!strncmp(text , iter->sym->str , len))
+            name = strdup(iter->sym->str);
+        /* move pointer */
+        if((prev == NULL || prev == iter->parent) && iter->lt)
+            prev = iter , iter = iter->lt;
+        else if((prev == NULL || prev == iter->parent) && iter->rt)
+            prev = iter , iter = iter->rt;
+        else if(prev == iter->lt && iter->rt)
+            prev = iter , iter = iter->rt;
+        else while(iter){
+            prev = iter;
+            iter = iter->parent;
+            if(iter && iter->rt && prev != iter->rt){
+                prev = iter;
+                iter = iter->rt;
+                break;
             }
-            else iter = NULL;
-        case 'R':
-        case 'U':
-        default:
-            puts("completeion error") , exit(0);
-            break;
+        }
     }
     return name;
-
-    return NULL;
 }
 
 char ** symbol_completion(
