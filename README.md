@@ -2,7 +2,7 @@
 
 Zekin is a naive scheme interpreter wrote in C.
 
-To learn how to make an interpreter , I started the project.
+To learn how to make an interpreter, I started the project.
 
 ## Feature :
 
@@ -13,29 +13,6 @@ To learn how to make an interpreter , I started the project.
    5. A simple library manage mechanism
    6. Friendly interative mode (GNU readline)
    [Key binding list](http://readline.kablamo.org/emacs.html)
-
-## Requirements :
-
-   1. GCC
-   2. [GNU Readline Library](https://tiswww.case.edu/php/chet/readline/rltop.html) (optional)
-
-## Install :
-
-If you don't want to use GNU RL , uncomment it in Makefile
-All you need is just :
-```bash
-   make
-```
-
-Or if you want to install readline and your environment is cygwin
-```bash
-   apt-cyg install libreadline-devel && make
-```
-
-Ubuntu
-```bash
-   sudo apt-get install libreadline6 libreadline6-dev && make
-```
 
 ## Usage :
 ```shell
@@ -58,23 +35,49 @@ Ubuntu
       -h     show this help message and exit
 ```
 
+## Requirements :
+
+   1. GCC
+   2. [GNU Readline Library](https://tiswww.case.edu/php/chet/readline/rltop.html) (optional)
+
+## Install :
+
+If you don't want to use GNU RL, uncomment it in Makefile
+
+All you need is just :
+```bash
+   make
+```
+
+If you want to install readline
+
+Cygwin
+```bash
+   apt-cyg install libreadline-devel && make
+```
+
+Ubuntu
+```bash
+   sudo apt-get install libreadline6 libreadline6-dev && make
+```
+
 ## Goals :
 
 #### General :
 
-> 1. Macro
+> 1. Macro implementation
 >
 > 2. Provide some interesting functions to observe the ecology
 >
 > 3. Do some interesting optimizations
-      (symbol , gc , TCO , any opt about speed and space)
+      (symbol, gc, TCO, any opt about speed and space)
 
 
 #### Optional :
 
-> 1. escape char in string (numberical , like \x \o ...)
+> 1. escape char in string (numberical, like \x \o ...)
 >
-> 2. more types , i.e. char , big number (8 byte current) , rational ...
+> 2. more types, i.e. char, big number (8 byte current), rational ...
 >
 > 3. string operations
 >
@@ -94,12 +97,13 @@ Ubuntu
    (f 100000) ; Can I opt it to tail call? (Do I need CPS?)
 ```
 
-2. add let family , `let*` , `letrec` ...
+2. add let family, `let*`, `letrec` ...
 
 3. figureout `syntax-rules` to improve ( rewrite ) macro
 
-4. consider tco , when apply a closure ,
-    with non-lambda args , can I just update without new a env?
+4. consider tco, when apply a closure,
+    with non-lambda args, can I just update without new a env?
+    (How about Closure Passing Style)
 
 ##  Reference :
 
@@ -114,7 +118,7 @@ Ubuntu
 '/               : <procedure:/>
 'mod             : <procedure:mod>
 
-; boolean functions , predictors
+; boolean functions, predictors
 
 '<               : <procedure:<>
 '<=              : <procedure:<=>
@@ -144,7 +148,7 @@ Ubuntu
 'in-port?        : <procedure:in-port?>
 'out-port?       : <procedure:out-port?>
 
-; ctor , list
+; ctor, list
 
 'car             : <procedure:car>
 'cdr             : <procedure:cdr>
@@ -173,7 +177,7 @@ Ubuntu
 'set-cdr!        : <syntax:set-cdr!>
 'syntax-rules    : <syntax:syntax-rules>
 
-; io , system
+; io, system
 
 'gc              : <procedure:gc>
 'exit            : <procedure:exit>
