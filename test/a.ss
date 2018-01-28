@@ -25,4 +25,3 @@
 (display "normal call : ")(flush-output)
 ; wait tail call opt
 (display (h 10000))
-(define g (lambda (acc x) (+ 1 1 acc x)))

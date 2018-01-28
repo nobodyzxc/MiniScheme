@@ -8,11 +8,6 @@
 
 Obj lambda_symbol = NULL;
 
-#define LoR(node , v) \
-    (v > 0 ? &((node)->lt) : &((node)->rt))
-#define cmp_node(s , n) \
-    (strcmp((s) , (n)->sym->str))
-
 Obj  add_symbol(Obj sym , Obj val , Obj env_obj){
 
     if(sym != err && !is_symbol(sym))
@@ -21,7 +16,8 @@ Obj  add_symbol(Obj sym , Obj val , Obj env_obj){
         Symtree iter = env_obj->env->symtab;
         if(!iter)
             env_obj->env->symtab =
-                new_symtree(sym , val , NULL , NULL);
+                new_symtree(sym , val ,
+                        NULL , NULL , NULL);
         else{
             while(1){
                 int v = cmp_node(sym->str , iter);
@@ -32,7 +28,8 @@ Obj  add_symbol(Obj sym , Obj val , Obj env_obj){
                     if(v == 0)
                         iter->val = val;
                     else
-                        *s = new_symtree(sym , val , NULL , NULL);
+                        *s = new_symtree(sym , val ,
+                                iter , NULL , NULL);
                     return sym;
                 }
             }

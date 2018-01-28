@@ -131,6 +131,7 @@ struct symt_tag{
     Obj val;
     Symtree lt;
     Symtree rt;
+    Symtree parent;
 };
 
 struct mac_tag{

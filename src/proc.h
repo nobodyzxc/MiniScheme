@@ -15,4 +15,9 @@ Obj add_symbol(Obj sym , Obj val , Obj env_obj);
 void init_buildins();
 
 extern Obj lambda_symbol;
+
+#define LoR(node , v) \
+    (v > 0 ? &((node)->lt) : &((node)->rt))
+#define cmp_node(s , n) \
+    (strcmp((s) , (n)->sym->str))
 #endif

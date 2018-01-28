@@ -191,11 +191,12 @@ Obj new_MACRO(Obj keyws , Obj rules){
 
 Symtree
 new_symtree(Obj s , Obj v ,
-        Symtree lt , Symtree rt){
+        Symtree parent , Symtree lt , Symtree rt){
     Symtree inst =
         (Symtree)MALLOC(sizeof(symtree_t));
     inst->sym = s , inst->val = v;
     inst->lt = lt , inst->rt = rt;
+    inst->parent = parent;
     return inst;
 }
 

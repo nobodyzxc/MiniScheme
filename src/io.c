@@ -1,6 +1,7 @@
 #include "mem.h"
 #include "type.h"
 #include "util.h"
+#include "proc.h"
 #include "token.h"
 
 #include <ctype.h>
@@ -11,6 +12,52 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 Obj rl_pt = NULL;
+
+char *symbol_generator(const char *text , int state){
+
+    static int len;
+    static Symtree iter;
+    static char dir;
+
+    char *name = NULL;
+
+    if (!state) {
+        dir = 'L';
+        len = strlen(text);
+        iter = glenv->env->symtab;
+        while(iter){
+            if(!strncmp(text , iter->sym->str , len))
+                break;
+            iter = *LoR(iter , cmp_node(text , iter));
+        }
+        if(!iter) return NULL;
+    }
+    name = strdup(iter->sym->str);
+    /* move pointer */
+    switch(dir){
+        case 'L':
+            if(iter->lt) iter = iter->lt;
+            else if(iter->rt) iter = iter->lt;
+            else if(iter->parent){
+                /* do something recursively */
+            }
+            else iter = NULL;
+        case 'R':
+        case 'U':
+        default:
+            puts("completeion error") , exit(0);
+            break;
+    }
+    return name;
+
+    return NULL;
+}
+
+char ** symbol_completion(
+        const char *text , int start , int end){
+    return rl_completion_matches(text , symbol_generator);
+}
+
 char *rl_raw_input(char *prompt){
 
     assert(rl_pt);
@@ -22,6 +69,8 @@ char *rl_raw_input(char *prompt){
     rl_outstream =
         rl_instream == stdin ?
         stdout : fopen("/dev/null", "w");
+
+    rl_attempted_completion_function = symbol_completion;
 
     if(!(port_ctx(rl_pt) = readline(prompt))) return NULL;
 
@@ -115,8 +164,8 @@ void clear_ctx(Obj pt){
 
 void close_port(Obj pt_obj){
     if(pt_obj->port->open){
-       fclose(port_fp(pt_obj));
-       pt_obj->port->open = false;
+        fclose(port_fp(pt_obj));
+        pt_obj->port->open = false;
     }
 }
 
