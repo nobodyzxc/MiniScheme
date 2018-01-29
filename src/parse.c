@@ -39,7 +39,9 @@ char *parse_str(char *beg , char *end){
 
 Obj new_lit(char *v){
     Obj obj;
-    if(v[0] == '#') // not impl char yet
+    if(v[0] == '#'
+            && (v[1] == 't' || v[1] == 'f')
+            && v[2] == '\0') // not impl char yet
         obj = new(BOOLEAN , parse_bool(v));
     else if(isdigit(v[0]) || v[0] == '-' && isdigit(v[1])){
         if(!strchr(v , '.'))

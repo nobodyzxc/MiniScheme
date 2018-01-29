@@ -13,7 +13,7 @@ To learn how to make an interpreter, I started the project.
    5. Interesting functions about environment
    6. A simple library manage mechanism
    7. Friendly interactive mode with tab completion
-     * (You can refer the [Key binding list](http://readline.kablamo.org/emacs.html))
+      * (You can refer the [Key binding list](http://readline.kablamo.org/emacs.html))
 
 ## Usage :
 ```shell
