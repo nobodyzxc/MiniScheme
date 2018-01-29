@@ -172,12 +172,15 @@ Obj zip_pat(Obj pat , Obj args , Obj env){
 
 Obj zip_env(Obj syms , Obj args , Obj env){
     //assert args is list
-    //len(sym) > len(args)
     bool isls = is_list(syms);
     int argslen = length(args);
+    if(argslen == -1)
+        return alert("zip_env : args must be list , "
+                "got " , args);
     if(isls && length(syms) != argslen ||
-            !isls && pat_num(syms) > max(argslen , 1)){
-        printf("unmatched args: ") , print_short_pair(syms);
+            !isls && pat_num(syms) > argslen){
+        printf("unmatched args: ");
+        isls ? print_short_pair(syms) : print_obj(syms);
         printf(" <- ") , print_short_pair(args) , puts("");
         return (Obj)err;
     }

@@ -18,13 +18,23 @@
 ;      (+ (fib (- n 1))
 ;         (fib (- n 2))))))
 
+;(define fib-tail
+;  (lambda (n k)
+;    (if (<= n 2)
+;      (k 1)
+;      (fib-tail (- n 1)
+;                (lambda (x)
+;                  (fib-tail (- n 2)
+;                            (lambda (y)
+;                              (k (+ x y)))))))))
 (define fib-tail
   (lambda (n k)
     (if (<= n 2)
       (k 1)
-      (fib-tail (- n 1)
+      (fib-tail (- n 2)
                 (lambda (x)
-                  (fib-tail (- n 2)
-                             (lambda (y)
-                               (k (+ x y)))))))))
-(fib-tail  10 display)
+                  (fib-tail (- n 1)
+                            (lambda (y)
+                              (k (+ x y)))))))))
+
+(fib-tail  10 print)

@@ -1,4 +1,5 @@
 #include "mem.h"
+#include "opt.h"
 #include "func.h"
 #include "util.h"
 #include "eval.h"
@@ -152,6 +153,7 @@ Obj apply_exit(Obj args , Obj env){
 }
 
 Obj apply_clos(Obj pcr , Obj args , Obj env){
+    puts("apply clos");
     Obj iter = clos_body(pcr) , val = NULL;
     env = zipped_env(clos_args(pcr) , args , clos_env(pcr));
     while(not_nil(iter))
@@ -205,8 +207,11 @@ Obj apply_apply(Obj args , Obj env){
     if(length(args) != 2)
         alert("apply : only accepts 2 args , got " , args);
     else if(car(args)->type == CLOSURE)
-        return apply_clos(car(args) ,
-                cadr(args) , env);
+#ifdef TCO_OPT
+        return tco(car(args) , cadr(args) , env);
+#else
+        return apply_clos(car(args) , cadr(args) , env);
+#endif
     else if(car(args)->type == FUNCTION)
         return car(args)->proc->apply(
                 cadr(args) , env);
@@ -480,6 +485,7 @@ Obj apply_fclose(Obj args , Obj env){
         } \
         else{ \
             printf("cannot apply " xstr(op) " on non-number obj "); \
+            fflush(stdout); \
             return alert("" , car(args)); \
         } \
         args = cdr(args); \
@@ -495,6 +501,7 @@ Obj apply_fclose(Obj args , Obj env){
         } \
         if(!is_num(car(args))){ \
             printf("cannot apply " xstr(op) " on non-number obj "); \
+            fflush(stdout); \
             return alert("" , car(args)); \
         } \
         else if(rtn->type == DECIMAL){ \

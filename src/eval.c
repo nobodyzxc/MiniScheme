@@ -3,8 +3,8 @@
 #include "util.h"
 #include "func.h"
 #include "syntax.h"
-#include "opt.h"
 #include "util.h"
+#include "opt.h"
 
 #include <assert.h>
 
@@ -29,33 +29,6 @@ Obj eval_symbol(Obj val , Obj env){
         elt = (Obj) err;
     }
     return elt;
-}
-
-Obj tco(Obj args , Obj clos , Obj env){
-
-    Obj tail = new(CLOSURE ,
-            new(EXPR , NULL ,
-                args , /* return args as tail call's Ans */
-                clos), /* contain tail call's pars & def */
-            env);
-    //bool is_tail = false;
-    while(clos && clos != err
-            && clos_args(tail) != err
-            && clos->type == CLOSURE){
-        tail = find_tail(tail , clos_body(clos) ,
-                zip_env(
-                    clos_args(clos) ,
-                    clos_args(tail) ,
-                    new(ENV , clos_env(clos))
-                    //is_tail && 0 ? clos_env(clos) :
-                    //new(ENV , clos_env(clos))
-                    ));
-        //is_tail = clos == clos_body(tail);
-        clos = tail == err ? tail : clos_body(tail);
-    }
-    if(clos && clos != err && !is_clos(clos))
-            alert("not a procedure : " , clos);
-    return clos || args == err ? (Obj)err : clos_args(tail);
 }
 
 Obj eval(Obj val , Obj env){
@@ -93,7 +66,7 @@ Obj eval(Obj val , Obj env){
             else if(app->type == CLOSURE){
                 env = clos_env(app);
 #ifdef TCO_OPT
-                return tco(args , app , env);
+                return tco(app , args , env);
 #else
                 return apply_clos(app , args , env);
 #endif

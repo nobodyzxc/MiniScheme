@@ -5,6 +5,13 @@
 #include "mem.h"
 #define TAB_SIZE 1000
 
+typedef struct map_obj_tag MapObj;
+
+struct map_obj_tag{
+    char *key;
+    Obj val;
+};
+
 /* symbol aloc opt */
 
 int hash_cnt = 0;
@@ -102,4 +109,31 @@ Obj find_last_expr(Obj exprs , Obj env){
 Obj find_tail(Obj clos , Obj body , Obj env){
     if(env == err) return env;
     return build_tail(clos , find_last_expr(body , env) , env);
+}
+
+Obj tco(Obj clos , Obj args , Obj env){
+
+    Obj tail = new(CLOSURE ,
+            new(EXPR , NULL ,
+                args , /* return args as tail call's Ans */
+                clos), /* contain tail call's pars & def */
+            env);
+    //bool is_tail = false;
+    while(clos && clos != err
+            && clos_args(tail) != err
+            && clos->type == CLOSURE){
+        tail = find_tail(tail , clos_body(clos) ,
+                zip_env(
+                    clos_args(clos) ,
+                    clos_args(tail) ,
+                    new(ENV , clos_env(clos))
+                    //is_tail && 0 ? clos_env(clos) :
+                    //new(ENV , clos_env(clos))
+                    ));
+        //is_tail = clos == clos_body(tail);
+        clos = tail == err ? tail : clos_body(tail);
+    }
+    if(clos && clos != err && !is_clos(clos))
+            alert("not a procedure : " , clos);
+    return clos || args == err ? (Obj)err : clos_args(tail);
 }

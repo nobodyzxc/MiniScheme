@@ -6,8 +6,17 @@
     (cons (apply func (map1 car ls))
           (apply map (cons func (map1 cdr ls))))))
 
-(define (fold f b l)
-  (if (null? l) b (fold f (f (car l) b) (cdr l))))
+(define (fold f b . ls)
+  (if (null? (car ls)) b
+    (apply
+      fold
+      (cons f
+            (cons
+              (apply f (cons b (map car ls)))
+              (map cdr ls))
+            )
+      )
+    ))
 
 (define (filter f l)
   (if (null? l) '()

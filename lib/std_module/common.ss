@@ -36,6 +36,9 @@
   (if (null? a) b
     (cons (car a) (append (cdr a) b))))
 
+(define (reverse xs)
+  (fold cons '() xs))
+
 (define (assoc elt ls)
   (if (null? ls) #f
     (if (equal? elt (caar ls)) (car ls) (assoc elt (cdr ls)))))
