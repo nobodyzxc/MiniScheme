@@ -489,7 +489,7 @@ Obj apply_fclose(Obj args , Obj env){
         break; \
         if(6 op 3 == 2 || 6 op 3 == 0){ \
             if(num_of(car(args)) == 0){ \
-                printf(6 op 3 ? "/" : "%%");    \
+                printf(6 op 3 ? "/" : "%%") , fflush(stdout);    \
                 return alert(" : arg cannot be zero , got " , car(args)); \
             } \
         } \

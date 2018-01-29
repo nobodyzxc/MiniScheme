@@ -7,12 +7,13 @@ To learn how to make an interpreter, I started the project.
 ## Feature :
 
    1. Tail Call Optimization
-   2. Simple macro (may improve it after I finishing SICP)
-   3. Multi-line comment (`#| multi-line |#`)
-   4. Interesting functions
-   5. A simple library manage mechanism
-   6. Friendly interative mode (GNU readline)
-   [Key binding list](http://readline.kablamo.org/emacs.html)
+   2. Mark-and-Sweep Garbage Collection
+   3. Simple macro (may improve it after I finishing SICP)
+   4. Multi-line comment (`#| multi-line |#`)
+   5. Interesting functions about environment
+   6. A simple library manage mechanism
+   7. Friendly interactive mode with tab completion
+     * (You can refer the [Key binding list](http://readline.kablamo.org/emacs.html))
 
 ## Usage :
 ```shell
