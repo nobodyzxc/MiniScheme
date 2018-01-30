@@ -111,6 +111,15 @@ Obj find_tail(Obj clos , Obj body , Obj env){
     return build_tail(clos , find_last_expr(body , env) , env);
 }
 
+bool exist_redefine_args(Obj args , Obj env){
+    while(iterable(args))
+        if(search_symbol(car(args)->str , env) == err)
+            return false;
+        else
+            args = cdr(args);
+    return true;
+}
+
 Obj tco(Obj clos , Obj args , Obj env){
 
     Obj tail = new(CLOSURE ,
@@ -118,7 +127,7 @@ Obj tco(Obj clos , Obj args , Obj env){
                 args , /* return args as tail call's Ans */
                 clos), /* contain tail call's pars & def */
             env);
-    //bool is_tail = false;
+    bool need_new_env = false;
     while(clos && clos != err
             && clos_args(tail) != err
             && clos->type == CLOSURE){
@@ -127,13 +136,13 @@ Obj tco(Obj clos , Obj args , Obj env){
                     clos_args(clos) ,
                     clos_args(tail) ,
                     new(ENV , clos_env(clos))
-                    //is_tail && 0 ? clos_env(clos) :
+                    //is_tail ? clos_env(clos) :
                     //new(ENV , clos_env(clos))
                     ));
-        //is_tail = clos == clos_body(tail);
+
         clos = tail == err ? tail : clos_body(tail);
     }
     if(clos && clos != err && !is_clos(clos))
-            alert("not a procedure : " , clos);
+        alert("not a procedure : " , clos);
     return clos || args == err ? (Obj)err : clos_args(tail);
 }

@@ -74,8 +74,8 @@ Obj lookup_symenv(char *symstr , Obj env_obj){
 
 #define BIND(TYPE , SYM , PROC , ENV) \
     add_symbol(\
-            new(SYMBOL , strdup(SYM)) , \
-            new(TYPE , strdup(SYM) , PROC) , ENV)
+            new(SYMBOL , ya_strdup(SYM)) , \
+            new(TYPE , ya_strdup(SYM) , PROC) , ENV)
 
 void init_buildins(){
 
@@ -146,5 +146,5 @@ void init_buildins(){
     BIND(FUNCTION , "get-curenv"   , &apply_get_curenv   , glenv);
     BIND(FUNCTION , "lookup-symbol", &apply_lookup_symbol, glenv);
 
-    add_symbol(new(SYMBOL , strdup("global")) , glenv    , glenv);
+    add_symbol(new(SYMBOL , ya_strdup("global")) , glenv    , glenv);
 }

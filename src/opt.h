@@ -8,4 +8,5 @@ Obj lookup_sym_pool(char *s);
 
 Obj tco(Obj clos , Obj args , Obj env);
 
+bool exist_lambda(Obj exprs);
 #endif

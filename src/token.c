@@ -102,8 +102,8 @@ char *add_quote(char *p , Token *plast){
     if(p == NULL)
         return err_tok("unexpected EOF instead of other elt");
 
-    add_token(strdup("(") , plast);
-    add_token(strdup("quote") , plast);
+    add_token(ya_strdup("(") , plast);
+    add_token(ya_strdup("quote") , plast);
     if(*p == '(')
         p = tok_list(p , &(*plast)->next , plast);
     else if(*p == '\'')
@@ -112,12 +112,12 @@ char *add_quote(char *p , Token *plast){
         char *s = p;
         add_token(ya_strndup(s , (p = tokstr(p)) - s) , plast);
     }
-    add_token(strdup(")") , plast);
+    add_token(ya_strdup(")") , plast);
     return p;
 }
 
 char *salloc(char *str , int size){
-    char *re = malloc(sizeof(char) * size);
+    char *re = MALLOC(sizeof(char) * size);
     sprintf(re , str ? str : "") , free(str);
     return re;
 }
@@ -201,7 +201,7 @@ char *tok_list(char *p , Token *phead , Token *ptail){
     Token head , tail;
     if(!is_paren_l(*p))
         error("invalid call tok_list %s\n" , p);
-    head = tail = new_token(strdup("(") , NULL); //must use strdup
+    head = tail = new_token(ya_strdup("(") , NULL); //must use ya_strdup
     p += 1;
     while(1){
         p = tok_non_blank(p , DESIRE_PAR_PROMPT);
@@ -217,7 +217,7 @@ char *tok_list(char *p , Token *phead , Token *ptail){
             case ']':
             case '}':
                 if(*p == rev_paren(hp)){
-                    add_token(strdup(")") , &tail);
+                    add_token(ya_strdup(")") , &tail);
                     (*phead) = head;
                     if(ptail) (*ptail) = tail;
                     return p + 1;

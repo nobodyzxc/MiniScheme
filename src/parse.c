@@ -20,7 +20,7 @@ char *parse_str(char *beg , char *end){
     // "abcde"
     //  ^    ^ ya_strndup(v + 1 , strlen(v) - 2))
     char *v =                    /* for \0 */
-        malloc(sizeof(char) * (end - beg) + 1);
+        MALLOC(sizeof(char) * (end - beg) + 1);
     char *p = v;
     char *k = "abfnrtv\\'?\"" , *e = "\a\b\f\n\r\t\v\\\'\?\"";
     /* todo : parse \n \x \e \U \u */
@@ -58,7 +58,7 @@ Obj new_lit(char *v){
     else if(EQS(v , "else"))
         obj = (Obj)els;
     else
-        obj = new(SYMBOL , strdup(v));
+        obj = new(SYMBOL , ya_strdup(v));
     return obj;
 }
 

@@ -29,7 +29,7 @@ char *symbol_generator(const char *text , int state){
 
     while(!name && iter){
         if(!strncmp(text , iter->sym->str , len))
-            name = strdup(iter->sym->str);
+            name = ya_strdup(iter->sym->str);
         /* move pointer */
         if((prev == NULL || prev == iter->parent) && iter->lt)
             prev = iter , iter = iter->lt;
@@ -131,7 +131,7 @@ char *read_raw_input(char *prompt){
 
     port_ptr(read_pt) =
         port_ctx(read_pt) =
-        (char*)malloc(sizeof(char) * RDSIZE);
+        (char*)MALLOC(sizeof(char) * RDSIZE);
 
     if(!fgets(port_ctx(read_pt) ,
                 RDSIZE , port_fp(read_pt))){
@@ -169,6 +169,6 @@ void close_port(Obj pt_obj){
 Obj open_port(char *name , char *mode){
     FILE *fp = fopen(name , mode);
     if(!fp) return (Obj)err;
-    return new(PORT , fp , strdup(name) , mode);
+    return new(PORT , fp , ya_strdup(name) , mode);
 }
 

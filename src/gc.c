@@ -5,7 +5,7 @@
 ObjList head = NULL;
 
 void gc_list_cons(Obj obj){
-    ObjList inst = malloc(sizeof(obj_list_t));
+    ObjList inst = MALLOC(sizeof(obj_list_t));
     inst->v = obj;
     inst->next = head ? head : NULL;
     head = inst;
@@ -78,17 +78,26 @@ void rec(){
 
 void gc(){
     if(!head) return;
+    long long pre = get_obj_num();
     mark(glenv);
     sweep();
     unmark();
+    long long cur = get_obj_num();
+#ifdef SHOW_GC_INFO
+        printf("%d obj cleared,"
+                " %d obj left\n" ,
+                pre - cur , cur);
+#endif
 }
 
 void auto_try_gc(){
-    static long long pre_obj_num = 0;
-    long long before = get_obj_num();
-    if(before > pre_obj_num * 2){
+    static long long pre = 0;
+    long long cur = get_obj_num();
+    if(cur > pre * 2){
+#ifdef SHOW_GC_INFO
+        printf("auto gc end, ");
+#endif
         gc();
-        long long after = get_obj_num();
-        pre_obj_num = after;
+        pre = get_obj_num();
     }
 }

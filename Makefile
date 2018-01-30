@@ -8,6 +8,7 @@ I_MODE = rl
 # NATIVE FGETS , UNCOMMENT IT IF YOU DON'T WANT TO USE GNU READLINE
 
 CC = gcc
+LIBS = -lm
 CFLAGS = -g \
 		 -DLIBPATH="$(CURDIR)/lib/" \
 		 -DLIBCONFIG="config" \
@@ -27,7 +28,10 @@ CFLAGS += -O3 -DTCO_OPT
 ################################
 #CFLAGS += -DPURE_READ
 
-LIBS = -lm
+################################
+# SHOW GARBAGE COLLECTION INFO #
+################################
+#CFLAGS += -DSHOW_GC_INFO
 
 ifeq ($(I_MODE) , rl)
 	CFLAGS += -DRL_LIB

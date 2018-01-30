@@ -134,7 +134,7 @@ int handle_flags(int argc , char *argv[]){
             I_MODE_PORT = stdin_pt;
             port_ptr(I_MODE_PORT) =
                 port_ctx(I_MODE_PORT) =
-                (char*)malloc(sizeof(char) * 300);
+                (char*)MALLOC(sizeof(char) * 300);
             sprintf(port_ctx(I_MODE_PORT) , "");
             for(++i ; i < argc ; i++)
                 sprintf(port_ctx(I_MODE_PORT) , "%s %s" ,

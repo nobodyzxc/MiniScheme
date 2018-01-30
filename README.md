@@ -106,6 +106,8 @@ Ubuntu
     with non-lambda args, can I just update without new a env?
     (How about Closure Passing Style)
 
+5. Implement [more functions](https://srfi.schemers.org/srfi-1/srfi-1.html)
+
 ##  Reference :
 
 #### Primary

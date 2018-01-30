@@ -4,24 +4,35 @@
 #include "util.h"
 #include "opt.h"
 #include <stdlib.h>
+#include <malloc.h>
 #include <assert.h>
 
 long long obj_count = 0;
+long long mloc_size = 0;
 
 long long get_obj_num(){
     return obj_count;
 }
 
 void *MALLOC(size_t size){
-    return malloc(size);
+    void *mloc = malloc(size);
+    mloc_size += malloc_usable_size(mloc);
+    return mloc;
 }
 
 void *FREE(void *p){
+    mloc_size -= malloc_usable_size(p);
     free(p);
 }
 
 Obj new_obj(type_t type){
+    //printf("new %d\n" , type);
     obj_count++;
+    if(!(obj_count % 100000)){
+        if(obj_count == 60000000) // about 5G
+            printf("memory not enough, %lld bytes used\n" , mloc_size)
+                , exit(0);
+    }
     Obj inst = (Obj)MALLOC(sizeof(obj_t));
     inst->type = type;
     inst->mark = false;
@@ -183,7 +194,7 @@ Obj new_SYNTAX(char *name , func_ptr fp){
 
 Obj new_MACRO(Obj keyws , Obj rules){
     Obj inst = new_obj(MACRO);
-    inst->mac = malloc(sizeof(mac_t));
+    inst->mac = MALLOC(sizeof(mac_t));
     inst->mac->keyws = keyws;
     inst->mac->rules = rules;
     return inst;
@@ -204,12 +215,12 @@ void free_symtree(Symtree tree){
     if(!tree) return;
     if(tree->lt) free_symtree(tree->lt);
     if(tree->rt) free_symtree(tree->rt);
-    free(tree);
+    FREE(tree);
 }
 
 void free_port(Port port){
-    free(port->ctx);
-    free(port->name);
+    FREE(port->ctx);
+    FREE(port->name);
     if(port->open){
         fclose(port->fp);
         port->open = false;
@@ -225,9 +236,9 @@ void free_obj(Obj obj){
     if(is_nil(obj)) return;
     if(obj->type == STRING
             || obj->type == SYMBOL)
-        free(obj->str);
+        FREE(obj->str);
     else if(obj->type == EXPR)
-        free(obj->expr->name);
+        FREE(obj->expr->name);
     else if(obj->type == ENV)
         free_symtree(obj->env->symtab);
     else if(obj->type == PORT)
@@ -245,9 +256,19 @@ void free_token(Token tok){
 }
 
 char *ya_strndup(const char *s, size_t size){
-    char *n = malloc(sizeof(char) * size + 1);
+    char *n = MALLOC(sizeof(char) * size + 1);
     for(size_t i = 0 ; i < size ; i++)
         n[i] = s[i];
     n[size] = 0;
+    return n;
+}
+
+char *ya_strdup(const char *s){
+    int len = strlen(s);
+    char *n = MALLOC(sizeof(char) * (len + 1));
+    char *p = n;
+    while(*s)
+        *p = *s , p++ , s++;
+    *p = *s;
     return n;
 }

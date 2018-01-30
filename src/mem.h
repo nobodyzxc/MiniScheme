@@ -8,6 +8,8 @@
     new_ ## TYPE(__VA_ARGS__)
 
 
+void *MALLOC(size_t size);
+
 Cons new_cons(kObj car  , kObj cdr);
 Token new_token(char *p , Token next);
 
@@ -37,4 +39,5 @@ void free_token(Token tok);
 long long get_obj_num();
 
 char *ya_strndup(const char *s, size_t size);
+char *ya_strdup(const char *s);
 #endif

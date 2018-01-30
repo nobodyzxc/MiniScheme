@@ -239,11 +239,11 @@ Obj apply_get_curenv(Obj args , Obj env){
 
 Obj apply_lookup_symbol(Obj args , Obj env){
     if(length(args) != 2)
-        alert("lookup-env : only accepts 2 arg , got " , args);
+        alert("lookup-symbol : only accepts 2 arg , got " , args);
     else if(!car(args) || car(args)->type != SYMBOL)
-        alert("lookup-env's 1st arg should be symbol , got " , car(args));
+        alert("lookup-symbol's 1st arg should be symbol , got " , car(args));
     else if(!cadr(args) || cadr(args)->type != ENV)
-        alert("lookup-env's 2nd arg should be environment , got " , cadr(args));
+        alert("lookup-symbol's 2nd arg should be environment , got " , cadr(args));
     else{
         Obj res = search_symbol(car(args)->str , cadr(args));
         if(res != err)
