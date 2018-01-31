@@ -142,6 +142,7 @@ struct mac_tag{
 struct env_tag{
     Symtree symtab;
     Obj parent;
+    bool ref;
 };
 
 struct port_tag{

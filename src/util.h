@@ -34,12 +34,13 @@
 #define cddddr(x) (cdr(cdr(cdr(cdr(x)))))
 
 
+#define env_ref(t)   ((t)->env->ref)
 #define clos_expr(t) ((t)->clos->exp)
 #define clos_body(t) ((t)->clos->exp->expr->body)
 #define clos_args(t) ((t)->clos->exp->expr->args)
 #define clos_env(t)  ((t)->clos->env)
 #define mac_keys(t)  ((t)->mac->keyws)
-#define mac_rules(t)  ((t)->mac->rules)
+#define mac_rules(t) ((t)->mac->rules)
 #define port_fp(t)   ((t)->port->fp)
 #define port_ctx(t)  ((t)->port->ctx)
 #define port_ptr(t)  ((t)->port->ptr)

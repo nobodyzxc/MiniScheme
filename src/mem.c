@@ -48,7 +48,7 @@ Cons new_cons(kObj car , kObj cdr){
 
 Clos new_clos(Obj expr , Obj env){
     Clos inst = (Clos)MALLOC(sizeof(clos_t));
-    inst->exp = expr , inst->env = env;
+    inst->exp = expr , inst->env = env , env->env->ref = true;
     return inst;
 }
 
@@ -93,6 +93,7 @@ Expr new_expr(char *name , Obj args , Obj body){
 Env new_env(Obj env){
     Env inst = (Env)MALLOC(sizeof(env_t));
     inst->symtab = NULL , inst->parent = env;
+    inst->ref = false;
     return inst;
 }
 

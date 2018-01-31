@@ -127,20 +127,33 @@ Obj tco(Obj clos , Obj args , Obj env){
                 args , /* return args as tail call's Ans */
                 clos), /* contain tail call's pars & def */
             env);
-    bool need_new_env = false;
+    bool reuse_env = false;
     while(clos && clos != err
             && clos_args(tail) != err
             && clos->type == CLOSURE){
+
+        Obj eval_env =
+            reuse_env ?
+            clos_env(clos) :
+            new(ENV , clos_env(clos));;
+
         tail = find_tail(tail , clos_body(clos) ,
                 zip_env(
                     clos_args(clos) ,
                     clos_args(tail) ,
-                    new(ENV , clos_env(clos))
-                    //is_tail ? clos_env(clos) :
-                    //new(ENV , clos_env(clos))
-                    ));
+                    eval_env));
 
-        clos = tail == err ? tail : clos_body(tail);
+        Obj new_clos =
+            tail == err ?
+            tail : clos_body(tail);
+
+        if(is_clos(new_clos)){
+            if(env_ref(eval_env))
+                reuse_env = false;
+            else
+                reuse_env = clos == new_clos;
+        }
+        clos = new_clos;
     }
     if(clos && clos != err && !is_clos(clos))
         alert("not a procedure : " , clos);
