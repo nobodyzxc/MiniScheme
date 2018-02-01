@@ -4,4 +4,3 @@
 
 (display (g 10 0))
 (display "\n")
-;(f 100000000 print)

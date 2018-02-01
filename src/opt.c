@@ -165,6 +165,23 @@ Obj tco(Obj clos , Obj args , Obj env){
 }
 
 /* space opt , args list */
+
+typedef struct objls_tag *Objls;
+typedef struct arg_elt  *Argelt;
+
+struct objls_tag{
+    Obj val;
+    Objls next;
+};
+
+struct arg_elt{
+    Obj argpr;
+    Objls objs;
+    Argelt next;
+}
+
+struct Argelt argdb[10] = { [0 ... 9] = NULL };
+
 static int args_rest = 0;
 static Obj args_head = NULL;
 
@@ -177,7 +194,7 @@ Obj aloc_arg_cell(){
 
 Obj extend_cell(Obj head , int len){
 //    if(head){
-//        alert("continue : " , head); 
+//        alert("continue : " , head);
 //    }
 //    else{
 //        printf("ori ") , fflush(stdout);
@@ -222,22 +239,22 @@ Obj append_list(Obj pre , Obj rest){
     return pre;
 }
 
-Obj cut_rest(int len){
-    /* assert len > 0 */
-    Obj rtn = args_head;
-    Obj iter = args_head;
-    args_rest -= len;
-    while(--len)
-        iter = cdr(iter);
-    args_head = cdr(iter);
-    if(args_head == nil)
-        args_head = NULL;
-    cdr(iter) = (Obj)nil;
-
-//    alert("cut " , rtn);
-//    alert("rest " , args_head);
-    return rtn;
-}
+//Obj cut_rest(int len){
+//    /* assert len > 0 */
+//    Obj rtn = args_head;
+//    Obj iter = args_head;
+//    args_rest -= len;
+//    while(--len)
+//        iter = cdr(iter);
+//    args_head = cdr(iter);
+//    if(args_head == nil)
+//        args_head = NULL;
+//    cdr(iter) = (Obj)nil;
+//
+////    alert("cut " , rtn);
+////    alert("rest " , args_head);
+//    return rtn;
+//}
 
 Obj args_aloc(int len){
     if(!len) return (Obj)nil;
