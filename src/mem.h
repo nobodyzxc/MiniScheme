@@ -7,6 +7,8 @@
 #define new(TYPE , ...) \
     new_ ## TYPE(__VA_ARGS__)
 
+#define set(TYPE , ...) \
+    set_ ## TYPE(__VA_ARGS__)
 
 void *MALLOC(size_t size);
 
@@ -33,6 +35,9 @@ Obj  new_FUNCTION(char *name , func_ptr fp);
 Obj  new_MACRO(Obj keyws , Obj rules);
 Obj  new_PORT   (FILE *fp , char *name , char *mode);
 
+Obj set_INTEGER(long long v , Obj set);
+Obj set_PAIR   (Obj car , Obj cdr , Obj set);
+
 void free_obj(Obj obj);
 void free_token(Token tok);
 
@@ -40,4 +45,5 @@ long long get_obj_num();
 
 char *ya_strndup(const char *s, size_t size);
 char *ya_strdup(const char *s);
+
 #endif

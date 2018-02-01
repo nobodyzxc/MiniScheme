@@ -11,7 +11,7 @@
 #include <math.h>
 
 /* predictors */
-Obj apply_eqq(Obj args , Obj env){
+Obj apply_eqq(Obj args , Obj env , Obj set){
     if(length(args) != 2)
         alert("eq? : only accepts 2 args , got " , args);
     else
@@ -19,7 +19,7 @@ Obj apply_eqq(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_eqvq(Obj args , Obj env){
+Obj apply_eqvq(Obj args , Obj env , Obj set){
     if(length(args) != 2)
         alert("eqv? : only accepts 2 args , got " , args);
     else
@@ -27,7 +27,7 @@ Obj apply_eqvq(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_equalq(Obj args , Obj env){
+Obj apply_equalq(Obj args , Obj env , Obj set){
     if(length(args) != 2)
         alert("equal? : only accepts 2 args , got " , args);
     else
@@ -35,7 +35,7 @@ Obj apply_equalq(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_nullq(Obj args , Obj env){
+Obj apply_nullq(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("null? : only accepts 1 arg , got " , args);
     else
@@ -43,7 +43,7 @@ Obj apply_nullq(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_listq(Obj args , Obj env){
+Obj apply_listq(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("list? : only accepts 1 arg , got " , args);
     else
@@ -51,7 +51,7 @@ Obj apply_listq(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_pairq(Obj args , Obj env){
+Obj apply_pairq(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("pair? : only accepts 1 arg , got " , args);
     else
@@ -59,7 +59,7 @@ Obj apply_pairq(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_booleanq(Obj args , Obj env){
+Obj apply_booleanq(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("boolean? : only accepts 1 arg , got " , args);
     else
@@ -67,7 +67,7 @@ Obj apply_booleanq(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_numberq(Obj args , Obj env){
+Obj apply_numberq(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("number? : only accepts 1 arg , got " , args);
     else
@@ -75,7 +75,7 @@ Obj apply_numberq(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_exactq(Obj args , Obj env){
+Obj apply_exactq(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("exact? : only accepts 1 arg , got " , args);
     else
@@ -83,7 +83,7 @@ Obj apply_exactq(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_integerq(Obj args , Obj env){
+Obj apply_integerq(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("integer? : only accepts 1 arg , got " , args);
     else if(is_num(car(args)))
@@ -95,7 +95,7 @@ Obj apply_integerq(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_stringq(Obj args , Obj env){
+Obj apply_stringq(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("string? : only accepts 1 arg , got " , args);
     else
@@ -103,7 +103,7 @@ Obj apply_stringq(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_closureq(Obj args , Obj env){
+Obj apply_closureq(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("closure? : only accepts 1 arg , got " , args);
     else
@@ -111,7 +111,7 @@ Obj apply_closureq(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_envq(Obj args , Obj env){
+Obj apply_envq(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("env? : only accepts 1 arg , got " , args);
     else
@@ -119,7 +119,7 @@ Obj apply_envq(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_portq(Obj args , Obj env){
+Obj apply_portq(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("port? : only accepts 1 arg , got " , args);
     else
@@ -127,7 +127,7 @@ Obj apply_portq(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_output_portq(Obj args , Obj env){
+Obj apply_output_portq(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("output-port? : only accepts 1 arg , got " , args);
     else
@@ -135,7 +135,7 @@ Obj apply_output_portq(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_input_portq(Obj args , Obj env){
+Obj apply_input_portq(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("input-port? : only accepts 1 arg , got " , args);
     else
@@ -144,7 +144,7 @@ Obj apply_input_portq(Obj args , Obj env){
 }
 
 /* precedures */
-Obj apply_exit(Obj args , Obj env){
+Obj apply_exit(Obj args , Obj env , Obj set){
     if(length(args) > 0 &&
             car(args)->type == INTEGER)
         exit((int)(car(args)->integer));
@@ -152,21 +152,12 @@ Obj apply_exit(Obj args , Obj env){
     return NULL;
 }
 
-Obj apply_clos(Obj pcr , Obj args , Obj env){
-    puts("apply clos");
-    Obj iter = clos_body(pcr) , val = NULL;
-    env = zipped_env(clos_args(pcr) , args , clos_env(pcr));
-    while(not_nil(iter))
-        val = eval(car(iter) , env) , iter = cdr(iter);
-    return val;
-}
-
-Obj apply_gc(Obj args , Obj env){
+Obj apply_gc(Obj args , Obj env , Obj set){
     gc();
     return NULL;
 }
 
-Obj apply_source(Obj args , Obj env){
+Obj apply_source(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("source : only accepts 1 arg , got " , args);
     else if(car(args)->type != STRING)
@@ -178,7 +169,7 @@ Obj apply_source(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_system(Obj args , Obj env){
+Obj apply_system(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("system : only accepts 1 arg , got " , args);
     else if(car(args)->type != STRING)
@@ -188,33 +179,33 @@ Obj apply_system(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_eval(Obj args , Obj env){
+Obj apply_eval(Obj args , Obj env , Obj set){
     int len = length(args);
     if(len != 1 && len != 2)
         alert("eval : accepts 1 to 2 args , got " , args);
     else if(len == 2 && !is_env(cadr(args)))
         alert("eval : second arg must be env , got " , cadr(args));
     else if(len == 1)
-        return eval(car(args) , env);
+        return eval(car(args) , env , NULL);
     else if(len == 2)
-        return eval(car(args) , cadr(args));
+        return eval(car(args) , cadr(args) , NULL);
     else
         alert("cannot eval " , args);
     return (Obj)err;
 }
 
-Obj apply_apply(Obj args , Obj env){
+Obj apply_apply(Obj args , Obj env , Obj set){
     if(length(args) != 2)
         alert("apply : only accepts 2 args , got " , args);
     else if(car(args)->type == CLOSURE)
 #ifdef TCO_OPT
         return tco(car(args) , cadr(args) , env);
 #else
-        return apply_clos(car(args) , cadr(args) , env);
+        return eval_clos(car(args) , cadr(args) , env);
 #endif
     else if(car(args)->type == FUNCTION)
         return car(args)->proc->apply(
-                cadr(args) , env);
+                cadr(args) , env , NULL);
     else{
         printf("cannot apply ");
         print_obj(car(args));
@@ -223,7 +214,7 @@ Obj apply_apply(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_get_env(Obj args , Obj env){
+Obj apply_get_env(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("get-env : only accepts 1 arg , got " , args);
     else if(!car(args) || car(args)->type != CLOSURE)
@@ -233,11 +224,11 @@ Obj apply_get_env(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_get_curenv(Obj args , Obj env){
+Obj apply_get_curenv(Obj args , Obj env , Obj set){
     return env;
 }
 
-Obj apply_lookup_symbol(Obj args , Obj env){
+Obj apply_lookup_symbol(Obj args , Obj env , Obj set){
     if(length(args) != 2)
         alert("lookup-symbol : only accepts 2 arg , got " , args);
     else if(!car(args) || car(args)->type != SYMBOL)
@@ -254,19 +245,19 @@ Obj apply_lookup_symbol(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_flush_output(Obj args , Obj env){
+Obj apply_flush_output(Obj args , Obj env , Obj set){
     fflush(stdout);
     return NULL;
 }
 
-Obj apply_display(Obj args , Obj env){
+Obj apply_display(Obj args , Obj env , Obj set){
     /* todo : extend arity up to 2
      * to support output-port? */
     int len = length(args);
     if(len != 1 && len != 2)
         alert("display : only accepts 1 to 2 args , got " , args);
     else if(len == 2 && !is_port_of(cadr(args) , "w"))
-        alert_dtl("display : second arg must be out-port? , got " , cadr(args));
+        alert_dtl("display : second arg must be out-port? , got " , args);
     else if(len == 2 && !port_open(cadr(args)))
         alert_dtl("display : output to a closed port => " , cadr(args));
     else{
@@ -280,20 +271,24 @@ Obj apply_display(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_length(Obj args , Obj env){
+Obj apply_length(Obj args , Obj env , Obj set){
     int len = 0;
     if(length(args) != 1)
         alert("length : only accepts 1 arg , got " , args);
     else if(!is_pair(car(args)))
         alert("cannot apply length on " , car(args));
-    else if((len = length(car(args))) >= 0)
-        return new(INTEGER , len);
+    else if((len = length(car(args))) >= 0){
+        if(!set)
+            return new(INTEGER , len);
+        else
+            return set(INTEGER , len , set);
+    }
     else
         alert("cannot apply length on pr : " , car(args));
     return (Obj)err;
 }
 
-Obj apply_car(Obj args , Obj env){
+Obj apply_car(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("car : only accepts 1 arg , got " , args);
     else if(car(args) && car(args)->type == PAIR)
@@ -303,7 +298,7 @@ Obj apply_car(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_cdr(Obj args , Obj env){
+Obj apply_cdr(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("cdr : only accepts 1 arg , got " , args);
     else if(car(args)->type == PAIR)
@@ -313,15 +308,19 @@ Obj apply_cdr(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_cons(Obj args , Obj env){
+Obj apply_cons(Obj args , Obj env , Obj set){
     if(length(args) != 2)
         alert("cons : only accepts 2 args , got " , args);
-    else
-        return new(PAIR , new_cons(car(args) , cadr(args)));
+    else{
+        if(!set)
+            return new(PAIR , new_cons(car(args) , cadr(args)));
+        else
+            return set(PAIR , car(args) , cadr(args) , set);
+    }
     return (Obj)err;
 }
 
-Obj apply_eqnum(Obj args , Obj env){
+Obj apply_eqnum(Obj args , Obj env , Obj set){
     if(length(args) < 2)
         alert("= : accepts at least 2 args , got " , args);
     else{
@@ -338,7 +337,7 @@ Obj apply_eqnum(Obj args , Obj env){
 }
 
 #define apply_cmp(name , op) \
-    Obj apply_ ## name (Obj args , Obj env){ \
+    Obj apply_ ## name (Obj args , Obj env , Obj set){ \
         if(length(args) < 2) \
         alert(str(op) " : accepts at least 2 args , got " , args); \
         else{ \
@@ -356,7 +355,7 @@ apply_cmp(gt , >);
 apply_cmp(let , <=);
 apply_cmp(get , >=);
 
-Obj apply_not(Obj args , Obj env){
+Obj apply_not(Obj args , Obj env , Obj set){
     //assert airth == 1
     if(length(args) != 1)
         alert("not : only accepts 1 arg , got " , args);
@@ -365,11 +364,11 @@ Obj apply_not(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_void(Obj args , Obj env){
+Obj apply_void(Obj args , Obj env , Obj set){
     return NULL;
 }
 
-Obj apply_voidq(Obj args , Obj env){
+Obj apply_voidq(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("void? : only accepts 1 arg , got " , args);
     else
@@ -377,7 +376,7 @@ Obj apply_voidq(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_symbolq(Obj args , Obj env){
+Obj apply_symbolq(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("symbol? : only accepts 1 arg , got " , args);
     else
@@ -385,7 +384,7 @@ Obj apply_symbolq(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_procedureq(Obj args , Obj env){
+Obj apply_procedureq(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("procedure? : only accepts 1 arg , got " , args);
     else
@@ -395,7 +394,7 @@ Obj apply_procedureq(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_read(Obj args , Obj env){
+Obj apply_read(Obj args , Obj env , Obj set){
     /* todo : input-port ? */
     int len = length(args);
     if(len != 0 && len != 1)
@@ -433,7 +432,7 @@ Obj apply_read(Obj args , Obj env){
     return val;
 }
 
-Obj apply_open_inport(Obj args , Obj env){
+Obj apply_open_inport(Obj args , Obj env , Obj set){
     Obj rtn = NULL;
     if(length(args) != 1)
         alert("open-in-port : only accepts 1 arg , got " , args);
@@ -446,7 +445,7 @@ Obj apply_open_inport(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_open_outport(Obj args , Obj env){
+Obj apply_open_outport(Obj args , Obj env , Obj set){
     Obj rtn = NULL;
     if(length(args) != 1)
         alert("open-out-port : only accepts 1 arg , got " , args);
@@ -459,7 +458,7 @@ Obj apply_open_outport(Obj args , Obj env){
     return (Obj)err;
 }
 
-Obj apply_fclose(Obj args , Obj env){
+Obj apply_fclose(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("fclose : only accepts 1 arg , got " , args);
     else if(!is_port(car(args)))
@@ -472,7 +471,6 @@ Obj apply_fclose(Obj args , Obj env){
 }
 
 #define arith(args , rtn , op , base) \
-    Obj rtn = new(INTEGER , base); \
     int pr_len = length(args); \
     int chk = 6 op 2; \
     if((6 op 2 > 5 && pr_len) || pr_len > 1){ \
@@ -515,8 +513,23 @@ Obj apply_fclose(Obj args , Obj env){
     }
 
 #define apply_opr(op_name , op , base) \
-    Obj apply_ ## op_name(Obj args , Obj env){ \
+    Obj apply_ ## op_name(Obj args , Obj env , Obj set){ \
+        if(set && !is_num(set)){ \
+            return alert("space opt : set should be number , got" , set); \
+        } \
+        obj_t val; \
+        val.type = INTEGER; \
+        val.integer = base; \
+        Obj rtn = &val; \
         arith(args , rtn , op , base); \
+        if(!set){ \
+            rtn = new(INTEGER , base); \
+            *rtn = val; \
+        } \
+        else{ \
+            *set = val; \
+            rtn = set; \
+        } \
         return rtn; \
     }
 

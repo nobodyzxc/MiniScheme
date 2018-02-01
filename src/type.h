@@ -83,7 +83,7 @@ typedef struct env_tag  env_t;
 typedef struct env_tag  *Env;
 typedef struct port_tag port_t;
 typedef struct port_tag *Port;
-typedef Obj (*func_ptr)(Obj , Obj);
+typedef Obj (*func_ptr)(Obj , Obj , Obj);
 
 struct cons_tag{
     Obj car;
@@ -119,6 +119,8 @@ struct expr_tag{
 struct clos_tag{
     Obj exp;
     Obj env;
+    bool tr;
+    /* is tail recursive ? */
 };
 
 struct proc_tag{

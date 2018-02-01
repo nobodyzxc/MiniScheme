@@ -35,10 +35,13 @@
 
 
 #define env_ref(t)   ((t)->env->ref)
+
 #define clos_expr(t) ((t)->clos->exp)
 #define clos_body(t) ((t)->clos->exp->expr->body)
 #define clos_args(t) ((t)->clos->exp->expr->args)
 #define clos_env(t)  ((t)->clos->env)
+#define clos_tr(t)  ((t)->clos->tr)
+
 #define mac_keys(t)  ((t)->mac->keyws)
 #define mac_rules(t) ((t)->mac->rules)
 #define port_fp(t)   ((t)->port->fp)

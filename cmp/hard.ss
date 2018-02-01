@@ -10,5 +10,6 @@
 ;              (f (- x 1) (lambda (v)
 ;                           (k (+ x v)))))))
 
-(print (g 100000000 0))
+(display (g 100000000 0))
+(display "\n")
 ;(f 100000000 print)

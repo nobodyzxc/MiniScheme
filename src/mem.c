@@ -48,7 +48,10 @@ Cons new_cons(kObj car , kObj cdr){
 
 Clos new_clos(Obj expr , Obj env){
     Clos inst = (Clos)MALLOC(sizeof(clos_t));
-    inst->exp = expr , inst->env = env , env->env->ref = true;
+    inst->exp = expr , inst->tr = false;
+    //alert("expr ref env => " , expr);
+    inst->env = env;
+    env->env->ref = true;
     return inst;
 }
 
@@ -77,8 +80,8 @@ Obj new_nested_lambda(Obj head , Obj body){
     else if(is_pair(car(head)))
         return new_lambda(cdr(head) ,
                 cons(new_nested_lambda(car(head) , body) , nil));
-            /* lambda exprs expects a list of exprs ,
-             * so cons new_nested_lambda with nil */
+    /* lambda exprs expects a list of exprs ,
+     * so cons new_nested_lambda with nil */
     else
         alert("define function with unknown head type : " , car(head));
     return (Obj)err;
@@ -121,6 +124,14 @@ Obj new_INTEGER(long long v){
     return inst;
 }
 
+Obj set_INTEGER(long long v , Obj set){
+    if(!is_num(set))
+        return alert("space opt : set should be number , got" , set);
+    set->type = INTEGER;
+    set->integer = v;
+    return set;
+}
+
 Obj new_DECIMAL(double v){
     Obj inst = new_obj(DECIMAL);
     inst->decimal = v;
@@ -153,6 +164,14 @@ Obj new_PAIR   (Cons kons){
     Obj inst = new_obj(PAIR);
     inst->pair = kons;
     return inst;
+}
+
+Obj set_PAIR   (Obj car , Obj cdr , Obj set){
+    if(!is_pair(set))
+        return alert("space opt : set should be pair , got" , set);
+    car(set) = car;
+    cdr(set) = cdr;
+    return set;
 }
 
 Obj new_EXPR   (char *name , Obj args , Obj body){

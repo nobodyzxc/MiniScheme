@@ -330,6 +330,9 @@ void fprint_obj(FILE *s , kObj obj){
             case PORT    :
                 fprintf(s , "<port>");
                 break;
+            default:
+                fprintf(s , "<unknown:%d>" , obj->type);
+                break;
         }
     }
 }

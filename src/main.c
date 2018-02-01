@@ -64,7 +64,7 @@ bool repl(bool repl_p , bool auto_gc){
         Obj val = parse(tok);
         free_token(tok);
         if(val != err){
-            val = eval(val , glenv);
+            val = eval(val , glenv , NULL);
             if(repl_p &&
                     port_fp(repl_pt) == stdin
                     && val && val != err)
@@ -144,7 +144,7 @@ int handle_flags(int argc , char *argv[]){
                 tok_non_blank = I_MODE_NON_BLANK;
                 port_ptr(I_MODE_PORT) =
                     tokenize(port_ptr(I_MODE_PORT) , &tok);
-                Obj val = eval(parse(tok) , glenv);
+                Obj val = eval(parse(tok) , glenv , NULL);
                 if(val != err) alert("" , val);
             }
             exit(0);

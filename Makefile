@@ -23,6 +23,11 @@ CFLAGS = -g \
 CFLAGS += -O3 -DTCO_OPT
 
 ################################
+# ENABLE ARGSPACE OPTIMIZATION #
+################################
+CFLAGS += -DARG_OPT
+
+################################
 # IF CLEAR BUFFER EVERY (read) #
 # Discard rest atoms per read  #
 ################################
