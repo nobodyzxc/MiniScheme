@@ -222,10 +222,19 @@ Obj eval(Obj val , Obj env , Obj set){
             /* consider it */
 
  //           puts("map eval new vvv") , fflush(stdout);
+
+#ifdef ARG_OPT
+            Argelt ae = NULL;
+            int len = 0;
+            if(app->type == FUNCTION){
+                len = length(args);
+                if(len) ae = args_aloc(len);
+            }
+#endif
             if((args = map_eval(args , env ,
                             app->type == CLOSURE ? NULL :
 #ifdef ARG_OPT
-                            args_aloc(length(args))
+                            (len ? ae->args : (Obj)nil)
 #else
                             NULL
 #endif
@@ -239,7 +248,7 @@ Obj eval(Obj val , Obj env , Obj set){
                 msgobjc(" with " , args);
                 Obj val = app->proc->apply(args , env , set);
 #ifdef ARG_OPT
-                args_rles(args);
+                if(len) args_rles(ae);
 #endif
                 msgobj(" = " , val);
                 return val;

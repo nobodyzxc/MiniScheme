@@ -165,117 +165,92 @@ Obj tco(Obj clos , Obj args , Obj env){
 }
 
 /* space opt , args list */
+#define OPTLEN 10
 
-typedef struct objls_tag *Objls;
-typedef struct arg_elt  *Argelt;
+Argelt argdb[OPTLEN] = {
+    [0 ... (OPTLEN - 1)] = NULL };
 
-struct objls_tag{
-    Obj val;
-    Objls next;
-};
-
-struct arg_elt{
-    Obj argpr;
-    Objls objs;
-    Argelt next;
+int arrange_arg(Argelt arg){
+    int i = 0;
+    Obj iter = arg->args;
+    Objls oter = arg->objs;
+    while(iterable(iter)){
+        car(iter) = oter->val;
+        oter = oter->next;
+        iter = cdr(iter);
+        i++;
+    }
+    return i;
 }
 
-struct Argelt argdb[10] = { [0 ... 9] = NULL };
-
-static int args_rest = 0;
-static Obj args_head = NULL;
-
-Obj aloc_arg_cell(){
-    Obj aloc = (Obj)MALLOC(sizeof(obj_t));
-    aloc->type = PAIR;
-    aloc->pair = new_cons(NULL , nil);
-    return aloc;
+Obj new_pr(){
+    Obj pr = (Obj)MALLOC(sizeof(obj_t));
+    pr->type = PAIR;
+    car(pr) = NULL;
+    cdr(pr) = NULL;
+    return pr;
 }
 
-Obj extend_cell(Obj head , int len){
-//    if(head){
-//        alert("continue : " , head);
-//    }
-//    else{
-//        printf("ori ") , fflush(stdout);
-//    }
-    if(head && !is_pair(head))
-        alert("extend non-pair " , head) , exit(0);
-    Obj rtn = NULL;
-    if(head){
-        rtn = head;
-        len--;
-        while(iterable(cdr(head)))
-            len-- , head = cdr(head);
+Obj new_args(int len){
+    Obj head = new_pr();
+    Obj iter = head;
+    while(--len){
+        cdr(iter) = new_pr();
+        iter = cdr(iter);
     }
-    while(len){
-        Obj aloc = aloc_arg_cell();
-        if(!head)
-            rtn = head = aloc;
-        else{
-            cdr(head) = aloc;
-            head = cdr(head);
-        }
-        len--;
-    }
-    cdr(head) = (Obj)nil;
-//    alert("--> " , rtn); fflush(stderr);
+    cdr(iter) = (Obj)nil;
+    return head;
+}
+
+Objls new_objls_elt(){
+    Objls rtn = (Objls)MALLOC(sizeof(objls_t));
+    rtn->val = (Obj)MALLOC(sizeof(obj_t));
+    rtn->val->type = INTEGER;
+    rtn->val->integer = 0;
+    rtn->next = NULL;
     return rtn;
 }
 
-int clear_list(Obj head){
-    int len = 0;
-    while(iterable(head))
-        len++ , car(head) = NULL , head = cdr(head);
-    return len;
-}
-
-Obj append_list(Obj pre , Obj rest){
-    if(!iterable(pre)) return rest;
-    Obj iter = pre;
-    while(iterable(cdr(iter)))
-        iter = cdr(iter);
-    cdr(iter) = rest;
-    return pre;
-}
-
-//Obj cut_rest(int len){
-//    /* assert len > 0 */
-//    Obj rtn = args_head;
-//    Obj iter = args_head;
-//    args_rest -= len;
-//    while(--len)
-//        iter = cdr(iter);
-//    args_head = cdr(iter);
-//    if(args_head == nil)
-//        args_head = NULL;
-//    cdr(iter) = (Obj)nil;
-//
-////    alert("cut " , rtn);
-////    alert("rest " , args_head);
-//    return rtn;
-//}
-
-Obj args_aloc(int len){
-    if(!len) return (Obj)nil;
-
-    if(!args_head)
-        return extend_cell(NULL , len);
-    else if(len <= args_rest)
-        return cut_rest(len);
-    else{
-        Obj head = extend_cell(args_head , len);
-        args_rest = 0 , args_head = NULL;
-        return head;
+Objls new_objs(int len){
+    Objls head = new_objls_elt();
+    Objls iter = head;
+    while(--len){
+        iter->next = new_objls_elt();
+        iter = iter->next;
     }
+    return head;
 }
 
-void args_rles(Obj head){
-    int len = clear_list(head);
-    if(len){
-        args_rest += len;
-        args_head = append_list(args_head , head);
+Argelt new_arg_elt(int len){
+    Argelt aloc = (Argelt)MALLOC(sizeof(arg_elt_t));
+    aloc->args = new_args(len);
+    aloc->objs = new_objs(len);
+    aloc->next = NULL;
+    arrange_arg(aloc);
+    return aloc;
+}
+
+Argelt args_aloc(int len){
+    if(!len) puts("error args_aloc") , exit(0);
+    if(len < OPTLEN)
+        if(argdb[len]){
+            Argelt rtn = argdb[len];
+            argdb[len] = argdb[len]->next;
+            return rtn;
+        }
+    return new_arg_elt(len);
+}
+
+void free_arg(Argelt arg){
+    puts("too long") , exit(1);
+}
+
+void args_rles(Argelt arg){
+    int len = arrange_arg(arg);
+    if(len < OPTLEN){
+        alert("after arrange : " , arg->args);
+        arg->next = argdb[len];
+        argdb[len] = arg;
     }
-//    alert("release cur head : " , args_head);
-//    fflush(stderr);
+    else free_arg(arg);
 }
