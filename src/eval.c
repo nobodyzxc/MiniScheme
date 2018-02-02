@@ -244,13 +244,10 @@ Obj eval(Obj val , Obj env , Obj set){
 //            puts("map eval end ^^^") , fflush(stdout);
 
             if(app->type == FUNCTION){
-                msgobjc("apply " , app);
-                msgobjc(" with " , args);
                 Obj val = app->proc->apply(args , env , set);
 #ifdef ARG_OPT
                 if(len) args_rles(ae);
 #endif
-                msgobj(" = " , val);
                 return val;
             }
             else if(app->type == CLOSURE){

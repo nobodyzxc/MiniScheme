@@ -87,9 +87,24 @@ Obj build_tail(Obj clos , Obj expr , Obj env){
         else if(app->type == MACRO)
             return build_tail(clos , eval_macro(app , args , env) , env);
 
-        args = map_eval(args , env ,
-                clos_tr(clos) ? clos_args(clos) :
-                NULL); /* todo : space opt ? */
+        if(clos_tr(clos)){
+            int len = length(args);
+            if(len){
+                Argelt ae = args_aloc(len);
+                map_eval(args , env , ae->args);
+                args_copy(clos_args(clos) , ae->args);
+                args = clos_args(clos);
+                args_rles(ae);
+            }
+            else
+                args = map_eval(args , env , NULL);
+            /* todo : space opt ? */
+        }
+        else{
+            args = map_eval(args , env , NULL);
+            /* todo : space opt ? */
+        }
+
         return set_clos(clos ,
                 app->type == FUNCTION ? /* consider it */
                 app->proc->apply(args , env , NULL) : args ,
@@ -142,9 +157,6 @@ Obj tco(Obj clos , Obj args , Obj env){
             tail == err ?
             tail : clos_body(tail);
 
-        alert("" , clos_args(tail));
-        fflush(stderr);
-
         if(is_clos(new_clos)){
             if(env_ref(eval_env)){
                 reuse_env = false;
@@ -186,8 +198,7 @@ int arrange_arg(Argelt arg){
 Obj new_pr(){
     Obj pr = (Obj)MALLOC(sizeof(obj_t));
     pr->type = PAIR;
-    car(pr) = NULL;
-    cdr(pr) = NULL;
+    pr->pair = new_cons(NULL , NULL);
     return pr;
 }
 
@@ -242,15 +253,35 @@ Argelt args_aloc(int len){
 }
 
 void free_arg(Argelt arg){
-    puts("too long") , exit(1);
+    while(iterable(arg->args)){
+        Obj dis = arg->args;
+        arg->args = cdr(arg->args);
+        FREE(dis->pair);
+        FREE(dis);
+    }
+    while(arg->objs){
+        Objls dis = arg->objs;
+        arg->objs = arg->objs->next;
+        FREE(dis->val);
+        FREE(dis);
+    }
+    FREE(arg);
+    puts(" too long") , exit(1);
 }
 
 void args_rles(Argelt arg){
     int len = arrange_arg(arg);
     if(len < OPTLEN){
-        alert("after arrange : " , arg->args);
         arg->next = argdb[len];
         argdb[len] = arg;
     }
     else free_arg(arg);
+}
+
+void args_copy(Obj tar , Obj par){
+    while(iterable(tar)){
+        *car(tar) = *car(par);
+        tar = cdr(tar);
+        par = cdr(par);
+    }
 }

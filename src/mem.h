@@ -11,6 +11,7 @@
     set_ ## TYPE(__VA_ARGS__)
 
 void *MALLOC(size_t size);
+void *FREE(void *p);
 
 Cons new_cons(kObj car  , kObj cdr);
 Token new_token(char *p , Token next);

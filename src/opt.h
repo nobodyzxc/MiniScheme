@@ -27,5 +27,6 @@ struct arg_elt{
 };
 
 Argelt args_aloc(int len);
+void args_copy(Obj tar , Obj par);
 void args_rles(Argelt arg);
 #endif

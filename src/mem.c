@@ -26,7 +26,6 @@ void *FREE(void *p){
 }
 
 Obj new_obj(type_t type){
-    //printf("new %d\n" , type);
     obj_count++;
     if(!(obj_count % 100000)){
         if(obj_count == 60000000) // about 5G
