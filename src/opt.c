@@ -259,7 +259,6 @@ void free_arg(Argelt arg){
         FREE(dis);
     }
     FREE(arg);
-    puts(" too long") , exit(1);
 }
 
 void args_rles(Argelt arg){

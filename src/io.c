@@ -1,4 +1,5 @@
 #include "mem.h"
+#include "main.h"
 #include "type.h"
 #include "util.h"
 #include "proc.h"
@@ -11,6 +12,26 @@
 #ifdef RL_LIB
 #include <readline/readline.h>
 #include <readline/history.h>
+#endif
+
+void init_io(){
+#ifdef RL_LIB
+    read_history(xstr(RL_LOGFILE));
+#endif
+}
+
+void end_io(){
+#ifdef RL_LIB
+#ifdef RL_LOG
+    if(repl_pt == stdin_pt){
+        write_history(xstr(RL_LOGFILE));
+        history_truncate_file (xstr(RL_LOGFILE) , RL_LOGLEN);
+    }
+#endif
+#endif
+}
+
+#ifdef RL_LIB
 Obj rl_pt = NULL;
 
 char *symbol_generator(const char *text , int state){
@@ -171,4 +192,3 @@ Obj open_port(char *name , char *mode){
     if(!fp) return (Obj)err;
     return new(PORT , fp , ya_strdup(name) , mode);
 }
-

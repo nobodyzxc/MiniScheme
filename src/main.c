@@ -192,12 +192,14 @@ int main(int argc , char *argv[]){
     else
         handle_flags(argc , argv);
     if(flag_i){
+        init_io();
         repl_pt = stdin_pt;
         imode_msg("Welcome to Zekin " xstr(VERSION));
         printf("%s\n" , EQS(lib_logs , " [ ] ") ?
                 " [ primary ]" : lib_logs);
         while(!repl(true , true));
         imode_msg("\n");
+        end_io();
     }
     return 0;
 }

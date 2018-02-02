@@ -1,4 +1,5 @@
 #include "mem.h"
+#include "main.h"
 #include "opt.h"
 #include "func.h"
 #include "util.h"
@@ -147,8 +148,8 @@ Obj apply_input_portq(Obj args , Obj env , Obj set){
 Obj apply_exit(Obj args , Obj env , Obj set){
     if(length(args) > 0 &&
             car(args)->type == INTEGER)
-        exit((int)(car(args)->integer));
-    exit(0);
+            end_io() , exit((int)(car(args)->integer));
+    end_io() , exit(0);
     return NULL;
 }
 
@@ -296,7 +297,7 @@ Obj apply_car(Obj args , Obj env , Obj set){
         return caar(args);
     }
     else
-        alert("cannot apply car on " , car(args)) , exit(0);
+        alert("cannot apply car on " , car(args));
     return (Obj)err;
 }
 

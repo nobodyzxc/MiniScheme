@@ -4,3 +4,4 @@
 *.*.stackdump
 obj
 zekin
+.zekin*

@@ -1,6 +1,8 @@
 #ifndef IO_H
 #define IO_H
 
+void init_io();
+void end_io();
 
 void clear_ctx(Obj pt);
 
