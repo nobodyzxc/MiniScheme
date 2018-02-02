@@ -43,7 +43,9 @@
     ((!expr) || (expr == err) || \
      ((expr) \
       && (expr)->type != PAIR \
-      && (expr)->type != SYMBOL))
+      && (expr)->type != SYMBOL \
+      && (expr)->type >= BOOLEAN \
+      && (expr)->type <= PORT ))
 
 enum types{
     BOOLEAN ,
@@ -61,6 +63,8 @@ enum types{
     MACRO   ,
     ENV     ,
     PORT    ,
+    /* consider selfeval
+     * when you add types */
 };
 
 typedef enum types type_t;

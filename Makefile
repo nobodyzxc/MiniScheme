@@ -7,6 +7,12 @@ I_MODE = rl
 #I_MODE = read
 # NATIVE FGETS , UNCOMMENT IT IF YOU DON'T WANT TO USE GNU READLINE
 
+################################
+# AVAILABLE HEAP SIZE FOR ALOC #
+################################
+
+HEAP = 3500000000
+
 CC = gcc
 LIBS = -lm
 CFLAGS = -g \
@@ -16,6 +22,7 @@ CFLAGS = -g \
 		 -DI_MODE_PORT=$(I_MODE)_pt \
 		 -DI_MODE_NON_BLANK=$(I_MODE)_non_blank \
 		 -DI_MODE_RAW_INPUT=$(I_MODE)_raw_input \
+		 -DHEAP_SIZE=$(HEAP)
 
 ################################
 # ENABLE TAILCALL OPTIMIZATION #

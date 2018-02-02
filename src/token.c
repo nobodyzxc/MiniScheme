@@ -74,6 +74,7 @@ char *ignore_comnt(char *p){
         if(p == NULL)
             return err_tok("unexpected EOF instead of " mulcmt_end);
         if(is_tokch(*(p + strlen(mulcmt_end)))) break;
+        else p += strlen(mulcmt_end) + 1;
     }
     return p + strlen(mulcmt_end);
 }

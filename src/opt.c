@@ -194,8 +194,7 @@ int arrange_arg(Argelt arg){
 }
 
 Obj new_pr(){
-    Obj pr = (Obj)MALLOC(sizeof(obj_t));
-    pr->type = PAIR;
+    Obj pr = new_static_obj(PAIR);
     pr->pair = new_cons(NULL , NULL);
     return pr;
 }
@@ -213,8 +212,7 @@ Obj new_args(int len){
 
 Objls new_objls_elt(){
     Objls rtn = (Objls)MALLOC(sizeof(objls_t));
-    rtn->val = (Obj)MALLOC(sizeof(obj_t));
-    rtn->val->type = INTEGER;
+    rtn->val = new_static_obj(INTEGER);
     rtn->val->integer = 0;
     rtn->next = NULL;
     return rtn;

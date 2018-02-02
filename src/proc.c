@@ -9,7 +9,6 @@
 Obj lambda_symbol = NULL;
 
 Obj  add_symbol(Obj sym , Obj val , Obj env_obj){
-
     if(sym != err && !is_symbol(sym))
         alert("define only accepts symbol , got " , sym);
     else if(sym != err && val != err){

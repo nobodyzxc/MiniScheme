@@ -17,6 +17,9 @@ long long get_obj_num(){
 void *MALLOC(size_t size){
     void *mloc = malloc(size);
     mloc_size += malloc_usable_size(mloc);
+    if(mloc_size > HEAP_SIZE)
+        fprintf(stderr , "malloc size over %.1fG\n" ,
+                ((float)HEAP_SIZE / 1000000000)) , exit(1);
     return mloc;
 }
 
@@ -25,16 +28,16 @@ void *FREE(void *p){
     free(p);
 }
 
-Obj new_obj(type_t type){
+Obj new_static_obj(type_t type){
     obj_count++;
-    if(!(obj_count % 100000)){
-        if(obj_count == 60000000) // about 5G
-            printf("memory not enough, %lld bytes used\n" , mloc_size)
-                , exit(0);
-    }
     Obj inst = (Obj)MALLOC(sizeof(obj_t));
     inst->type = type;
     inst->mark = false;
+    return inst;
+}
+
+Obj new_obj(type_t type){
+    Obj inst = new_static_obj(type);
     gc_list_cons(inst);
     return inst;
 }
@@ -153,7 +156,8 @@ Obj new_SYMBOL (char* v){
     Obj inst;
     if(inst = lookup_sym_pool(v))
         return inst;
-    inst = new_obj(SYMBOL);
+    inst = new_static_obj(SYMBOL);
+    /* for opt */
     inst->str = v;
     push_sym_pool(inst);
     return inst;
