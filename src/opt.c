@@ -87,9 +87,13 @@ Obj build_tail(Obj clos , Obj expr , Obj env){
         else if(app->type == MACRO)
             return build_tail(clos , eval_macro(app , args , env) , env);
 
+        else if(app->type == FUNCTION) /* let eval do arg opt */
+            return set_clos(clos , eval(expr , env , NULL) , NULL);
+
         if(clos_tr(clos)){
 #ifdef ARG_OPT
             int len = length(args);
+            /* tail recursive arglen fits itself */
             if(len){
                 Argelt ae = args_aloc(len);
                 map_eval(args , env , ae->args);
@@ -102,15 +106,8 @@ Obj build_tail(Obj clos , Obj expr , Obj env){
                 args = map_eval(args , env , NULL);
             /* todo : space opt ? */
         }
-        else{
-            args = map_eval(args , env , NULL);
-            /* todo : space opt ? */
-        }
-
-        return set_clos(clos ,
-                app->type == FUNCTION ? /* consider it */
-                app->proc->apply(args , env , NULL) : args ,
-                app->type == FUNCTION ?  NULL : app);
+        else args = map_eval(args , env , NULL);
+        return set_clos(clos , args , app);
     }
     return set_clos(clos , alert("cannot do tail eval : " , expr) , NULL);
 }
@@ -275,6 +272,8 @@ void args_rles(Argelt arg){
 }
 
 void args_copy(Obj tar , Obj par){
+    if(length(tar) != length(par))
+        puts("not equal length ") , exit(0);
     while(iterable(tar)){
         *car(tar) = *car(par);
         tar = cdr(tar);

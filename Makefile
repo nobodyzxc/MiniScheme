@@ -32,7 +32,7 @@ CFLAGS += -O3 -DTCO_OPT
 ################################
 # ENABLE ARGSPACE OPTIMIZATION #
 ################################
-#CFLAGS += -DARG_OPT
+CFLAGS += -DARG_OPT
 
 ################################
 # IF CLEAR BUFFER EVERY (read) #

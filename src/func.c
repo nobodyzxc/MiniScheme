@@ -291,18 +291,23 @@ Obj apply_length(Obj args , Obj env , Obj set){
 Obj apply_car(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("car : only accepts 1 arg , got " , args);
-    else if(car(args) && car(args)->type == PAIR)
+    else if(car(args) && car(args)->type == PAIR){
+        env_ref(env) = true;
         return caar(args);
+    }
     else
-        alert("cannot apply car on " , car(args));
+        alert("cannot apply car on " , car(args)) , exit(0);
     return (Obj)err;
 }
 
 Obj apply_cdr(Obj args , Obj env , Obj set){
     if(length(args) != 1)
         alert("cdr : only accepts 1 arg , got " , args);
-    else if(car(args)->type == PAIR)
+    else if(car(args)->type == PAIR){
+        env_ref(env) = true;
+        /* important */
         return cdar(args);
+    }
     else
         alert("cannot apply cdr on " , car(args));
     return (Obj)err;

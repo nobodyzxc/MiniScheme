@@ -85,12 +85,6 @@
       (filter f (cdr l)))))
 
 ; depend on foldl
-(define (zip . rest)
-  (if (or (null? rest) (null? (car rest))) '()
-    (cons (foldr (lambda (v acc) (cons (car v) acc)) '()  rest)
-          (apply zip (foldr (lambda (v acc) (cons (cdr v) acc)) '() rest)))
-    )
-  )
 
 (define (map func lst . rest)
   (define (map1 func lst)
@@ -99,5 +93,10 @@
         (lambda (v acc) (cons (apply func v) acc))
         '()
         lst)))
-
+  (define (zip . rest)
+    (if (or (null? rest) (null? (car rest))) '()
+      (cons (foldr (lambda (v acc) (cons (car v) acc)) '()  rest)
+            (apply zip (foldr (lambda (v acc) (cons (cdr v) acc)) '() rest)))
+      )
+    )
   (map1 func (apply zip (cons lst rest))))

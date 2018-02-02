@@ -94,8 +94,6 @@
       (z (car lst1) (car lst2))
       (zip z (cdr lst1) (cdr lst2)))))
 
-
-
 ;; Predicates for checking forms of Expressions
 (define selfevaluating?
   (lambda (expr)
