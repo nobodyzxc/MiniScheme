@@ -160,7 +160,7 @@ Obj tco(Obj clos , Obj args , Obj env){
         if(is_clos(new_clos)){
             if(env_ref(eval_env)){
                 reuse_env = false;
-                alert("be ref after : " , clos_body(clos));
+                //alert("be ref after : " , clos_body(clos));
             }
             else{
                 reuse_env = clos == new_clos;

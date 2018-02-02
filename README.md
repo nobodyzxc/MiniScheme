@@ -62,6 +62,11 @@ Ubuntu
    sudo apt-get install libreadline6 libreadline6-dev && make
 ```
 
+Arch
+```bash
+   sudo pacman -S readline
+```
+
 ## Goals :
 
 #### General :
