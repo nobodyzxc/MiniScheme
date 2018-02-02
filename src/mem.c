@@ -165,11 +165,9 @@ Obj new_PAIR   (Cons kons){
     return inst;
 }
 
-Obj set_PAIR   (Obj car , Obj cdr , Obj set){
-    if(!is_pair(set))
-        return alert("space opt : set should be pair , got " , set);
-    car(set) = car;
-    cdr(set) = cdr;
+Obj set_PAIR   (Cons cons , Obj set){
+    set->type = PAIR;
+    set->pair = cons;
     return set;
 }
 

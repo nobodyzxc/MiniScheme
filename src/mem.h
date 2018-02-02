@@ -37,7 +37,8 @@ Obj  new_MACRO(Obj keyws , Obj rules);
 Obj  new_PORT   (FILE *fp , char *name , char *mode);
 
 Obj set_INTEGER(long long v , Obj set);
-Obj set_PAIR   (Obj car , Obj cdr , Obj set);
+Obj set_PAIR   (Cons cons , Obj set);
+
 
 void free_obj(Obj obj);
 void free_token(Token tok);

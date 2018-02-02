@@ -312,10 +312,11 @@ Obj apply_cons(Obj args , Obj env , Obj set){
     if(length(args) != 2)
         alert("cons : only accepts 2 args , got " , args);
     else{
+        env_ref(env)= true;
         if(!set)
             return new(PAIR , new_cons(car(args) , cadr(args)));
         else
-            return set(PAIR , car(args) , cadr(args) , set);
+            return set(PAIR , new_cons(car(args) , cadr(args)) , set);
     }
     return (Obj)err;
 }

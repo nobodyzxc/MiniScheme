@@ -88,6 +88,7 @@ Obj build_tail(Obj clos , Obj expr , Obj env){
             return build_tail(clos , eval_macro(app , args , env) , env);
 
         if(clos_tr(clos)){
+#ifdef ARG_OPT
             int len = length(args);
             if(len){
                 Argelt ae = args_aloc(len);
@@ -97,6 +98,7 @@ Obj build_tail(Obj clos , Obj expr , Obj env){
                 args_rles(ae);
             }
             else
+#endif
                 args = map_eval(args , env , NULL);
             /* todo : space opt ? */
         }
@@ -137,6 +139,7 @@ Obj tco(Obj clos , Obj args , Obj env){
             env);
     bool reuse_env = false;
     Obj eval_env = (Obj)err;
+
     while(clos && clos != err
             && clos_args(tail) != err
             && clos->type == CLOSURE){
@@ -158,15 +161,10 @@ Obj tco(Obj clos , Obj args , Obj env){
             tail : clos_body(tail);
 
         if(is_clos(new_clos)){
-            if(env_ref(eval_env)){
+            if(env_ref(eval_env))
                 reuse_env = false;
-                //alert("be ref after : " , clos_body(clos));
-            }
-            else{
+            else
                 reuse_env = clos == new_clos;
-            }
-            if(clos != new_clos)
-                puts("not equal clos");
             clos_tr(tail) = reuse_env;
         }
         clos = new_clos;

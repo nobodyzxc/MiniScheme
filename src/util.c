@@ -83,9 +83,9 @@ void fprint_obj_dtl(FILE *s , Obj obj){
     }
     else if(is_port(obj)){
         fprintf(s , "<%s-port %s ptr:%s>" ,
-            (is_port_of(obj , "r") ? "in" : "out") ,
-            port_name(obj) ,
-            port_ptr(obj) ? port_ptr(obj) : "NULL");
+                (is_port_of(obj , "r") ? "in" : "out") ,
+                port_name(obj) ,
+                port_ptr(obj) ? port_ptr(obj) : "NULL");
     }
     else{
         fprint_obj(s , obj);
@@ -262,8 +262,15 @@ void fprint_pair(FILE *s , kObj pr){
     fprintf(s , "(");
     fprint_obj(s , car(pr));
     pr = cdr(pr);
-    while(is_pair(pr))
-        fprintf(s , " ") , fprint_obj(s , car(pr)) , pr = cdr(pr);
+    while(is_pair(pr)){
+        fprintf(s , " ") , fprint_obj(s , car(pr));
+        if(pr != cdr(pr))
+            pr = cdr(pr);
+        else{
+            fprintf(s , " #= )");
+            return;
+        }
+    }
     if(!is_nil(pr))
         fprintf(s , " . ") , fprint_obj(s , pr);
     fprintf(s , ")");
