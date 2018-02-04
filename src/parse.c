@@ -79,7 +79,22 @@ Obj parse_listlit(Token tok){
     return new_lit(tok->p);
 }
 
+
+#ifdef LISTLEN_OPT
+void remark_len(Obj lst , int len){
+    int d = len < 0 ? 1 : -1;
+    while(iterable(lst)){
+        lst->pair->len = len;
+        lst = cdr(lst);
+        len += d;
+    }
+}
+#endif
+
 Token parse_list(Token tok , Obj *rtn){
+#ifdef LISTLEN_OPT
+    int list_len = 0;
+#endif
     bool is_pair = false;
     if(!EQS(tok->p , "("))
         error("parse %s as (" , tok->p);
@@ -117,16 +132,22 @@ Token parse_list(Token tok , Obj *rtn){
                 *rtn = (Obj)err;
                 return tok;
             }
-
             pr->cdr = is_pair ? lit :
                 new(PAIR , new_cons(lit , NULL));
 
             tok = tok->next;
         }
+#ifdef LISTLEN_OPT
+        list_len++;
+#endif
         pr = pr->cdr->pair;
         if(is_pair){
-            if(tok && EQS(tok->p , ")"))
+            if(tok && EQS(tok->p , ")")){
+#ifdef LISTLEN_OPT
+            list_len = -list_len;
+#endif
                 break;
+            }
             else{
                 puts(". : can only followed by 1 elt");
                 *rtn = (Obj)err;
@@ -139,5 +160,8 @@ Token parse_list(Token tok , Obj *rtn){
     if(!is_pair)
         pr->cdr = (Obj)nil;
     (*rtn) = head.cdr;
+#ifdef LISTLEN_OPT
+    remark_len(*rtn , list_len);
+#endif
     return tok;
 }

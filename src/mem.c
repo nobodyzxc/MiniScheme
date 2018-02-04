@@ -8,6 +8,7 @@
 #include <assert.h>
 
 long long obj_count = 0;
+long long pr_count = 0;
 long long mloc_size = 0;
 
 long long get_obj_num(){
@@ -29,6 +30,7 @@ void *FREE(void *p){
 }
 
 Obj new_static_obj(type_t type){
+    if(type == PAIR) pr_count++;
     obj_count++;
     Obj inst = (Obj)MALLOC(sizeof(obj_t));
     inst->type = type;
@@ -45,6 +47,15 @@ Obj new_obj(type_t type){
 Cons new_cons(kObj car , kObj cdr){
     Cons inst = (Cons)MALLOC(sizeof(cons_t));
     inst->car = (Obj)car , inst->cdr = (Obj)cdr;
+#ifdef LISTLEN_OPT
+    if(cdr == nil)
+        inst->len = 1;
+    else if(is_pair(cdr))
+        inst->len =
+            cdr->pair->len +
+            (cdr->pair->len > 0 ? 1 : -1);
+    else inst->len = -1;
+#endif
     return inst;
 }
 

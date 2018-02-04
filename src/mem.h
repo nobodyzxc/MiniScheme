@@ -49,4 +49,7 @@ char *ya_strndup(const char *s, size_t size);
 char *ya_strdup(const char *s);
 
 Obj new_static_obj(type_t type);
+
+extern long long obj_count;
+extern long long pr_count;
 #endif

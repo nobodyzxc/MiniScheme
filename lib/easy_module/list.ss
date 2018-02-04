@@ -6,7 +6,7 @@
       (range-it
         (- e 1)
         (cons e acc))))
-  (range-it x '()))
+  (range-it (- x 1) '()))
 
 
 (define (index elt ls)

@@ -90,6 +90,9 @@ typedef struct port_tag *Port;
 typedef Obj (*func_ptr)(Obj , Obj , Obj);
 
 struct cons_tag{
+#ifdef LISTLEN_OPT
+    int len;
+#endif
     Obj car;
     Obj cdr;
 };

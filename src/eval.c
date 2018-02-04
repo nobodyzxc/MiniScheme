@@ -5,6 +5,7 @@
 #include "syntax.h"
 #include "util.h"
 #include "opt.h"
+#include "parse.h"
 
 #include <assert.h>
 
@@ -15,7 +16,7 @@ int least_elts(Obj pats){
     for(Obj t = pats ; t && not_nil(t) &&
             cdr(t) != nil ; t = cdr(t)){
         cnt += 1;
-        if(EQS(car(t)->str , "...")) cnt -= 1;
+        if(car(t) == eli) cnt -= 1;
     }
     return cnt;
 }
@@ -83,6 +84,9 @@ bool match(Obj keyws , Obj patn , Obj args){
 }
 
 Obj substitute(Obj tml , Obj pat , Obj tab){
+#ifdef LISTLEN_OPT
+    int list_len = 0;
+#endif
     cons_t head;
     Cons last = &head;
     if(tml->type != PAIR){
@@ -98,6 +102,9 @@ Obj substitute(Obj tml , Obj pat , Obj tab){
         }
         if(unit->type == PAIR){
             last->cdr = new(PAIR , new_cons(NULL , NULL));
+#ifdef LISTLEN_OPT
+            list_len++;
+#endif
             car(last->cdr) = substitute(unit , pat , tab);
         }
         else if(next && next == eli){
@@ -109,21 +116,33 @@ Obj substitute(Obj tml , Obj pat , Obj tab){
             }
             if(is_nil(sub)) continue;
             last->cdr = new(PAIR , new_cons(NULL , NULL));
+#ifdef LISTLEN_OPT
+            list_len++;
+#endif
             car(last->cdr) = car(sub);
             for(Obj it = cdr(sub) ;
                     iterable(it) ; it = cdr(it)){
                 last = last->cdr->pair;
                 last->cdr = new(PAIR , new_cons(NULL , NULL));
+#ifdef LISTLEN_OPT
+            list_len++;
+#endif
                 car(last->cdr) = car(it);
             }
         }
         else{
             last->cdr = new(PAIR , new_cons(NULL , NULL));
+#ifdef LISTLEN_OPT
+            list_len++;
+#endif
             car(last->cdr) = substitute(unit , pat , tab);
         }
         last = last->cdr->pair;
     }
     last->cdr = (Obj)nil;
+#ifdef LISTLEN_OPT
+    remark_len(head.cdr , list_len);
+#endif
     return head.cdr;
 }
 
@@ -168,6 +187,9 @@ Obj map_eval(Obj ls , Obj env , Obj set){
         return set;
     }
     else{
+#ifdef LISTLEN_OPT
+        int list_len = 0;
+#endif
         cons_t head;
         Cons last = &head;
         for( ; not_nil(ls) ; ls = cdr(ls)){
@@ -175,8 +197,14 @@ Obj map_eval(Obj ls , Obj env , Obj set){
             if(obj == err) return (Obj)err;
             last->cdr = new(PAIR , new_cons(obj , NULL));
             last = last->cdr->pair;
+#ifdef LISTLEN_OPT
+            list_len++;
+#endif
         }
         last->cdr = (Obj)nil;
+#ifdef LISTLEN_OPT
+        remark_len(head.cdr , list_len);
+#endif
         return head.cdr;
     }
 }
@@ -191,6 +219,27 @@ Obj eval_symbol(Obj val , Obj env){
     return elt;
 }
 
+Obj eval_func(Obj func , Obj args , Obj env , Obj set){
+#ifdef ARG_OPT
+    int len = length(args);
+    Argelt ae = len ? args_aloc(len) : NULL;
+#endif
+    if((args = map_eval(args , env ,
+#ifdef ARG_OPT
+                    (len ? ae->args : (Obj)nil)
+#else
+                    NULL
+#endif
+                    )) == err)
+        return (Obj)err;
+
+    Obj val = func->proc->apply(args , env , set);
+#ifdef ARG_OPT
+    if(len) args_rles(ae);
+#endif
+    return val;
+}
+
 Obj eval(Obj val , Obj env , Obj set){
     if(is_selfeval(val))
         return val;
@@ -198,8 +247,13 @@ Obj eval(Obj val , Obj env , Obj set){
         return eval_symbol(val , env);
     else if(is_pair(val)){
         Obj app = car(val) , args = cdr(val);
-        if(!is_list(args))
+        if(!is_list(args)){
+#ifdef LISTLEN_OPT
+            alert(" : " , args);
+            printf("-> %d\n" , args->pair->len);
+#endif
             return alert("func call should be list , got " , val);
+        }
         else if(is_symbol(app) || is_pair(app)){
 
             app = is_symbol(app) ?
@@ -221,36 +275,14 @@ Obj eval(Obj val , Obj env , Obj set){
                 return eval(eval_macro(app , args , env) , env , set);
             /* consider it */
 
- //           puts("map eval new vvv") , fflush(stdout);
+            else if(app->type == FUNCTION)
+                return eval_func(app , args , env , set);
 
-#ifdef ARG_OPT
-            Argelt ae = NULL;
-            int len = 0;
-            if(app->type == FUNCTION){
-                len = length(args);
-                if(len) ae = args_aloc(len);
-            }
-#endif
-            if((args = map_eval(args , env ,
-                            app->type == CLOSURE ? NULL :
-#ifdef ARG_OPT
-                            (len ? ae->args : (Obj)nil)
-#else
-                            NULL
-#endif
-                            )) == err)
-                return (Obj)err;  /* consider it */
-
-//            puts("map eval end ^^^") , fflush(stdout);
-
-            if(app->type == FUNCTION){
-                Obj val = app->proc->apply(args , env , set);
-#ifdef ARG_OPT
-                if(len) args_rles(ae);
-#endif
-                return val;
-            }
             else if(app->type == CLOSURE){
+
+                if((args = map_eval(args , env , NULL)) == err)
+                    return (Obj)err;
+
                 env = clos_env(app);
 #ifdef TCO_OPT
                 return tco(app , args , env);

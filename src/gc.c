@@ -85,8 +85,8 @@ void gc(){
     long long cur = get_obj_num();
 #ifdef SHOW_GC_INFO
         printf("%d obj cleared,"
-                " %d obj left\n" ,
-                pre - cur , cur);
+                " %d obj left , %d pr left\n" ,
+                pre - cur , cur , pr_count);
 #endif
 }
 

@@ -2,6 +2,7 @@
 #include "type.h"
 #include "util.h"
 #include "proc.h"
+#include "parse.h"
 #include <stdlib.h>
 #define max(a , b) (a > b ? a : b)
 
@@ -104,22 +105,30 @@ void fprint_symtree(FILE *s , Symtree tree){
 Obj map_car(Obj ls){
     cons_t head;
     Cons last = &head;
-    for( ; iterable(ls) ; ls = cdr(ls)){
-        last->cdr = new(PAIR , new_cons(caar(ls) , NULL));
+    Obj it = ls;
+    for( ; iterable(it) ; it = cdr(it)){
+        last->cdr = new(PAIR , new_cons(caar(it) , NULL));
         last = last->cdr->pair;
     }
     last->cdr = (Obj)nil;
+#ifdef LISTLEN_OPT
+    remark_len(head.cdr , length(ls));
+#endif
     return head.cdr;
 }
 
 Obj map_cdr(Obj ls){
     cons_t head;
     Cons last = &head;
-    for( ; iterable(ls) ; ls = cdr(ls)){
-        last->cdr = new(PAIR , new_cons(cdar(ls) , NULL));
+    Obj it = ls;
+    for( ; iterable(it) ; it = cdr(it)){
+        last->cdr = new(PAIR , new_cons(cdar(it) , NULL));
         last = last->cdr->pair;
     }
     last->cdr = (Obj)nil;
+#ifdef LISTLEN_OPT
+    remark_len(head.cdr , length(ls));
+#endif
     return head.cdr;
 }
 
@@ -177,8 +186,9 @@ Obj zip_env(Obj syms , Obj args , Obj env){
     if(argslen == -1)
         return alert("zip_env : args must be list , "
                 "got " , args);
-    if(isls && length(syms) != argslen ||
-            !isls && pat_num(syms) > argslen){
+    if(isls && length(syms) != argslen
+            || (is_pair(syms) && !isls
+                && pat_num(syms) > argslen)){
         printf("unmatched args: ");
         isls ? print_short_pair(syms) : print_obj(syms);
         printf(" <- ") , print_short_pair(args) , puts("");
@@ -194,6 +204,9 @@ Obj zip_env(Obj syms , Obj args , Obj env){
 }
 
 bool is_list(Obj pr){
+#ifdef LISTLEN_OPT
+    return is_nil(pr) || (is_pair(pr) && pr->pair->len > 0);
+#endif
     while(pr && pr->type == PAIR)
         pr = cdr(pr);
     return is_nil(pr);
@@ -239,6 +252,12 @@ bool equal(Obj a , Obj b){
 }
 
 int pat_num(Obj pr){
+#ifdef LISTLEN_OPT
+    if(!is_pair(pr))
+        return 0;
+    else
+        return abs(pr->pair->len);
+#endif
     int rtn = 0;
     while(iterable(pr))
         rtn ++ , pr = cdr(pr);
@@ -246,6 +265,15 @@ int pat_num(Obj pr){
 }
 
 int length(Obj pr){
+#ifdef LISTLEN_OPT
+    if(is_nil(pr))
+        return 0;
+    else if(!is_pair(pr))
+        return -1;
+    //else if(pr->pair->len < 0)
+    //    return -1;
+    return pr->pair->len;
+#endif
     int rtn = 0;
     if(!is_list(pr))
         return -1;

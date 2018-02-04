@@ -70,7 +70,7 @@ Obj build_tail(Obj clos , Obj expr , Obj env){
     if(is_selfeval(expr))
         return set_clos(clos , expr , NULL);
     else if(is_symbol(expr))
-        return set_clos(clos , eval(expr , env , NULL) , NULL);
+        return set_clos(clos , eval_symbol(expr , env) , NULL);
     else if(is_pair(expr)){
         Obj app = car(expr) , args = cdr(expr);
         app = app->type == SYMBOL ?
@@ -88,7 +88,9 @@ Obj build_tail(Obj clos , Obj expr , Obj env){
             return build_tail(clos , eval_macro(app , args , env) , env);
 
         else if(app->type == FUNCTION) /* let eval do arg opt */
-            return set_clos(clos , eval(expr , env , NULL) , NULL);
+            return set_clos(clos ,
+                    eval_func(app , args , env , NULL) ,
+                    NULL);
 
         if(clos_tr(clos)){
 #ifdef ARG_OPT
@@ -190,20 +192,16 @@ int arrange_arg(Argelt arg){
     return i;
 }
 
-Obj new_pr(){
+Obj new_pr(Obj car , Obj cdr){
     Obj pr = new_static_obj(PAIR);
-    pr->pair = new_cons(NULL , NULL);
+    pr->pair = new_cons(car , cdr);
     return pr;
 }
 
 Obj new_args(int len){
-    Obj head = new_pr();
-    Obj iter = head;
-    while(--len){
-        cdr(iter) = new_pr();
-        iter = cdr(iter);
-    }
-    cdr(iter) = (Obj)nil;
+    Obj head = (Obj)nil;
+    while(len--)
+        head = new_pr(NULL , head);
     return head;
 }
 

@@ -44,7 +44,6 @@ CFLAGS += -DRL_LOG \
 		  -DRL_LOGFILE="$(CURDIR)/.zekin_history" \
 		  -DRL_LOGLEN=100
 
-
 ################################
 # ENABLE TAILCALL OPTIMIZATION #
 ################################
@@ -65,6 +64,11 @@ CFLAGS += -DARG_OPT
 # SHOW GARBAGE COLLECTION INFO #
 ################################
 #CFLAGS += -DSHOW_GC_INFO
+
+################################
+# REC LIST LENGTH OPTIMIZATION #
+################################
+#CFLAGS += -DLISTLEN_OPT
 
 S_DIR    = src
 O_DIR    = obj
