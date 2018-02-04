@@ -64,7 +64,7 @@ Ubuntu
 
 Arch
 ```bash
-   sudo pacman -S readline
+   sudo pacman -S readline && make
 ```
 
 ## Goals :

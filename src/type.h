@@ -42,10 +42,19 @@
 #define is_selfeval(expr) \
     ((!expr) || (expr == err) || \
      ((expr) \
-      && (expr)->type != PAIR \
-      && (expr)->type != SYMBOL \
-      && (expr)->type >= BOOLEAN \
-      && (expr)->type <= PORT ))
+      && ((expr)->type == BOOLEAN || \
+          (expr)->type == INTEGER || \
+          (expr)->type == DECIMAL || \
+          (expr)->type == CHAR    || \
+          (expr)->type == STRING  || \
+          (expr)->type == NIL     || \
+          (expr)->type == SYNTAX  || \
+          (expr)->type == FUNCTION|| \
+          (expr)->type == CLOSURE || \
+          (expr)->type == EXPR    || \
+          (expr)->type == MACRO   || \
+          (expr)->type == ENV     || \
+          (expr)->type == PORT)))
 
 enum types{
     BOOLEAN ,
