@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "util.h"
 #include "proc.h"
-#include "mem.h"
+#include "memory.h"
 #include "func.h"
 #include "syntax.h"
 #include "opt.h"

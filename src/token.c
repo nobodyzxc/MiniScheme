@@ -1,6 +1,6 @@
 #include "token.h"
 #include "util.h"
-#include "mem.h"
+#include "memory.h"
 
 #include <string.h>
 #include <stdbool.h>

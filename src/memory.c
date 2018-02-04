@@ -1,4 +1,4 @@
-#include "mem.h"
+#include "memory.h"
 #include "gc.h"
 #include "proc.h"
 #include "util.h"

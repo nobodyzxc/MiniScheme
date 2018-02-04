@@ -4,13 +4,6 @@ CFLAGS = -g \
 		 -DVERSION="v1.0"
 
 ################################
-# LIBRARY ENVIRONMENT VARIABLE #
-################################
-
-CFLAGS += -DLIBPATH="$(CURDIR)/lib/" \
-		  -DLIBCONFIG="config"
-
-################################
 # SELECT INPUT MODE UNDER REPL #
 ################################
 
@@ -28,6 +21,13 @@ ifeq ($(I_MODE) , rl)
 	CFLAGS += -DRL_LIB
 	LIBS += -lreadline
 endif
+
+################################
+# LIBRARY ENVIRONMENT VARIABLE #
+################################
+
+CFLAGS += -DLIBPATH="$(CURDIR)/lib/" \
+		  -DLIBCONFIG="config"
 
 ################################
 # AVAILABLE HEAP SIZE FOR ALOC #
@@ -73,9 +73,11 @@ CFLAGS += -DARG_OPT
 S_DIR    = src
 O_DIR    = obj
 TARGET   = zekin
-SOURCE   = main type util mem \
+SOURCE   = main util \
+		   type memory \
 		   token parse eval \
-		   syntax func proc \
+		   syntax macro \
+		   func proc \
 		   gc opt io
 
 SRCS    = ${SOURCE:%=$(S_DIR)/%.c}

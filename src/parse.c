@@ -1,6 +1,6 @@
 #include <string.h>
 #include <ctype.h>
-#include "mem.h"
+#include "memory.h"
 #include "util.h"
 #include "parse.h"
 

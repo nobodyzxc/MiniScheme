@@ -1,7 +1,7 @@
 #ifndef FUNC_H
 #define FUNC_H
 #include "type.h"
-#include "mem.h"
+#include "memory.h"
 
 Obj apply_gc(Obj args , Obj env , Obj set);
 Obj apply_exit(Obj args , Obj env , Obj set);

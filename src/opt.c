@@ -2,7 +2,7 @@
 #include "util.h"
 #include "eval.h"
 #include "syntax.h"
-#include "mem.h"
+#include "memory.h"
 
 #define TAB_SIZE 1000
 

@@ -6,7 +6,7 @@
 #include <libgen.h>
 #include <assert.h>
 
-#include "mem.h"
+#include "memory.h"
 #include "type.h"
 #include "util.h"
 #include "proc.h"
@@ -108,7 +108,7 @@ int handle_flags(int argc , char *argv[]){
             flag_i = true;
         else if(EQS(argv[i] , "-h")){
             printf("usage: zekin [-h] [-v] [-l] [-e exprs] [-i] [file ...]\n\n"
-                    "Yet another scheme flag_ier\n\n"
+                    "Yet another scheme interpreter\n\n"
                     "positional arguments:\n"
                     "   file   scheme script to run\n\n"
                     "optional arguments:\n"

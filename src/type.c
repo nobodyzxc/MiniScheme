@@ -1,4 +1,4 @@
-#include "mem.h"
+#include "memory.h"
 #include "type.h"
 
 port_t stdin_port = {

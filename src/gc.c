@@ -1,6 +1,6 @@
 #include "gc.h"
 #include "util.h"
-#include "mem.h"
+#include "memory.h"
 
 ObjList head = NULL;
 
