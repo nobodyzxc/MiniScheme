@@ -1,7 +1,7 @@
 CC = gcc
 LIBS = -lm
 CFLAGS = -g \
-		 -DVERSION="v1.0"
+		 -DVERSION="v1.0" \
 		 -std=gnu99
 
 ################################
