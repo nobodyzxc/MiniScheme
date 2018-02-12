@@ -1,4 +1,5 @@
-(define pb 1000)
+(define pb 100000)
+#|
 (print "OPT with CPS")
 (define f
   (lambda (acc x)
@@ -10,7 +11,8 @@
 
 (display "classic tail call : ")
 (display (f 0 pb))(newline)
-
+|#
+#|
 (define g
   (lambda (x k)
     (if (= x 0)
@@ -20,8 +22,9 @@
   )
 (display "cps tail call : ")
 (g pb display)(newline)
+|#
 
 (define h (lambda (x) (if (= x 0) 0 (+ x (h (- x 1))))))
 (display "normal call : ")(flush-output)
 ; wait tail call opt
-(display (h 10000))
+(display (h pb))(newline)

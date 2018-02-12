@@ -6,7 +6,7 @@ void end_io();
 
 void clear_ctx(Obj pt);
 
-#if I_MODE == rl
+#ifdef RL_LIB
 extern Obj rl_pt;
 char *rl_raw_input(char *prompt);
 char *rl_non_blank(char *p , char *prompt);

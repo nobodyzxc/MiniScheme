@@ -59,7 +59,8 @@ bool is_tokch(char ch){
 bool is_multi_comnt(char *p){
     for(int i = 0 ; i < strlen(mulcmt_beg) ; i++)
         if(p[i] != mulcmt_beg[i]) return false;
-    return is_tokch(*(p + strlen(mulcmt_beg)));
+    return true;
+    //return is_tokch(*(p + strlen(mulcmt_beg)));
 }
 
 /* Multi-line Comments #| |# */

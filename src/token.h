@@ -7,10 +7,10 @@
 
 #define SIZE 300
 
-#define DESIRE_STR_PROMPT "___ "
-#define DESIRE_PAR_PROMPT "... "
-#define DESIRE_CMT_PROMPT "#.. "
 #define DESIRE_QUO_PROMPT "'.. "
+#define DESIRE_PAR_PROMPT "(.. "
+#define DESIRE_STR_PROMPT "\".. "
+#define DESIRE_CMT_PROMPT "#|.. "
 
 #define mulcmt_beg "#|"
 #define mulcmt_end "|#"

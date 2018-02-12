@@ -17,7 +17,7 @@ const obj_t true_t = { .type = BOOLEAN , .mark = true , .boolean = true};
 const obj_t false_t = { .type = BOOLEAN , .mark = true , .boolean = false};
 
 obj_t sip_t = { .type = PORT , .mark = true , .port = &stdin_port};
-/* mark nil is very very important or mark it then get seg fault */
+
 kObj nil = &nil_t;
 kObj eli = &eli_t;
 kObj els = &els_t;
