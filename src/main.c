@@ -154,7 +154,8 @@ int handle_flags(int argc , char *argv[]){
 }
 
 void load_libraries(){
-    chdir(xstr(LIBPATH));
+    if(chdir(xstr(LIBPATH)))
+        error("cannot change to lib dir");
     char lib_path[300];
     char lib_name[100];
     sprintf(lib_logs , " [ ");
@@ -169,20 +170,22 @@ void load_libraries(){
                     (lib_name[0] == '/' ?
                      "%s" : xstr(LIBPATH) "%s")
                     , lib_name);
-            sprintf(lib_logs , "%s%s " , lib_logs , lib_name ,
+            sprintf(lib_logs , "%s%s%s " , lib_logs , lib_name ,
                     load_script(lib_path , false) ? "loaded" : "failed");
         }
         fclose(config);
     }
     else puts("cannot load config file : " xstr(LIBPATH) xstr(LIBCONFIG));
     sprintf(lib_logs , "%s] " , lib_logs);
-    chdir(cwd);
+    if(chdir(cwd))
+        error("cannot return work directory");
 }
 
 int main(int argc , char *argv[]){
 
     port_fp(stdin_pt) = stdin;
-    getcwd(cwd , sizeof(cwd));
+    if(!getcwd(cwd , sizeof(cwd)))
+        error("cannot get cwd");
 
     init_buildins();
     load_libraries();
