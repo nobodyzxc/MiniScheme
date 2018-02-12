@@ -24,9 +24,9 @@ void *MALLOC(size_t size){
     return mloc;
 }
 
-void *FREE(void *p){
+void FREE(void *p){
     mloc_size -= malloc_usable_size(p);
-    free(p);
+    return free(p);
 }
 
 Obj new_static_obj(type_t type){
@@ -165,7 +165,7 @@ Obj new_STRING (char *v){
 
 Obj new_SYMBOL (char* v){
     Obj inst;
-    if(inst = lookup_sym_pool(v))
+    if((inst = lookup_sym_pool(v)))
         return inst;
     inst = new_static_obj(SYMBOL);
     /* for opt */

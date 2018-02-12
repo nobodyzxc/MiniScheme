@@ -2,7 +2,8 @@ CC = gcc
 LIBS = -lm
 CFLAGS = -g \
 		 -DVERSION="v1.0" \
-		 -std=gnu99
+		 -std=gnu99 \
+		 -Wall
 
 ################################
 # SELECT INPUT MODE UNDER REPL #

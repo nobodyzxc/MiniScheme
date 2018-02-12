@@ -479,7 +479,6 @@ Obj apply_fclose(Obj args , Obj env , Obj set){
 
 #define arith(args , rtn , op , base) \
     int pr_len = length(args); \
-    int chk = 6 op 2; \
     if((6 op 2 > 5 && pr_len) || pr_len > 1){ \
         if(car(args)->type == INTEGER){ \
             rtn->integer = car(args)->integer; \
@@ -489,7 +488,7 @@ Obj apply_fclose(Obj args , Obj env , Obj set){
             rtn->decimal = car(args)->decimal; \
         } \
         else{ \
-            printf("cannot apply " xstr(op) " on non-number obj "); \
+            printf("cannot apply %s on non-number obj " , xstr(op)); \
             fflush(stdout); \
             return alert("" , car(args)); \
         } \
@@ -500,12 +499,12 @@ Obj apply_fclose(Obj args , Obj env , Obj set){
         break; \
         if(6 op 3 == 2 || 6 op 3 == 0){ \
             if(num_of(car(args)) == 0){ \
-                printf(6 op 3 ? "/" : "%%") , fflush(stdout);    \
+                printf("%s" , xstr(op)) , fflush(stdout);    \
                 return alert(" : arg cannot be zero , got " , car(args)); \
             } \
         } \
         if(!is_num(car(args))){ \
-            printf("cannot apply " xstr(op) " on non-number obj "); \
+            printf("cannot apply %s on non-number obj " , xstr(op)); \
             fflush(stdout); \
             return alert("" , car(args)); \
         } \

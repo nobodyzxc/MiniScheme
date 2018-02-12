@@ -156,8 +156,6 @@ Obj zip_elipat(Obj pat , Obj args , Obj env){
 }
 
 Obj zip_pat(Obj pat , Obj args , Obj env){
-    Obj p = args;
-    bool isls = is_list(pat);
     while(pat->type == PAIR){
         Obj mch = car(pat);
         Obj nxt = cdr(pat);
@@ -186,7 +184,7 @@ Obj zip_env(Obj syms , Obj args , Obj env){
     if(argslen == -1)
         return alert("zip_env : args must be list , "
                 "got " , args);
-    if(isls && length(syms) != argslen
+    if((isls && length(syms) != argslen)
             || (is_pair(syms) && !isls
                 && pat_num(syms) > argslen)){
         printf("unmatched args: ");
@@ -325,7 +323,7 @@ void fprint_obj(FILE *s , kObj obj){
                 fprintf(s , "%lld" , obj->integer);
                 break;
             case DECIMAL :
-                fprintf(s , "%llf" , obj->decimal);
+                fprintf(s , "%f" , obj->decimal);
                 break;
             case CHAR    :
                 fprintf(s , "#\\%c" , obj->chr);

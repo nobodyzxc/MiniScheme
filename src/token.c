@@ -252,7 +252,7 @@ char *tokenize(char *p , Token *tok){
     assert(p), assert(*p);
     assert(tok_raw_input);
     assert(tok_non_blank);
-    Token head = NULL , t;
+    Token head = NULL;
     while(*p && is_blank(*p)) p++;
     if(is_paren_l(*p))
         p = tok_list(p , &head , NULL);

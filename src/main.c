@@ -101,13 +101,13 @@ bool load_script(char *name , bool log){
     return succ;
 }
 
-int handle_flags(int argc , char *argv[]){
+void handle_flags(int argc , char *argv[]){
     Token tok;
     for(int i = 1 ; i < argc ; i++){
         if(EQS(argv[i] , "-i"))
             flag_i = true;
         else if(EQS(argv[i] , "-h")){
-            printf("usage: zekin [-h] [-v] [-l] [-e exprs] [-i] [file ...]\n\n"
+            printf("usage: %s [-h] [-v] [-l] [-e exprs] [-i] [file ...]\n\n"
                     "Yet another scheme interpreter\n\n"
                     "positional arguments:\n"
                     "   file   scheme script to run\n\n"
@@ -135,7 +135,7 @@ int handle_flags(int argc , char *argv[]){
             port_ptr(I_MODE_PORT) =
                 port_ctx(I_MODE_PORT) =
                 (char*)MALLOC(sizeof(char) * 300);
-            sprintf(port_ctx(I_MODE_PORT) , "");
+            port_ctx(I_MODE_PORT)[0] = '\0';
             for(++i ; i < argc ; i++)
                 sprintf(port_ctx(I_MODE_PORT) , "%s %s" ,
                         port_ctx(I_MODE_PORT) , argv[i]);

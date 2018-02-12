@@ -67,8 +67,7 @@ void smark(){
 }
 
 void rec(){
-    for(ObjList it = head , pre = NULL ;
-            it ; pre = it , it = it->next){
+    for(ObjList it = head; it ; it = it->next){
         fprintf(stderr , "%p " , it->v);
         falert(stderr , "obj : " , it->v);
         fputs("\n" , stderr);
@@ -78,12 +77,14 @@ void rec(){
 
 void gc(){
     if(!head) return;
+#ifdef SHOW_GC_INFO
     long long pre = get_obj_num();
+#endif
     mark(glenv);
     sweep();
     unmark();
-    long long cur = get_obj_num();
 #ifdef SHOW_GC_INFO
+    long long cur = get_obj_num();
         printf("%d obj cleared,"
                 " %d obj left , %d pr left\n" ,
                 pre - cur , cur , pr_count);
