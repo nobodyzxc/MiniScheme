@@ -16,4 +16,5 @@
         (index-iter elt (cdr ls) (+ cur 1)))))
   (index-iter elt ls 0))
 
-
+(define (snoc x lst)
+  (append lst (list x)))
