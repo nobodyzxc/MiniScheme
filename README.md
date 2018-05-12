@@ -1,4 +1,6 @@
-# Zekin (developing)
+# Zekin (developing) [![Build Status](https://travis-ci.org/nobodyzxc/Zekin.svg?branch=master)](https://travis-ci.org/nobodyzxc/Zekin)
+
+status : [![Build Status](https://travis-ci.org/nobodyzxc/Zekin.svg?branch=master)](https://travis-ci.org/nobodyzxc/Zekin)
 
 Zekin is a naive scheme interpreter wrote in C.
 
