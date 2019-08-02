@@ -171,7 +171,7 @@ void load_libraries(){
                      "%s" : xstr(LIBPATH) "%s")
                     , lib_name);
             sprintf(lib_logs , "%s%s%s " , lib_logs , lib_name ,
-                    load_script(lib_path , false) ? "loaded" : "failed");
+                    load_script(lib_path , false) ? " (loaded)" : " (failed)");
         }
         fclose(config);
     }
