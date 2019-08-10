@@ -25,7 +25,6 @@ Obj eval_macro(Obj macro , Obj args , Obj env){
 }
 
 Obj eval_clos(Obj pcr , Obj args , Obj env){
-    puts("apply clos");
     Obj iter = clos_body(pcr) , val = NULL;
     env = zipped_env(clos_args(pcr) , args , clos_env(pcr));
     while(not_nil(iter))

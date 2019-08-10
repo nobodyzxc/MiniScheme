@@ -25,6 +25,6 @@
 |#
 
 (define h (lambda (x) (if (= x 0) 0 (+ x (h (- x 1))))))
-(display "normal call : ")(flush-output)
+;(display "normal call : ")(flush-output)
 ; wait tail call opt
 (display (h pb))(newline)

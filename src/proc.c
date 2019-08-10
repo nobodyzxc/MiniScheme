@@ -145,5 +145,7 @@ void init_buildins(){
     BIND(FUNCTION , "get-curenv"   , &apply_get_curenv   , glenv);
     BIND(FUNCTION , "lookup-symbol", &apply_lookup_symbol, glenv);
 
+    add_symbol(new(SYMBOL , ya_strdup("primary")) , glenv    , glenv);
+    glenv = new(ENV , glenv);/* protect primary functions */
     add_symbol(new(SYMBOL , ya_strdup("global")) , glenv    , glenv);
 }

@@ -4,6 +4,26 @@ Zekin is a naive scheme interpreter wrote in C.
 
 To learn how to make an interpreter, I started the project.
 
+## To Fix:
+
+consider the expression below
+
+```scheme
+(define (f) (if 1 2 3))
+(define if (lambda (a b c) #f))
+(f)
+; => ?
+; racket => 2
+; zekin  => #f
+; => env in zekin is list of trees, not list
+
+(define (func x) x)
+(define (f) (func 0))
+(define (func x) 'error)
+(f)
+```
+
+
 ## Feature :
 
    1. Tail Call Optimization
