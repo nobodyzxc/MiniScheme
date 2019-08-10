@@ -44,9 +44,8 @@
     (if (car rest)
       (all (cdr lst)) #f)))
 
-(define (list . args)
-  (if (null? args) '()
-    (cons (car args) (apply list (cdr args)))))
+(define list
+  (lambda lst lst))
 
 (define (append lst . rest)
   (define (append1 a b)
