@@ -170,8 +170,9 @@ void load_libraries(){
                     (lib_name[0] == '/' ?
                      "%s" : xstr(LIBPATH) "%s")
                     , lib_name);
-            sprintf(lib_logs , "%s%s %s " , lib_logs , lib_name ,
-                    load_script(lib_path , false) ? "loaded" : "failed");
+            sprintf(lib_logs , "%s%s%s " , lib_logs , lib_name ,
+                    //load_script(lib_path , false) ? " (loaded)" : " (failed)");
+                    load_script(lib_path , false) ? " ✓" : " ✗");
         }
         fclose(config);
     }
